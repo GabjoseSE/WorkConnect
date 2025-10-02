@@ -1,23 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./App.css";
 
 function App() {
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    axios.get("/")
+      .then(res => setMessage(res.data))
+      .catch(err => setMessage("Backend not connected"));
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>WorkConnect</h1>
+      <p>{message}</p>
     </div>
   );
 }
