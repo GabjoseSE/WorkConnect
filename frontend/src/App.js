@@ -7,17 +7,13 @@ import SignUp01 from "./pages/signup/SignUp01";
 import SignUp02 from "./pages/signup/SignUp02";
 import SignUp03 from "./pages/signup/SignUp03";
 import SignUp04 from "./pages/signup/SignUp04";
+import Header from "./components/Header";
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <nav>
-          <Link to="/">Home</Link> | {" "}
-          <Link to="/jobs">Jobs</Link> | {" "}
-          <Link to="/login">Login</Link> | {" "}
-          <Link to="/signup-01">Sign Up</Link>
-        </nav>
+        <Header />
 
         <Routes>
           <Route path="/" element={<Landing />} />
