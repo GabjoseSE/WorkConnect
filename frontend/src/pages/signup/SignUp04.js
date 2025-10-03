@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSignup } from "../../contexts/SignupContext";
-import { saveProfile } from "../../api/profile";
+import { signup } from "../../api/auth";
 import "./signup.css";
 import SignupProgress from "./SignupProgress";
 import { useEffect } from "react";
@@ -18,11 +18,13 @@ function SignUp04() {
       setLoading(true);
       const payload = { ...data, jobType };
       update({ jobType });
-      await saveProfile(payload);
+      const result = await signup(payload);
+      // optionally store returned profile or userId in context
+      update({ ...result.profile, userId: result.userId });
       navigate('/jobs');
     } catch (err) {
       console.error(err);
-      alert('Failed to finish signup');
+      alert(err?.message || 'Failed to finish signup');
     } finally {
       setLoading(false);
     }
