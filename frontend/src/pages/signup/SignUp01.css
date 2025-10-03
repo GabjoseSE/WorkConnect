@@ -1,0 +1,70 @@
+/* Styles for SignUp01 page - lightweight, tweak as needed */
+.signup01-container {
+  max-width: 980px;
+  margin: 40px auto;
+  padding: 0 24px;
+  position: relative;
+  min-height: 520px;
+}
+.signup01-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.signup01-progress {
+  height: 8px;
+  background: #eaf9ef;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 60%;
+}
+.signup01-progress > .bar {
+  height: 100%;
+  width: 18%;
+  background: #0b6b4a;
+}
+.signup01-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 18px 0 24px 0;
+}
+.signup01-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 28px;
+  align-items: start;
+}
+.signup01-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+.signup01-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  display: block;
+}
+.signup01-continue {
+  margin-top: 22px;
+  background: #0be07a;
+  color: #052012;
+  padding: 12px 26px;
+  border: none;
+  border-radius: 24px;
+  font-weight: 600;
+}
+.signup01-illustration {
+  position: absolute;
+  right: 24px;
+  bottom: 8px;
+  width: 220px;
+  opacity: 0.95;
+}
+
+@media (max-width: 800px) {
+  .signup01-grid { grid-template-columns: 1fr; }
+  .signup01-progress { width: 100%; }
+  .signup01-illustration { display: none; }
+}
