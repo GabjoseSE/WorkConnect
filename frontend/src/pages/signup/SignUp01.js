@@ -1,22 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useSignup } from "../../contexts/SignupContext";
 import "./SignUp01.css";
 
 function SignUp01() {
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-  });
+  const { data, update } = useSignup();
   const navigate = useNavigate();
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e) => update({ [e.target.name]: e.target.value });
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log("SignUp01 payload:", form);
-    // navigate to step 2
+    console.log("SignUp01 payload:", data);
     navigate("/signup-02");
   };
 
@@ -24,7 +19,7 @@ function SignUp01() {
     <div className="signup01-container">
       <div className="signup01-header">
         <div>
-          <a href="#" onClick={(e) => e.preventDefault()}>&larr; </a>
+          <button aria-label="back" onClick={() => navigate(-1)} style={{ border: 'none', background: 'transparent', fontSize: 20 }}>&larr;</button>
         </div>
         <div style={{ textAlign: "right" }}>Save And Exit</div>
       </div>
@@ -35,21 +30,30 @@ function SignUp01() {
 
       <h1 className="signup01-title">Give Us Your Primary Information</h1>
 
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ marginRight: 12 }}>
+          <input type="radio" name="role" value="jobhunter" checked={data.role === 'jobhunter'} onChange={(e) => update({ role: e.target.value })} /> Job Hunter / Employee
+        </label>
+        <label>
+          <input type="radio" name="role" value="employer" checked={data.role === 'employer'} onChange={(e) => update({ role: e.target.value })} /> Employer
+        </label>
+      </div>
+
       <form onSubmit={onSubmit}>
         <div className="signup01-grid">
           <div>
             <label className="signup01-label">Name</label>
-            <input className="signup01-input" name="firstName" value={form.firstName} onChange={onChange} placeholder="Write Your Name" />
+            <input className="signup01-input" name="firstName" value={data.firstName} onChange={onChange} placeholder="Write Your Name" />
           </div>
 
           <div>
             <label className="signup01-label">Last Name</label>
-            <input className="signup01-input" name="lastName" value={form.lastName} onChange={onChange} placeholder="Write Your Last Name" />
+            <input className="signup01-input" name="lastName" value={data.lastName} onChange={onChange} placeholder="Write Your Last Name" />
           </div>
 
           <div>
             <label className="signup01-label">Email*</label>
-            <input className="signup01-input" name="email" value={form.email} onChange={onChange} placeholder="" />
+            <input className="signup01-input" name="email" value={data.email} onChange={onChange} placeholder="" />
           </div>
 
           <div>
@@ -61,7 +65,7 @@ function SignUp01() {
                   <option>+351</option>
                 </select>
               </div>
-              <input className="signup01-input" name="phone" value={form.phone} onChange={onChange} placeholder="+351" style={{ flex: 1 }} />
+              <input className="signup01-input" name="phone" value={data.phone} onChange={onChange} placeholder="+351" style={{ flex: 1 }} />
             </div>
           </div>
         </div>
