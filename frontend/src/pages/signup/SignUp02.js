@@ -1,41 +1,29 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSignup } from "../../contexts/SignupContext";
-import { saveProfile } from "../../api/profile";
+import "./signup.css";
+import SignupProgress from "./SignupProgress";
+import { useEffect } from "react";
 
 function SignUp02() {
   const navigate = useNavigate();
-  const { data, update } = useSignup();
+  const { data, update, setCurrentStep } = useSignup();
+  useEffect(() => setCurrentStep(2), [setCurrentStep]);
   const [skills, setSkills] = useState((data.skills || []).join(', '));
   const [resumeFile, setResumeFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const onContinue = async () => {
+  const [address] = useState(data.address || '');
+  const onContinue = () => {
     const skillsArr = skills.split(',').map(s => s.trim()).filter(Boolean);
-    update({ skills: skillsArr });
+    const resumeUrl = resumeFile ? `/uploads/${resumeFile.name}` : data.resumeUrl;
 
-    // simple upload: we won't implement full file upload to S3 here.
-    // For now, if a file is provided, we'll set a placeholder resumeUrl and still save the profile.
-    const payload = { ...data, skills: skillsArr };
-    if (resumeFile) {
-      payload.resumeUrl = `/uploads/${resumeFile.name}`; // placeholder
-    }
-
-    try {
-      setLoading(true);
-      await saveProfile(payload);
-      navigate('/signup-03');
-    } catch (err) {
-      console.error(err);
-      alert('Failed to save profile');
-    } finally {
-      setLoading(false);
-    }
+    update({ skills: skillsArr, address, resumeUrl });
+    navigate('/signup-03');
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Sign Up - Profile Details</h2>
+    <div className="signup01-container">
+      <SignupProgress currentStep={2} />
+      <h1 className="signup01-title">Profile details</h1>
       <p>Current role: <strong>{data.role}</strong></p>
 
       <div style={{ marginTop: 12 }}>
@@ -51,8 +39,8 @@ function SignUp02() {
       </div>
 
       <div style={{ marginTop: 18 }}>
-        <button onClick={() => navigate('/signup-01')} style={{ marginRight: 8 }}>Back</button>
-        <button onClick={onContinue} disabled={loading}>{loading ? 'Saving...' : 'Continue'}</button>
+        <button className="signup01-continue" onClick={() => navigate('/signup-01')} style={{ marginRight: 8 }}>Back</button>
+        <button className="signup01-continue" onClick={onContinue}>Continue</button>
       </div>
     </div>
   );

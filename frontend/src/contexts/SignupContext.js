@@ -5,16 +5,29 @@ const SignupContext = createContext(null);
 export function SignupProvider({ children }) {
   const [data, setData] = useState({
     role: 'jobhunter', // default: job hunter / employee
+    // Step 1: account
     firstName: '',
     lastName: '',
     email: '',
+    password: '',
+    // Step 2: contact
     phone: '',
+  phoneCountry: '+63',
+    address: '',
+    // Step 3: professional
+    resumeUrl: '',
+    summary: '',
+    skills: [],
+    // Step 4: preferences
+    jobType: '',
   });
+
+  const [currentStep, setCurrentStep] = useState(1);
 
   const update = (patch) => setData(d => ({ ...d, ...patch }));
 
   return (
-    <SignupContext.Provider value={{ data, update }}>
+    <SignupContext.Provider value={{ data, update, currentStep, setCurrentStep }}>
       {children}
     </SignupContext.Provider>
   );
