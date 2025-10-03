@@ -34,13 +34,7 @@ function SignUp01() {
 
   return (
     <div className="signup01-container">
-      <div className="signup01-header">
-        <div>
-          <button aria-label="back" onClick={() => navigate(-1)} style={{ border: 'none', background: 'transparent', fontSize: 20 }}>&larr;</button>
-        </div>
-        <div style={{ textAlign: "right" }}>Save And Exit</div>
-      </div>
-
+      
       <SignupProgress currentStep={1} />
 
       <h1 className="signup01-title">Give Us Your Primary Information</h1>
@@ -96,7 +90,7 @@ function SignUp01() {
         <button className="signup01-continue" type="submit">Continue</button>
       </form>
 
-      <img className="signup01-illustration" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%23000' opacity='0.9'><circle cx='40' cy='180' r='6'/></g></svg>" alt="decorative illustration" />
+      
     </div>
   );
 }
