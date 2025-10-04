@@ -4,15 +4,18 @@ import './index.css';
 import './styles/flag-icon-emoji.css';
 import App from './App';
 import { SignupProvider } from './contexts/SignupContext';
+import { AuthProvider } from './contexts/AuthContext';
 import reportWebVitals from './reportWebVitals';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <SignupProvider>
-      <App />
-    </SignupProvider>
+    <AuthProvider>
+      <SignupProvider>
+        <App />
+      </SignupProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
 

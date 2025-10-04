@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSignup } from "../../contexts/SignupContext";
-import { signup } from "../../api/auth";
+import { signup, login as apiLogin } from "../../api/auth";
+import { useAuth } from "../../contexts/AuthContext";
 import "./signup.css";
 import SignupProgress from "./SignupProgress";
 import { useEffect } from "react";
@@ -19,8 +20,25 @@ function SignUp04() {
       const payload = { ...data, jobType };
       update({ jobType });
       const result = await signup(payload);
-      // optionally store returned profile or userId in context
+      // store returned profile/userId in signup context
       update({ ...result.profile, userId: result.userId });
+
+      // automatically login so client has a token and profile loaded
+      try {
+        // prefer using password from signup context if present
+        const pw = data.password;
+        if (pw) {
+          const loginRes = await apiLogin({ email: data.email, password: pw });
+          // set auth state
+          if (loginRes && loginRes.token) {
+            // use auth context setter
+            await auth.login(data.email, pw);
+          }
+        }
+      } catch (e) {
+        console.warn('Auto-login failed', e);
+      }
+
       navigate('/jobs');
     } catch (err) {
       console.error(err);
