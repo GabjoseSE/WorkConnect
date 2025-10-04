@@ -67,5 +67,3 @@ function listRegisteredRoutes() {
   }
 }
 listRegisteredRoutes();
-
-
