@@ -10,6 +10,7 @@ import { useEffect } from "react";
 function SignUp04() {
   const navigate = useNavigate();
   const { data, update, setCurrentStep } = useSignup();
+  const auth = useAuth();
   useEffect(() => setCurrentStep(4), [setCurrentStep]);
   const [loading, setLoading] = useState(false);
   const [jobType, setJobType] = useState(data.jobType || 'full-time');
