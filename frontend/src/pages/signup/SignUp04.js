@@ -1,0 +1,77 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSignup } from "../../contexts/SignupContext";
+import { signup, login as apiLogin } from "../../api/auth";
+import { useAuth } from "../../contexts/AuthContext";
+import "./signup.css";
+import SignupProgress from "./SignupProgress";
+import { useEffect } from "react";
+
+function SignUp04() {
+  const navigate = useNavigate();
+  const { data, update, setCurrentStep } = useSignup();
+  const auth = useAuth();
+  useEffect(() => setCurrentStep(4), [setCurrentStep]);
+  const [loading, setLoading] = useState(false);
+  const [jobType, setJobType] = useState(data.jobType || 'full-time');
+
+  const onFinish = async () => {
+    try {
+      setLoading(true);
+      const payload = { ...data, jobType };
+      update({ jobType });
+      const result = await signup(payload);
+      // store returned profile/userId in signup context
+      update({ ...result.profile, userId: result.userId });
+
+      // automatically login so client has a token and profile loaded
+      try {
+        // prefer using password from signup context if present
+        const pw = data.password;
+        if (pw) {
+          const loginRes = await apiLogin({ email: data.email, password: pw });
+          // set auth state
+          if (loginRes && loginRes.token) {
+            // use auth context setter
+            await auth.login(data.email, pw);
+          }
+        }
+      } catch (e) {
+        console.warn('Auto-login failed', e);
+      }
+
+      navigate('/jobs');
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || 'Failed to finish signup');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="signup01-container">
+      <SignupProgress currentStep={4} />
+      <h1 className="signup01-title">Finalize your profile</h1>
+      <p>Review your information and finish signup.</p>
+      <pre style={{ background: '#fafafa', padding: 12 }}>{JSON.stringify(data, null, 2)}</pre>
+
+      <div style={{ marginTop: 12 }}>
+        <label>Preferred job type</label>
+        <br />
+        <select value={jobType} onChange={e => setJobType(e.target.value)}>
+          <option value="full-time">Full-time</option>
+          <option value="part-time">Part-time</option>
+          <option value="contract">Contract</option>
+          <option value="remote">Remote</option>
+        </select>
+      </div>
+      <div style={{ marginTop: 18 }}>
+        <button className="signup01-continue" onClick={() => navigate('/signup-03')} style={{ marginRight: 8 }}>Back</button>
+        <button className="signup01-continue" onClick={onFinish} disabled={loading}>{loading ? 'Saving...' : 'Finish'}</button>
+      </div>
+    </div>
+  );
+}
+
+export default SignUp04;
