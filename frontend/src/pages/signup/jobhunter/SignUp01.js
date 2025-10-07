@@ -27,8 +27,7 @@ function SignUp01() {
       (e.g. --signup-font-size, --signup-accent-color) and reference them in the selectors.
   */
 
-  // state for phone error display
-  const [phoneError, setPhoneError] = useState("");
+  // state for phone error display (not used in this step)
   // state for toggling password visibility
   const [showPassword, setShowPassword] = useState(false);
   // separate toggle for confirm password

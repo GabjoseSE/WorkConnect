@@ -56,9 +56,9 @@ function Login() {
           </form>
 
           <div className="links">
-            <a href="#" className="forgot-link">
+            <button type="button" className="forgot-link" onClick={() => { /* TODO: open reset flow */ }}>
               Forgot password?
-            </a>
+            </button>
             <p>
               New to WorkConnect?{" "}
               <Link to="/choose-role" className="join-link">

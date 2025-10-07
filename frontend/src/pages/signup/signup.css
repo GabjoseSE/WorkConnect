@@ -1,8 +1,9 @@
 /* Shared signup styles - use this single file to style all signup steps */
 .signup01-container {
+  /* ensure content sits below the fixed header */
   max-width: 980px;
-  margin: 40px auto;
-  padding: 0 24px;
+  margin: 0 auto;
+  padding: 70px 24px 24px; /* top padding equals header height so progress is visible */
   position: relative;
   min-height: 520px;
 }
@@ -35,7 +36,8 @@
   position: absolute;
   left: 6%;
   right: 6%;
-  top: 22px;
+  /* vertically center line with dot centers (dot height 16 + dot margin-top 8 => center at 16px) */
+  top: 13px;
   height: 6px;
   background: #eaf9ef;
   border-radius: 6px;
