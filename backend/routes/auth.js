@@ -38,4 +38,30 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+// POST /api/auth/login
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ error: 'email and password required' });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const validPassword = await bcrypt.compare(password, user.passwordHash);
+    if (!validPassword)
+      return res.status(401).json({ error: 'Invalid credentials' });
+
+    // ✅ Success — return user info or token
+    res.json({
+      message: 'Login successful',
+      userId: user._id,
+      email: user.email,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'server error' });
+  }
+});
+
 module.exports = router;
