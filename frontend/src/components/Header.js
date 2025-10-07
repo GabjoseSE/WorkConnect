@@ -1,11 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
 import logo from '../assets/logo.svg';
 
 export default function Header() {
+  const location = useLocation();
+  // compact header for login/signup flows where only logo should remain visible
+  const hideNav = /^\/login|^\/signup|^\/choose-role/.test(location.pathname);
+
   return (
-    <header className="wc-header">
+    <header className={`wc-header ${hideNav ? 'wc-header--compact' : ''}`}>
       <div className="wc-header-inner">
         <div className="wc-left">
           <Link to="/" className="wc-logo">
@@ -14,18 +18,22 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="wc-center">
-          <Link to="/">Home</Link>
-          <Link to="/jobs">Jobs</Link>
-          <Link to="/employers">Employers</Link>
-          <Link to="/about">About</Link>
-          <Link to="/contact">Contact</Link>
-        </nav>
+        {!hideNav && (
+          <nav className="wc-center">
+            <Link to="/">Home</Link>
+            <Link to="/jobs">Jobs</Link>
+            <Link to="/employers">Employers</Link>
+            <Link to="/about">About</Link>
+            <Link to="/contact">Contact</Link>
+          </nav>
+        )}
 
-        <div className="wc-right">
-          <Link to="/login"><button className="wc-btn wc-btn-outline">Login</button></Link>
-          <Link to="/choose-role"><button className="wc-btn wc-btn-primary">Sign Up</button></Link>
-        </div>
+        {!hideNav && (
+          <div className="wc-right">
+            <Link to="/login"><button className="wc-btn wc-btn-outline">Login</button></Link>
+            <Link to="/choose-role"><button className="wc-btn wc-btn-primary">Sign Up</button></Link>
+          </div>
+        )}
       </div>
     </header>
   );

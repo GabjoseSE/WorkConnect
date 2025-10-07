@@ -23,6 +23,16 @@ main, .page-content {
   justify-content: space-between;
   padding: 12px 20px;
 }
+
+.wc-header--compact .wc-header-inner {
+  justify-content: flex-start;
+  padding: 8px 16px;
+}
+.wc-header--compact .wc-center,
+.wc-header--compact .wc-right {
+  display: none;
+}
+.wc-header--compact .wc-left { flex: 0 0 auto; }
 .wc-left .wc-logo {
   font-weight: 700;
   color: #00c37a;
