@@ -32,6 +32,8 @@ function SignUp01() {
   const [showPassword, setShowPassword] = useState(false);
   // separate toggle for confirm password
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmError, setConfirmError] = useState('');
 
   // handle input changes
   const onChange = (e) => update({ [e.target.name]: e.target.value });
@@ -41,16 +43,20 @@ function SignUp01() {
     e.preventDefault();
 
     // basic email + password validation
+    // clear errors
+    setPasswordError('');
+    setConfirmError('');
+
     if (!data.email || !data.password) {
-      alert('Email and password are required');
+      if (!data.password) setPasswordError('Password is required');
       return;
     }
     if (data.password.length < 8 || !/[0-9]/.test(data.password) || !/[A-Za-z]/.test(data.password)) {
-      alert('Password must be at least 8 characters and include letters and numbers');
+      setPasswordError('Password must be at least 8 characters and include letters and numbers');
       return;
     }
     if (data.password !== data.confirmPassword) {
-      alert('Passwords do not match');
+      setConfirmError('Passwords do not match');
       return;
     }
 
@@ -105,6 +111,7 @@ function SignUp01() {
                 {showPassword ? <BsEyeSlash /> : <BsEye />}
               </button>
             </div>
+            {passwordError && <div className="signup-error">{passwordError}</div>}
           </div>
 
           <div>
@@ -130,6 +137,7 @@ function SignUp01() {
                 {showConfirmPassword ? <BsEyeSlash /> : <BsEye />}
               </button>
             </div>
+            {confirmError && <div className="signup-error">{confirmError}</div>}
           </div>
 
         </div>

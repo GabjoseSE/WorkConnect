@@ -16,12 +16,20 @@ export default function SignUpE01() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmError, setConfirmError] = useState('');
 
   const onNext = () => {
     setError('');
+    setPasswordError('');
+    setConfirmError('');
     if (!email) return setError('Enter a work email');
-    if (!password) return setError('Enter a password');
-    if (password !== confirm) return setError('Passwords do not match');
+    if (!password) { setPasswordError('Enter a password'); return; }
+    if (password.length < 8 || !/[0-9]/.test(password) || !/[A-Za-z]/.test(password)) {
+      setPasswordError('Password must be at least 8 characters and include letters and numbers');
+      return;
+    }
+    if (password !== confirm) { setConfirmError('Passwords do not match'); return; }
     update({ email, password, role: 'employer' });
     navigate('/employer-signup-02');
   };
@@ -50,6 +58,7 @@ export default function SignUpE01() {
             {showPassword ? <BsEyeSlash /> : <BsEye />}
           </button>
         </div>
+        {passwordError && <div className="signup-error">{passwordError}</div>}
       </div>
 
       <div style={{ marginTop: 12 }}>
@@ -65,6 +74,7 @@ export default function SignUpE01() {
             {showConfirmPassword ? <BsEyeSlash /> : <BsEye />}
           </button>
         </div>
+        {confirmError && <div className="signup-error">{confirmError}</div>}
       </div>
 
       {error && <div className="signup-error">{error}</div>}
