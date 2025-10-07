@@ -1,120 +1,150 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
 * {
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
-  background-color: #ffffff;
   margin: 0;
+  background-color: #f3f2ef;
+}
+
+/* Full layout */
+.login-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Left section */
+.login-left {
+  flex: 1;
+  background-color: #f3f2ef;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 10%;
+}
+
+.brand-title {
+  color: #0077b5; /* LinkedIn blue */
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.brand-subtitle {
+  color: #333;
+  font-size: 20px;
+  max-width: 400px;
+}
+
+/* Right section */
+.login-right {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  background: #fff;
 }
 
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.login-box {
+  width: 380px;
+  padding: 40px 36px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.login-card {
-  background-color: #1e1e1e;
-  padding: 40px;
-  border-radius: 16px;
-  width: 350px;
-  text-align: center;
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.6s ease-in-out;
+.login-box h2 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.login-title {
-  font-size: 26px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #00c853;
-}
-
-.login-subtitle {
-  font-size: 14px;
-  color: #b0b0b0;
+.login-desc {
+  color: #555;
   margin-bottom: 24px;
 }
 
-.role-toggle {
+/* Form styles */
+.form-group {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
+  flex-direction: column;
+  margin-bottom: 18px;
 }
 
-.role-toggle label {
-  color: #b0b0b0;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 0.3s;
+.form-group label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #444;
 }
 
-.role-toggle label.active {
-  color: #00c853;
+.form-group input {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
 }
 
-.role-toggle input {
-  display: none;
-}
-
-.input-field {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
+.form-group input:focus {
   outline: none;
-  background-color: #2a2a2a;
-  color: #fff;
+  border-color: #0077b5;
 }
 
-.input-field::placeholder {
-  color: #888;
-}
-
-.login-btn {
+/* Button */
+.signin-btn {
   width: 100%;
-  padding: 10px;
-  background-color: #00c853;
+  background-color: #0077b5;
+  color: white;
+  padding: 12px;
   border: none;
-  border-radius: 8px;
-  color: #fff;
+  border-radius: 24px;
   font-weight: 600;
-  margin-top: 12px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.2s;
 }
 
-.login-btn:hover {
-  background-color: #00b34a;
+.signin-btn:hover {
+  background-color: #006097;
 }
 
-.login-links {
-  margin-top: 16px;
-  display: flex;
-  justify-content: space-between;
+/* Links */
+.links {
+  margin-top: 18px;
+  text-align: center;
 }
 
-.login-links a {
-  color: #00c853;
+.forgot-link {
+  display: block;
+  color: #0077b5;
+  font-size: 14px;
+  margin-bottom: 12px;
   text-decoration: none;
-  font-size: 13px;
-  transition: color 0.3s;
 }
 
-.login-links a:hover {
-  color: #00b34a;
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.join-link {
+  color: #0077b5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.join-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive layout */
+@media (max-width: 800px) {
+  .login-page {
+    flex-direction: column;
+  }
+  .login-left {
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .login-right {
+    padding: 40px 20px;
+  }
 }

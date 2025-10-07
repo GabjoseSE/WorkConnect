@@ -28,6 +28,15 @@ app.get("/", (req, res) => {
 const profileRoutes = require('./routes/profile');
 app.use('/api/profile', profileRoutes);
 
+// uploads route & static serving
+const uploadRoutes = require('./routes/upload');
+app.use('/api/uploads', uploadRoutes);
+app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
+
+// verification (send/verify codes)
+const verifyRoutes = require('./routes/verify');
+app.use('/api/verify', verifyRoutes);
+
 // auth routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);

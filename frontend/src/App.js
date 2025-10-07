@@ -10,11 +10,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // Import all page components used in the app
 import Login from "./pages/login/login";
 import Jobs from "./pages/Jobs";
-import Landing from "./pages/Landing";
-import SignUp01 from "./pages/signup/SignUp01";
-import SignUp02 from "./pages/signup/SignUp02";
-import SignUp03 from "./pages/signup/SignUp03";
-import SignUp04 from "./pages/signup/SignUp04";
+import Landing from "./pages/landing/Landing";
+import SignUp01 from "./pages/signup/jobhunter/SignUp01";
+import SignUp02 from "./pages/signup/jobhunter/SignUp02";
+import SignUp03 from "./pages/signup/jobhunter/SignUp03";
+import SignUp04 from "./pages/signup/jobhunter/SignUp04";
+import ChooseRole from "./pages/signup/ChooseRole";
+import SignUpE01 from "./pages/signup/employer/SignUpE01";
+import SignUpE02 from "./pages/signup/employer/SignUpE02";
+import SignUpE03 from "./pages/signup/employer/SignUpE03";
+import SignUpE04 from "./pages/signup/employer/SignUpE04";
 
 // Import the site header (navbar)
 import Header from "./components/Header";
@@ -45,6 +50,12 @@ function App() {
           <Route path="/signup-02" element={<SignUp02 />} />
           <Route path="/signup-03" element={<SignUp03 />} />
           <Route path="/signup-04" element={<SignUp04 />} />
+          <Route path="/choose-role" element={<ChooseRole />} />
+            {/* Employer signup flow */}
+            <Route path="/employer-signup-01" element={<SignUpE01 />} />
+            <Route path="/employer-signup-02" element={<SignUpE02 />} />
+            <Route path="/employer-signup-03" element={<SignUpE03 />} />
+            <Route path="/employer-signup-04" element={<SignUpE04 />} />
         </Routes>
       </div>
     </Router>

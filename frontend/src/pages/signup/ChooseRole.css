@@ -1,0 +1,51 @@
+.choose-role-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f3f2ef;
+  text-align: center;
+}
+
+.choose-role-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.choose-role-subtitle {
+  color: #555;
+  margin-bottom: 32px;
+}
+
+.role-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.role-btn {
+  padding: 14px 28px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.jobhunter-btn {
+  background: #0073b1;
+  color: white;
+}
+
+.employer-btn {
+  background: #00c37a;
+  color: white;
+}
+
+.role-btn:hover {
+  opacity: 0.9;
+}

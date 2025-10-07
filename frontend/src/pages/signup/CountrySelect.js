@@ -17,7 +17,7 @@ const COUNTRIES = [
   { code: '+86', name: 'China', flag: '🇨🇳', iso: 'cn' },
 ];
 
-function CountrySelect({ value, onChange, className }) {
+function CountrySelect({ value, onChange, className, showCode = true }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const ref = useRef();
@@ -38,7 +38,7 @@ function CountrySelect({ value, onChange, className }) {
     <div ref={ref} className={className} style={{ position: 'relative' }}>
       <button type="button" onClick={() => setOpen(s => !s)} className="country-btn">
         {current.iso ? <span className={`flag-icon flag-icon-${current.iso}`} style={{ marginRight: 8 }} /> : <span style={{ marginRight: 8 }}>{current.flag}</span>}
-        <span style={{ marginRight: 8 }}>{current.code}</span>
+        {showCode && <span style={{ marginRight: 8 }}>{current.code}</span>}
         <span style={{ opacity: 0.6 }}>{current.name}</span>
       </button>
 
@@ -49,7 +49,7 @@ function CountrySelect({ value, onChange, className }) {
             {list.map(c => (
               <li key={c.code} className="country-item" onClick={() => { onChange(c.code); setOpen(false); }}>
                 {c.iso ? <span className={`flag-icon flag-icon-${c.iso}`} style={{ marginRight: 8 }} /> : <span style={{ marginRight: 8 }}>{c.flag}</span>}
-                <strong style={{ marginRight: 8 }}>{c.code}</strong>
+                {showCode && <strong style={{ marginRight: 8 }}>{c.code}</strong>}
                 <span style={{ color: '#333' }}>{c.name}</span>
               </li>
             ))}

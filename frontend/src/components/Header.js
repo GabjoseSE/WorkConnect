@@ -24,7 +24,7 @@ export default function Header() {
 
         <div className="wc-right">
           <Link to="/login"><button className="wc-btn wc-btn-outline">Login</button></Link>
-          <Link to="/signup-01"><button className="wc-btn wc-btn-primary">Sign Up</button></Link>
+          <Link to="/choose-role"><button className="wc-btn wc-btn-primary">Sign Up</button></Link>
         </div>
       </div>
     </header>

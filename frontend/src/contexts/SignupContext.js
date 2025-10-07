@@ -14,10 +14,19 @@ export function SignupProvider({ children }) {
     phone: '',
   phoneCountry: '+63',
     address: '',
+    city: '',
+    stateprovince: '',
+    dateOfBirth: '',
+    gender: '',
     // Step 3: professional
     resumeUrl: '',
     summary: '',
     skills: [],
+    education: '',
+    experienceYears: '',
+    desiredPosition: '',
+    workSetup: '',
+    expectedSalary: '',
     // Step 4: preferences
     jobType: '',
   });
