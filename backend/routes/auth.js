@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Profile = require('../models/Profile');
+const jwt = require('jsonwebtoken');
 
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
@@ -31,11 +32,19 @@ router.post('/signup', async (req, res) => {
       await profile.save();
     }
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // e.g. "426193"
+    user.otpCode = otp;
+    user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // valid for 10 mins
+    await user.save();
+
+    
     res.status(201).json({ userId: user._id, profile });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server error' });
   }
+
+
 });
 
 // POST /api/auth/login
@@ -52,11 +61,18 @@ router.post('/login', async (req, res) => {
     if (!validPassword)
       return res.status(401).json({ error: 'Invalid credentials' });
 
-    // ✅ Success — return user info or token
+    // ✅ Create JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET || 'devsecret',
+      { expiresIn: '7d' }
+    );
+
     res.json({
       message: 'Login successful',
       userId: user._id,
       email: user.email,
+      token, // ✅ include token here
     });
   } catch (err) {
     console.error(err);

@@ -1,15 +1,31 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { login } from "../../api/auth";
 import "./Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login payload:", { email, password });
-  };
+  const onSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const result = await login({ email, password }); // calls backend
+
+    console.log("Login successful:", result);
+
+    // Store token for later authenticated requests
+    localStorage.setItem("token", result.token);
+    localStorage.setItem("userId", result.userId);
+
+    // Redirect after login
+    window.location.href = "/page/Jobs.js"; // or /jobs, /profile, etc.
+  } catch (err) {
+    console.error("Login failed:", err);
+    alert("Invalid email or password. Please try again.");
+  }
+};
 
   return (
     <div className="login-page">
