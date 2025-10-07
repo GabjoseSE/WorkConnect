@@ -23,7 +23,8 @@ export default function SignUpE05() {
   const onFinish = () => {
     // For now store the preview url as logo
     update({ companyLogo: logoPreview, companyDescription: description, linkedin });
-    navigate('/jobs');
+    // navigate to employer dashboard after finishing company profile
+    navigate('/employer/dashboard');
   };
 
   return (
