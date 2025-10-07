@@ -1,39 +1,32 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../contexts/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const auth = useAuth();
   const navigate = useNavigate();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   const onSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
+
     try {
+      // Attempt login via AuthContext
       await auth.login(email, password);
-      const role = auth.profile?.role || 'jobhunter';
-      if (role === 'employer') navigate('/employer/dashboard');
-      else navigate('/jobhunter/dashboard');
+
+      // Determine role from profile
+      const role = auth.profile?.role || "jobhunter";
+
+      // Navigate based on role
+      if (role === "employer") navigate("/employer/dashboard");
+      else navigate("/jobhunter/dashboard");
     } catch (err) {
-      setError(err?.message || 'Login failed');
+      setError(err?.message || "Login failed");
     }
-=======
-  const onSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login payload:", { email, password });
->>>>>>> parent of 1b467a6a (incomplete* trying to connect everything so far)
-=======
-  const onSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login payload:", { email, password });
->>>>>>> parent of 1b467a6a (incomplete* trying to connect everything so far)
   };
 
   return (
@@ -50,9 +43,7 @@ function Login() {
       <div className="login-right">
         <div className="login-box">
           <h2>Sign in</h2>
-          <p className="login-desc">
-            Stay updated on your professional world
-          </p>
+          <p className="login-desc">Stay updated on your professional world</p>
 
           <form onSubmit={onSubmit}>
             <div className="form-group">
@@ -75,13 +66,21 @@ function Login() {
               />
             </div>
 
+            {error && <p className="error-text">{error}</p>}
+
             <button type="submit" className="signin-btn">
               Sign in
             </button>
           </form>
 
           <div className="links">
-            <button type="button" className="forgot-link" onClick={() => { /* TODO: open reset flow */ }}>
+            <button
+              type="button"
+              className="forgot-link"
+              onClick={() => {
+                // TODO: open reset password modal
+              }}
+            >
               Forgot password?
             </button>
             <p>
