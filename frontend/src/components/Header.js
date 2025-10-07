@@ -6,7 +6,8 @@ import logo from '../assets/logo.svg';
 export default function Header() {
   const location = useLocation();
   // compact header for login/signup flows where only logo should remain visible
-  const hideNav = /^\/login|^\/signup|^\/choose-role/.test(location.pathname);
+  // hide nav on login, any signup flows (jobhunter or employer), and choose-role
+  const hideNav = /^\/login|^\/signup|^\/choose-role|^\/employer-signup/.test(location.pathname);
 
   return (
     <header className={`wc-header ${hideNav ? 'wc-header--compact' : ''}`}>

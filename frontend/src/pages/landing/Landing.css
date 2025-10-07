@@ -66,6 +66,9 @@ body {
   color: #fff;
 }
 
+/* spacing for slideshow placed under hero */
+.slideshow-wrapper { margin-top: 6px; }
+
 .divider {
   margin: 40px auto;
   width: 100px;

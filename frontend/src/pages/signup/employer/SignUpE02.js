@@ -1,20 +1,68 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SignupProgress from '../SignupProgress';
 import { useSignup } from '../../../contexts/SignupContext';
+import '../../signup/signup.css';
+
+const industries = ['Technology','Finance','Healthcare','Education','Retail','Other'];
+const sizes = ['1-10','11-50','51-200','201-500','501-1000','1000+'];
 
 export default function SignUpE02() {
   const navigate = useNavigate();
-  const { setCurrentStep } = useSignup();
+  const { data, update, setCurrentStep } = useSignup();
   useEffect(() => setCurrentStep(2), [setCurrentStep]);
+
+  const [companyName, setCompanyName] = useState(data.companyName || '');
+  const [website, setWebsite] = useState(data.companyWebsite || '');
+  const [industry, setIndustry] = useState(data.industry || '');
+  const [size, setSize] = useState(data.companySize || '');
+  const [location, setLocation] = useState(data.companyLocation || '');
+
+  const onNext = () => {
+    update({ companyName, companyWebsite: website, industry, companySize: size, companyLocation: location });
+    navigate('/employer-signup-03');
+  };
+
   return (
-    <div style={{ padding: 20 }}>
-      <SignupProgress currentStep={2} />
-      <h2>Employer Signup — Company Details</h2>
-      <p>Placeholder for employer company details.</p>
-      <div>
-        <button onClick={() => navigate('/employer-signup-01')}>Back</button>
-        <button onClick={() => navigate('/employer-signup-03')} style={{ marginLeft: 8 }}>Next</button>
+    <div className="signup01-container">
+  <SignupProgress currentStep={2} steps={["Account","Company","Owner","Verify","Profile"]} />
+      <h1 className="signup01-title">Company details</h1>
+      <p className="small-note">Tell us about your company so candidates can learn more.</p>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Company name</label>
+        <input className="signup01-input" value={companyName} onChange={e => setCompanyName(e.target.value)} />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Company website</label>
+        <input className="signup01-input" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://" />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Industry</label>
+        <select className="signup01-input" value={industry} onChange={e => setIndustry(e.target.value)}>
+          <option value="">Select industry</option>
+          {industries.map(i => <option key={i} value={i}>{i}</option>)}
+        </select>
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Company size</label>
+        <select className="signup01-input" value={size} onChange={e => setSize(e.target.value)}>
+          <option value="">Select size</option>
+          {sizes.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Company location (city, country)</label>
+        <input className="signup01-input" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Country" />
+      </div>
+
+      <div style={{ marginTop: 22 }}>
+        <button className="signup01-continue" onClick={() => navigate('/employer-signup-01')} style={{ marginRight: 8 }}>Back</button>
+        <button className="signup01-continue" onClick={onNext}>Next: HR / Owner Info</button>
       </div>
     </div>
   );

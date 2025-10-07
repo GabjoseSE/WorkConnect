@@ -1,14 +1,39 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Login.css";
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState('');
+  const auth = useAuth();
+  const navigate = useNavigate();
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      await auth.login(email, password);
+      const role = auth.profile?.role || 'jobhunter';
+      if (role === 'employer') navigate('/employer/dashboard');
+      else navigate('/jobhunter/dashboard');
+    } catch (err) {
+      setError(err?.message || 'Login failed');
+    }
+=======
   const onSubmit = (e) => {
     e.preventDefault();
     console.log("Login payload:", { email, password });
+>>>>>>> parent of 1b467a6a (incomplete* trying to connect everything so far)
+=======
+  const onSubmit = (e) => {
+    e.preventDefault();
+    console.log("Login payload:", { email, password });
+>>>>>>> parent of 1b467a6a (incomplete* trying to connect everything so far)
   };
 
   return (
@@ -56,9 +81,9 @@ function Login() {
           </form>
 
           <div className="links">
-            <a href="#" className="forgot-link">
+            <button type="button" className="forgot-link" onClick={() => { /* TODO: open reset flow */ }}>
               Forgot password?
-            </a>
+            </button>
             <p>
               New to WorkConnect?{" "}
               <Link to="/choose-role" className="join-link">

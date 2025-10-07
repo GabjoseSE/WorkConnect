@@ -40,8 +40,11 @@ function SignUp04() {
         console.warn('Auto-login failed', e);
       }
 
-      // On success, navigate to jobs
-      navigate('/jobs');
+  // On success, navigate to role-specific dashboard
+  // determine role from signup data, result.profile, or auth context
+  const role = data.role || result?.profile?.role || auth.profile?.role;
+  if (role === 'employer') navigate('/employer/dashboard');
+  else navigate('/jobhunter/dashboard');
     } catch (err) {
       console.error(err);
       alert(err?.message || 'Failed to finish signup');

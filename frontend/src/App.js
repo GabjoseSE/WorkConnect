@@ -20,6 +20,7 @@ import SignUpE01 from "./pages/signup/employer/SignUpE01";
 import SignUpE02 from "./pages/signup/employer/SignUpE02";
 import SignUpE03 from "./pages/signup/employer/SignUpE03";
 import SignUpE04 from "./pages/signup/employer/SignUpE04";
+import SignUpE05 from "./pages/signup/employer/SignUpE05";
 
 // Import the site header (navbar)
 import Header from "./components/Header";
@@ -56,6 +57,7 @@ function App() {
             <Route path="/employer-signup-02" element={<SignUpE02 />} />
             <Route path="/employer-signup-03" element={<SignUpE03 />} />
             <Route path="/employer-signup-04" element={<SignUpE04 />} />
+            <Route path="/employer-signup-05" element={<SignUpE05 />} />
         </Routes>
       </div>
     </Router>
