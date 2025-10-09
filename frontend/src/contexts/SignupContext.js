@@ -22,6 +22,13 @@ export function SignupProvider({ children }) {
     resumeUrl: '',
     summary: '',
     skills: [],
+  // student-related
+  isStudent: false,
+  schoolName: '',
+  program: '',
+  yearLevel: '',
+  expectedGraduationDate: '',
+  studentId: '',
     education: '',
     experienceYears: '',
     desiredPosition: '',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SignupProgress from '../SignupProgress';
 import { useSignup } from '../../../contexts/SignupContext';
@@ -18,18 +18,31 @@ export default function SignUpE01() {
   const [error, setError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmError, setConfirmError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmRef = useRef(null);
 
   const onNext = () => {
     setError('');
     setPasswordError('');
     setConfirmError('');
-    if (!email) return setError('Enter a work email');
+    setEmailError('');
+  if (!email) { setEmailError('Enter a work email'); if (emailRef.current) { emailRef.current.focus(); emailRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
+    // simple email check
+    const emailRe = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
+    if (!emailRe.test(email)) {
+      setEmailError('Please enter a valid work email');
+      if (emailRef.current) { emailRef.current.focus(); emailRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      return;
+    }
     if (!password) { setPasswordError('Enter a password'); return; }
     if (password.length < 8 || !/[0-9]/.test(password) || !/[A-Za-z]/.test(password)) {
       setPasswordError('Password must be at least 8 characters and include letters and numbers');
+      if (passwordRef.current) { passwordRef.current.focus(); passwordRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
       return;
     }
-    if (password !== confirm) { setConfirmError('Passwords do not match'); return; }
+  if (password !== confirm) { setConfirmError('Passwords do not match'); if (confirmRef.current) { confirmRef.current.focus(); confirmRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     update({ email, password, role: 'employer' });
     navigate('/employer-signup-02');
   };
@@ -42,13 +55,14 @@ export default function SignUpE01() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Work email</label>
-        <input className="signup01-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@company.com" />
+        <input ref={emailRef} className={`signup01-input ${emailError ? 'invalid-input' : ''}`} value={email} onChange={e => { setEmailError(''); setEmail(e.target.value) }} placeholder="name@company.com" />
+        {emailError && <div className="signup-error">{emailError}</div>}
       </div>
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Password</label>
         <div className="input-with-icon">
-          <input className="signup01-input" type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} />
+          <input ref={passwordRef} className={`signup01-input ${passwordError ? 'invalid-input' : ''}`} type={showPassword ? 'text' : 'password'} value={password} onChange={e => { setPasswordError(''); setPassword(e.target.value) }} />
           <button
             type="button"
             className="eye-toggle-label"
@@ -64,7 +78,7 @@ export default function SignUpE01() {
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Confirm password</label>
         <div className="input-with-icon">
-          <input className="signup01-input" type={showConfirmPassword ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} />
+          <input ref={confirmRef} className={`signup01-input ${confirmError ? 'invalid-input' : ''}`} type={showConfirmPassword ? 'text' : 'password'} value={confirm} onChange={e => { setConfirmError(''); setConfirm(e.target.value) }} />
           <button
             type="button"
             className="eye-toggle-label"

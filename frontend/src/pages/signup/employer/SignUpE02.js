@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SignupProgress from '../SignupProgress';
 import { useSignup } from '../../../contexts/SignupContext';
@@ -17,8 +17,15 @@ export default function SignUpE02() {
   const [industry, setIndustry] = useState(data.industry || '');
   const [size, setSize] = useState(data.companySize || '');
   const [location, setLocation] = useState(data.companyLocation || '');
+  const [companyError, setCompanyError] = useState('');
+  const [locationError, setLocationError] = useState('');
+  const companyRef = useRef(null);
+  const locationRef = useRef(null);
 
   const onNext = () => {
+    setCompanyError(''); setLocationError('');
+    if (!companyName) { setCompanyError('Please enter your company name'); if (companyRef.current) { companyRef.current.focus(); companyRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
+    if (!location) { setLocationError('Please enter company location'); if (locationRef.current) { locationRef.current.focus(); locationRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     update({ companyName, companyWebsite: website, industry, companySize: size, companyLocation: location });
     navigate('/employer-signup-03');
   };
@@ -31,7 +38,8 @@ export default function SignUpE02() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Company name</label>
-        <input className="signup01-input" value={companyName} onChange={e => setCompanyName(e.target.value)} />
+        <input ref={companyRef} className={`signup01-input ${companyError ? 'invalid-input' : ''}`} value={companyName} onChange={e => { setCompanyError(''); setCompanyName(e.target.value) }} />
+        {companyError && <div className="signup-error">{companyError}</div>}
       </div>
 
       <div style={{ marginTop: 12 }}>
@@ -57,7 +65,8 @@ export default function SignUpE02() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Company location (city, country)</label>
-        <input className="signup01-input" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Country" />
+        <input ref={locationRef} className={`signup01-input ${locationError ? 'invalid-input' : ''}`} value={location} onChange={e => { setLocationError(''); setLocation(e.target.value) }} placeholder="City, Country" />
+        {locationError && <div className="signup-error">{locationError}</div>}
       </div>
 
       <div style={{ marginTop: 22 }}>

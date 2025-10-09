@@ -16,8 +16,10 @@ export async function saveProfile(payload) {
   return res.json();
 }
 
-export async function getOwnProfile(token) {
-  const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/profile`, {
+export async function getOwnProfile(token, userId) {
+  const base = `${process.env.REACT_APP_API_URL || ''}/api/profile`;
+  const url = userId ? `${base}?userId=${encodeURIComponent(userId)}` : base;
+  const res = await fetch(url, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` },
   });

@@ -18,6 +18,18 @@ function SignUp03() {
   const [desiredPosition, setDesiredPosition] = useState(data.desiredPosition || '');
   const [workSetup, setWorkSetup] = useState(data.workSetup || '');
   const [expectedSalary, setExpectedSalary] = useState(data.expectedSalary || '');
+  // student fields
+  const [isStudent, setIsStudent] = useState(data.isStudent || false);
+  const [schoolName, setSchoolName] = useState(data.schoolName || '');
+  const [program, setProgram] = useState(data.program || '');
+  const [yearLevel, setYearLevel] = useState(data.yearLevel || '');
+  const [expectedGraduationDate, setExpectedGraduationDate] = useState(data.expectedGraduationDate || '');
+  const [studentId, setStudentId] = useState(data.studentId || '');
+  // job preferences for students
+  const [prefJobType, setPrefJobType] = useState(data.jobType || 'internship');
+  const [prefField, setPrefField] = useState(data.prefField || '');
+  const [prefHours, setPrefHours] = useState(data.prefHours || '');
+  const [prefLocation, setPrefLocation] = useState(data.prefLocation || 'remote');
 
   const onNext = () => {
     (async () => {
@@ -30,7 +42,10 @@ function SignUp03() {
           resumeUrl = r.url;
           setUploading(false);
         }
-        update({ headline, experienceYears, skills: skillsArr, resumeUrl, education, desiredPosition, workSetup, expectedSalary });
+        update({ headline, experienceYears, skills: skillsArr, resumeUrl, education, desiredPosition, workSetup, expectedSalary,
+          isStudent, schoolName, program, yearLevel, expectedGraduationDate, studentId,
+          jobType: prefJobType, prefField, prefHours, prefLocation
+        });
         navigate('/signup-04');
       } catch (err) {
         setUploading(false);
@@ -45,6 +60,16 @@ function SignUp03() {
     <div className="signup01-container">
       <SignupProgress currentStep={3} />
       <h1 className="signup01-title">Professional details</h1>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Are you a student?</label>
+        <div>
+          <label style={{ marginRight: 12 }}>
+            <input type="checkbox" checked={isStudent} onChange={e => setIsStudent(e.target.checked)} />{' '}
+            Yes, I'm a student
+          </label>
+        </div>
+      </div>
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Professional headline</label>
@@ -97,6 +122,69 @@ function SignUp03() {
           <option value="phd">PhD</option>
         </select>
       </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Are you a student?</label>
+        <div>
+          <label style={{ marginRight: 12 }}>
+            <input type="checkbox" checked={isStudent} onChange={e => setIsStudent(e.target.checked)} />{' '}
+            Yes, I'm a student
+          </label>
+        </div>
+      </div>
+
+      {isStudent && (
+        <div style={{ marginTop: 12 }}>
+          <h3 style={{ marginBottom: 8 }}>Academic Information</h3>
+          <div>
+            <label className="signup01-label">School / University name</label>
+            <input className="signup01-input" value={schoolName} onChange={e => setSchoolName(e.target.value)} />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Program or course</label>
+            <input className="signup01-input" value={program} onChange={e => setProgram(e.target.value)} placeholder="e.g. BS Information Technology" />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Year level</label>
+            <input className="signup01-input" value={yearLevel} onChange={e => setYearLevel(e.target.value)} placeholder="e.g. 3rd Year, 1st Semester" />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Expected graduation date</label>
+            <input className="signup01-input" type="date" value={expectedGraduationDate} onChange={e => setExpectedGraduationDate(e.target.value)} />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Student ID (optional)</label>
+            <input className="signup01-input" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="Student ID" />
+          </div>
+
+          <h3 style={{ marginTop: 18 }}>Job Preferences</h3>
+          <div>
+            <label className="signup01-label">Desired job type</label>
+            <select className="signup01-input" value={prefJobType} onChange={e => setPrefJobType(e.target.value)}>
+              <option value="internship">Internship</option>
+              <option value="part-time">Part-time</option>
+              <option value="freelance">Freelance</option>
+              <option value="full-time">Full-time</option>
+            </select>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Preferred field or industry</label>
+            <input className="signup01-input" value={prefField} onChange={e => setPrefField(e.target.value)} placeholder="e.g. Software, Design" />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Expected work hours / schedule</label>
+            <input className="signup01-input" value={prefHours} onChange={e => setPrefHours(e.target.value)} placeholder="e.g. Evenings, Weekends" />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Location preference</label>
+            <select className="signup01-input" value={prefLocation} onChange={e => setPrefLocation(e.target.value)}>
+              <option value="onsite">On-site</option>
+              <option value="remote">Remote</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Desired position / title</label>

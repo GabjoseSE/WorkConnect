@@ -39,9 +39,9 @@ export function AuthProvider({ children }) {
     if (!res || !res.token) throw new Error('Login failed');
     setToken(res.token);
     setUserId(res.userId);
-    // fetch profile and store
+    // fetch profile and store (pass userId to support in-memory dev fallback)
     try {
-      const p = await apiGetOwnProfile(res.token);
+      const p = await apiGetOwnProfile(res.token, res.userId);
       setProfile(p);
     } catch (err) {
       // ignore; profile can be created later

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 let Profile;
 try {
@@ -58,20 +59,32 @@ router.post('/', auth, async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { email, userId } = req.query;
-    const authUserId = req.userId; // may be undefined if not authenticated
+    // attempt to extract userId from Authorization header if present
+    let authUserId = req.userId; // may be set if auth middleware ran earlier
+    const authHeader = req.headers && req.headers.authorization;
+    if (!authUserId && authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'devsecret');
+        authUserId = decoded.userId;
+      } catch (e) {
+        // ignore invalid token here; we'll fallback to query params
+      }
+    }
+
     if (!email && !userId && !authUserId) return res.status(400).json({ error: 'email or userId query required' });
 
     if (!isDbConnected()) {
-      const key = email || userId;
+      const key = email || userId || authUserId;
       const profile = inMemoryProfiles.get(key);
       if (!profile) return res.status(404).json({ error: 'not found' });
       return res.json(profile);
     }
 
     let profile;
-  if (authUserId) profile = await Profile.findOne({ userId: authUserId });
-  if (!profile && userId) profile = await Profile.findOne({ userId });
-  if (!profile && email) profile = await Profile.findOne({ email });
+    if (authUserId) profile = await Profile.findOne({ userId: authUserId });
+    if (!profile && userId) profile = await Profile.findOne({ userId });
+    if (!profile && email) profile = await Profile.findOne({ email });
     if (!profile) return res.status(404).json({ error: 'not found' });
     res.json(profile);
   } catch (err) {

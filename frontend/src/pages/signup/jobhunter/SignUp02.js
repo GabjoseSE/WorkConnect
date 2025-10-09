@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSignup } from "../../../contexts/SignupContext";
 import "../signup.css";
@@ -13,10 +13,27 @@ function SignUp02() {
   useEffect(() => setCurrentStep(2), [setCurrentStep]);
   // keep local UI state only for validation messages
   const [phoneError, setPhoneError] = useState('');
+  const [firstNameError, setFirstNameError] = useState('');
+  const [lastNameError, setLastNameError] = useState('');
+  // refs to focus/scroll to invalid inputs
+  const firstNameRef = useRef(null);
+  const lastNameRef = useRef(null);
+  const phoneRef = useRef(null);
 
   const onContinue = async () => {
+    // validate first and last name
+    setFirstNameError(''); setLastNameError('');
     if (!data.firstName || !data.lastName) {
-      alert('Please enter your first and last name');
+      if (!data.firstName) setFirstNameError('Please enter your first name');
+      if (!data.lastName) setLastNameError('Please enter your last name');
+      // focus the first missing field
+      if (!data.firstName && firstNameRef.current) {
+        firstNameRef.current.focus();
+        firstNameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (!data.lastName && lastNameRef.current) {
+        lastNameRef.current.focus();
+        lastNameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
     // validate phone if present
@@ -24,6 +41,10 @@ function SignUp02() {
     const result = await validatePhone(country, data.phone || '');
     if (!result.valid) {
       setPhoneError('Invalid phone number for the selected country');
+      if (phoneRef.current) {
+        phoneRef.current.focus();
+        phoneRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
     update({ phone: result.e164 });
@@ -41,11 +62,13 @@ function SignUp02() {
           <div className="two-cols">
             <div>
               <label className="signup01-label">First name</label>
-              <input className="signup01-input" name="firstName" value={data.firstName || ''} onChange={e => update({ firstName: e.target.value })} />
+              <input ref={firstNameRef} className={`signup01-input ${firstNameError ? 'invalid-input' : ''}`} name="firstName" value={data.firstName || ''} onChange={e => { setFirstNameError(''); update({ firstName: e.target.value }) }} />
+              {firstNameError && <div className="signup-error">{firstNameError}</div>}
             </div>
             <div>
               <label className="signup01-label">Last name</label>
-              <input className="signup01-input" name="lastName" value={data.lastName || ''} onChange={e => update({ lastName: e.target.value })} />
+              <input ref={lastNameRef} className={`signup01-input ${lastNameError ? 'invalid-input' : ''}`} name="lastName" value={data.lastName || ''} onChange={e => { setLastNameError(''); update({ lastName: e.target.value }) }} />
+              {lastNameError && <div className="signup-error">{lastNameError}</div>}
             </div>
           </div>
           <div style={{ marginTop: 12 }}>
@@ -110,7 +133,7 @@ function SignUp02() {
             {/* when user changes phone country, keep address country in sync */}
             <CountrySelect value={data.phoneCountry || '+63'} onChange={(code) => update({ phoneCountry: code, country: code })} />
           </div>
-          <input className={`signup01-input ${phoneError ? 'invalid-input' : ''}`} name="phone" value={data.phone || ''} onChange={e => { setPhoneError(''); update({ phone: e.target.value }) }} placeholder="712345678" style={{ flex: 1 }} />
+          <input ref={phoneRef} className={`signup01-input ${phoneError ? 'invalid-input' : ''}`} name="phone" value={data.phone || ''} onChange={e => { setPhoneError(''); update({ phone: e.target.value }) }} placeholder="712345678" style={{ flex: 1 }} />
         </div>
         {phoneError && <div className="signup-error">{phoneError}</div>}
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SignupProgress from '../SignupProgress';
 import { useSignup } from '../../../contexts/SignupContext';
@@ -11,8 +11,12 @@ export default function SignUpE04() {
 
   const [method, setMethod] = useState('email');
   const [code, setCode] = useState('');
+  const [codeError, setCodeError] = useState('');
+  const codeRef = useRef(null);
 
   const onVerify = () => {
+    setCodeError('');
+    if (!code) { setCodeError('Please enter the verification code'); if (codeRef.current) { codeRef.current.focus(); codeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     // dev: accept any code
     update({ verified: true });
     navigate('/employer-signup-05');
@@ -34,7 +38,8 @@ export default function SignUpE04() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Verification code</label>
-        <input className="signup01-input" value={code} onChange={e => setCode(e.target.value)} placeholder="Enter code" />
+        <input ref={codeRef} className={`signup01-input ${codeError ? 'invalid-input' : ''}`} value={code} onChange={e => { setCodeError(''); setCode(e.target.value) }} placeholder="Enter code" />
+        {codeError && <div className="signup-error">{codeError}</div>}
         <div className="small-note" style={{ marginTop: 8 }}>{method === 'email' ? `We sent a code to ${data.email || 'your company email'}` : 'We sent an OTP to the provided business phone number.'}</div>
       </div>
 

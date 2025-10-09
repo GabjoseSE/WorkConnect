@@ -34,6 +34,7 @@ function SignUp01() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [confirmError, setConfirmError] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   // handle input changes
   const onChange = (e) => update({ [e.target.name]: e.target.value });
@@ -46,19 +47,28 @@ function SignUp01() {
     // clear errors
     setPasswordError('');
     setConfirmError('');
+    setEmailError('');
 
-    if (!data.email || !data.password) {
-      if (!data.password) setPasswordError('Password is required');
-      return;
+    if (!data.email) {
+      setEmailError('Please enter your email');
+    } else {
+      // simple email regex
+      const emailRe = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
+      if (!emailRe.test(data.email)) setEmailError('Please enter a valid email');
     }
-    if (data.password.length < 8 || !/[0-9]/.test(data.password) || !/[A-Za-z]/.test(data.password)) {
+
+    if (!data.password) {
+      setPasswordError('Password is required');
+    } else if (data.password.length < 8 || !/[0-9]/.test(data.password) || !/[A-Za-z]/.test(data.password)) {
       setPasswordError('Password must be at least 8 characters and include letters and numbers');
-      return;
     }
     if (data.password !== data.confirmPassword) {
       setConfirmError('Passwords do not match');
       return;
     }
+
+    // prevent submit if any errors
+    if (emailError || passwordError || confirmError || !data.email || !data.password || emailError || passwordError) return;
 
     // proceed to personal info step
     navigate('/signup-02');
@@ -79,12 +89,13 @@ function SignUp01() {
           <div>
             <label className="signup01-label">Email*</label>
             <input
-              className="signup01-input"
+              className={`signup01-input ${emailError ? 'invalid-input' : ''}`}
               name="email"
               value={data.email}
-              onChange={onChange}
+              onChange={(e) => { setEmailError(''); onChange(e); }}
               placeholder="example@email.com"
             />
+            {emailError && <div className="signup-error">{emailError}</div>}
           </div>
 
           {/* password field with show/hide toggle */}
@@ -93,10 +104,10 @@ function SignUp01() {
 
             <div className="input-with-icon">
               <input
-                className="signup01-input"
+                className={`signup01-input ${passwordError ? 'invalid-input' : ''}`}
                 name="password"
                 value={data.password}
-                onChange={onChange}
+                onChange={(e) => { setPasswordError(''); onChange(e); }}
                 type={showPassword ? "text" : "password"}
                 placeholder="Create a password"
                 aria-label="Password"

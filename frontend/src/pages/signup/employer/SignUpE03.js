@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SignupProgress from '../SignupProgress';
 import { useSignup } from '../../../contexts/SignupContext';
@@ -15,8 +15,16 @@ export default function SignUpE03() {
   const [phone, setPhone] = useState(data.ownerPhone || '');
   const [phoneCountry, setPhoneCountry] = useState(data.phoneCountry || '+63');
   const [email, setEmail] = useState(data.email || '');
+  const [fullNameError, setFullNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const fullNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const phoneRef = useRef(null);
 
   const onNext = () => {
+    setFullNameError(''); setEmailError('');
+    if (!fullName) { setFullNameError('Please enter full name'); if (fullNameRef.current) { fullNameRef.current.focus(); fullNameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
+    if (!email) { setEmailError('Please enter a work email'); if (emailRef.current) { emailRef.current.focus(); emailRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     update({ ownerName: fullName, ownerPosition: position, ownerPhone: phone, email });
     navigate('/employer-signup-04');
   };
@@ -29,7 +37,8 @@ export default function SignUpE03() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Full name</label>
-        <input className="signup01-input" value={fullName} onChange={e => setFullName(e.target.value)} />
+        <input ref={fullNameRef} className={`signup01-input ${fullNameError ? 'invalid-input' : ''}`} value={fullName} onChange={e => { setFullNameError(''); setFullName(e.target.value) }} />
+        {fullNameError && <div className="signup-error">{fullNameError}</div>}
       </div>
 
       <div style={{ marginTop: 12 }}>
@@ -49,7 +58,8 @@ export default function SignUpE03() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Work email</label>
-        <input className="signup01-input" value={email} onChange={e => setEmail(e.target.value)} />
+        <input ref={emailRef} className={`signup01-input ${emailError ? 'invalid-input' : ''}`} value={email} onChange={e => { setEmailError(''); setEmail(e.target.value) }} />
+        {emailError && <div className="signup-error">{emailError}</div>}
       </div>
 
       <div style={{ marginTop: 22 }}>

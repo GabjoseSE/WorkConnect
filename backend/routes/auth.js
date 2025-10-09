@@ -52,12 +52,12 @@ router.post('/login', async (req, res) => {
     if (!validPassword)
       return res.status(401).json({ error: 'Invalid credentials' });
 
-    // ✅ Success — return user info or token
-    res.json({
-      message: 'Login successful',
-      userId: user._id,
-      email: user.email,
-    });
+    // create JWT token
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET || 'devsecret', { expiresIn: '7d' });
+
+    // ✅ Success — return token and userId
+    res.json({ token, userId: user._id });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server error' });

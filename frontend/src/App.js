@@ -21,6 +21,8 @@ import SignUpE02 from "./pages/signup/employer/SignUpE02";
 import SignUpE03 from "./pages/signup/employer/SignUpE03";
 import SignUpE04 from "./pages/signup/employer/SignUpE04";
 import SignUpE05 from "./pages/signup/employer/SignUpE05";
+import JobhunterDashboard from './pages/dashboard/JobhunterDashboard';
+import EmployerDashboard from './pages/dashboard/EmployerDashboard';
 
 // Import the site header (navbar)
 import Header from "./components/Header";
@@ -42,6 +44,10 @@ function App() {
 
           {/* When user visits '/jobs', show Jobs page */}
           <Route path="/jobs" element={<Jobs />} />
+
+          {/* Dashboard routes for roles */}
+          <Route path="/jobhunter/dashboard" element={<JobhunterDashboard />} />
+          <Route path="/employer/dashboard" element={<EmployerDashboard />} />
 
           {/* When user visits '/login', show Login page */}
           <Route path="/login" element={<Login />} />
