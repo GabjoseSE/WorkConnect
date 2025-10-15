@@ -50,6 +50,22 @@ export function AuthProvider({ children }) {
     return res;
   };
 
+  // if token exists (e.g. page reload) and we don't have profile, try to fetch it
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchProfile() {
+      if (!token || profile) return;
+      try {
+        const p = await apiGetOwnProfile(token, userId);
+        if (!cancelled) setProfile(p);
+      } catch (err) {
+        console.warn('Failed to fetch profile on load', err);
+      }
+    }
+    fetchProfile();
+    return () => { cancelled = true; };
+  }, [token, userId, profile]);
+
   const logout = () => {
     setToken(null);
     setUserId(null);
