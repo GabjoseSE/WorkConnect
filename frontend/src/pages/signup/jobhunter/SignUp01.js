@@ -5,6 +5,7 @@ import "../../signup/signup.css"; // go up one level then into signup folder
 import SignupProgress from "../../signup/SignupProgress";
 // ...existing code...
 import { BsEye, BsEyeSlash } from "react-icons/bs";
+import { sendCode, verifyCode } from '../../../api/verify';
 
 
 function SignUp01() {
@@ -70,17 +71,51 @@ function SignUp01() {
     // prevent submit if any errors
     if (emailError || passwordError || confirmError || !data.email || !data.password || emailError || passwordError) return;
 
-    // proceed to personal info step
-    navigate('/signup-02');
+    // send verification code to email and show OTP input
+    try {
+      const resp = await sendCode(data.email, 'email');
+      // server in debug mode may return the code; we don't display it except in dev/debug
+      setShowOtp(true);
+      setOtpMessage(resp?.message || 'A verification code was sent to your email');
+      // keep user on this page until they verify
+    } catch (err) {
+      setEmailError('Failed to send verification code. Please try again later.');
+      return;
+    }
   };
 
   // mark current step for progress bar
   useEffect(() => setCurrentStep(1), [setCurrentStep]);
 
+  // OTP UI state
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpMessage, setOtpMessage] = useState('');
+
+  const onVerifyOtp = async () => {
+    setOtpError('');
+    if (!otp) return setOtpError('Enter the verification code');
+    try {
+      const res = await verifyCode(data.email, otp);
+      if (res.valid) {
+        // mark verified in signup context and proceed
+        update({ emailVerified: true });
+        navigate('/signup-02');
+      } else {
+        setOtpError('Invalid or expired code');
+      }
+    } catch (err) {
+      setOtpError('Verification failed. Try again');
+    }
+  };
+
   return (
     <div className="signup01-container">
-      {/* top progress indicator */}
-      <SignupProgress currentStep={1} />
+      <div className="signup01-header">
+        <button className="signup-back-icon" aria-hidden style={{ visibility: 'hidden' }} />
+        <SignupProgress currentStep={1} />
+      </div>
 
       <h1 className="signup01-title">Give Us Your Primary Information</h1>
 
@@ -154,19 +189,35 @@ function SignUp01() {
         </div>
 
         <div style={{ marginTop: 18 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-            <p className="small-note" style={{ textAlign: 'center', maxWidth: 500 }}>By clicking <strong>Agree &amp; Join</strong> or Continue, you agree to the LinkedIn User Agreement, Privacy Policy, and Cookie Policy.</p>
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-              <button className="signup01-continue" type="submit" style={{ margin: '0 auto' }}>
-                Agree &amp; Join
-              </button>
-            </div>
-          </div>
+          {!showOtp && (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                <p className="small-note" style={{ textAlign: 'center', maxWidth: 500 }}>By clicking <strong>Agree &amp; Join</strong> or Continue, you agree to the Work Connect Terms and Privacy Policy.</p>
+                  <div className="form-actions" style={{ width: '100%', justifyContent: 'center' }}>
+                    <button className="signup01-continue" type="submit">
+                      Agree &amp; Join
+                    </button>
+                  </div>
+              </div>
 
-          <div style={{ marginTop: 12, textAlign: 'center' }}>
-            <span className="small-note">Already on Work Connect? </span>
-            <button type="button" className="secondary-btn" onClick={() => navigate('/login')} style={{ marginLeft: 8 }}>Sign in</button>
-          </div>
+              <div style={{ marginTop: 12, textAlign: 'center' }}>
+                <span className="small-note">Already on Work Connect? </span>
+                <button type="button" className="secondary-btn" onClick={() => navigate('/login')} style={{ marginLeft: 8 }}>Sign in</button>
+              </div>
+            </>
+          )}
+
+          {showOtp && (
+            <div style={{ marginTop: 12 }}>
+              <label className="signup01-label">Verification code</label>
+              <input className={`signup01-input ${otpError ? 'invalid-input' : ''}`} placeholder="Enter code" value={otp} onChange={e => { setOtpError(''); setOtp(e.target.value) }} />
+              {otpError && <div className="signup-error">{otpError}</div>}
+              {otpMessage && <div className="small-note">{otpMessage}</div>}
+                <div className="form-actions">
+                  <button className="signup01-continue" onClick={onVerifyOtp}>Verify &amp; Continue</button>
+                </div>
+            </div>
+          )}
         </div>
       </form>
     </div>

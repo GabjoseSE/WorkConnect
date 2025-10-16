@@ -24,7 +24,14 @@ export default function SignUpE04() {
 
   return (
     <div className="signup01-container">
-  <SignupProgress currentStep={4} steps={["Account","Company","Owner","Verify","Profile"]} />
+      <div className="signup01-header">
+        <button className="signup-back-icon" onClick={() => navigate('/employer-signup-03')} aria-label="Go back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <SignupProgress currentStep={4} steps={["Account","Company","Owner","Verify","Profile"]} />
+      </div>
       <h1 className="signup01-title">Verify your company</h1>
       <p className="small-note">Choose a verification method to confirm your company identity.</p>
 
@@ -36,16 +43,8 @@ export default function SignUpE04() {
         </select>
       </div>
 
-      <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Verification code</label>
-        <input ref={codeRef} className={`signup01-input ${codeError ? 'invalid-input' : ''}`} value={code} onChange={e => { setCodeError(''); setCode(e.target.value) }} placeholder="Enter code" />
-        {codeError && <div className="signup-error">{codeError}</div>}
-        <div className="small-note" style={{ marginTop: 8 }}>{method === 'email' ? `We sent a code to ${data.email || 'your company email'}` : 'We sent an OTP to the provided business phone number.'}</div>
-      </div>
-
       <div style={{ marginTop: 22 }}>
-        <button className="signup01-continue" onClick={() => navigate('/employer-signup-03')} style={{ marginRight: 8 }}>Back</button>
-        <button className="signup01-continue" onClick={onVerify}>Verify & Continue</button>
+        <button className="signup01-continue" onClick={() => navigate('/employer-signup-05')}>Continue</button>
       </div>
     </div>
   );

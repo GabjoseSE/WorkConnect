@@ -31,7 +31,14 @@ export default function SignUpE03() {
 
   return (
     <div className="signup01-container">
-  <SignupProgress currentStep={3} steps={["Account","Company","Owner","Verify","Profile"]} />
+      <div className="signup01-header">
+        <button className="signup-back-icon" onClick={() => navigate('/employer-signup-02')} aria-label="Go back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <SignupProgress currentStep={3} steps={["Account","Company","Owner","Verify","Profile"]} />
+      </div>
       <h1 className="signup01-title">Owner / HR representative</h1>
       <p className="small-note">This person will manage hiring and job posts.</p>
 
@@ -63,7 +70,6 @@ export default function SignUpE03() {
       </div>
 
       <div style={{ marginTop: 22 }}>
-        <button className="signup01-continue" onClick={() => navigate('/employer-signup-02')} style={{ marginRight: 8 }}>Back</button>
         <button className="signup01-continue" onClick={onNext}>Next: Verification</button>
       </div>
     </div>

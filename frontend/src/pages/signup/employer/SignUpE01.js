@@ -4,6 +4,7 @@ import SignupProgress from '../SignupProgress';
 import { useSignup } from '../../../contexts/SignupContext';
 import '../../signup/signup.css';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
+import { sendCode, verifyCode } from '../../../api/verify';
 
 export default function SignUpE01() {
   const navigate = useNavigate();
@@ -44,12 +45,46 @@ export default function SignUpE01() {
     }
   if (password !== confirm) { setConfirmError('Passwords do not match'); if (confirmRef.current) { confirmRef.current.focus(); confirmRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     update({ email, password, role: 'employer' });
-    navigate('/employer-signup-02');
+    // send OTP and require verification before proceeding
+    (async () => {
+      try {
+        const resp = await sendCode(email, 'email');
+        setShowOtp(true);
+        setOtpMessage(resp?.message || 'A verification code was sent to your email');
+      } catch (err) {
+        setEmailError('Failed to send verification code');
+      }
+    })();
+  };
+
+  // OTP state
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpMessage, setOtpMessage] = useState('');
+
+  const onVerifyOtp = async () => {
+    setOtpError('');
+    if (!otp) return setOtpError('Enter the verification code');
+    try {
+      const res = await verifyCode(email, otp);
+      if (res.valid) {
+        update({ emailVerified: true });
+        navigate('/employer-signup-02');
+      } else {
+        setOtpError('Invalid or expired code');
+      }
+    } catch (err) {
+      setOtpError('Verification failed. Try again');
+    }
   };
 
   return (
     <div className="signup01-container">
-  <SignupProgress currentStep={1} steps={["Account","Company","Owner","Verify","Profile"]} />
+      <div className="signup01-header">
+        <button className="signup-back-icon" aria-hidden style={{ visibility: 'hidden' }} />
+        <SignupProgress currentStep={1} steps={["Account","Company","Owner","Verify","Profile"]} />
+      </div>
       <h1 className="signup01-title">Hire talent faster. Create your company account today.</h1>
       <p className="small-note">Use your company email (e.g., name@company.com)</p>
 

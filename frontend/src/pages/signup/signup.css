@@ -32,6 +32,8 @@
   height: 56px;
   margin: 8px 0 18px 0;
 }
+/* ensure progress uses full available width in header layout */
+.signup-progress-steps { width: 100%; min-width: 260px; }
 .signup-progress-steps .progress-line {
   position: absolute;
   left: 6%;
@@ -76,7 +78,24 @@
   font-size: 32px;
   font-weight: 700;
   margin: 18px 0 24px 0;
+  text-align: center;
 }
+/* back icon positioned top-left of the signup card */
+.signup01-header { display:flex; align-items:center; gap:12px; }
+.signup-back-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #233038;
+}
+.signup-back-icon:hover { background: rgba(11,107,74,0.04); }
+.signup-back-icon:focus { outline: 2px solid rgba(11,107,74,0.12); border-radius: 8px; }
 .signup01-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -89,23 +108,66 @@
 .two-cols > div { flex:1; }
 .signup01-input {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #eee;
-  border-radius: 6px;
+  padding: 10px 10px;
+  border: 2px solid #c9d6df; /* stronger, solid border */
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(12,32,55,0.04);
+  transition: box-shadow 160ms ease, transform 120ms ease, border-color 160ms ease;
+  font-weight: 700; /* make the field text bold */
+  margin-top: 0px; /* small lift so label+input feel grouped */
+}
+
+/* Focus and hover states to make inputs feel interactive */
+.signup01-input:hover {
+  box-shadow: 0 8px 24px rgba(12,32,55,0.06);
+}
+.signup01-input:focus {
+  outline: none;
+  border-color: rgba(11,107,74,0.95);
+  box-shadow: 0 8px 30px rgba(11,107,74,0.08);
+  transform: translateY(-1px);
+}
+
+/* placeholder color and accessibility */
+.signup01-input::placeholder { color: #9aa3ad; font-weight: 400; }
+/* vendor prefixes for broader support */
+.signup01-input::-webkit-input-placeholder { color: #9aa3ad; font-weight: 400; }
+.signup01-input:-ms-input-placeholder { color: #9aa3ad; font-weight: 400; }
+.signup01-input::-ms-input-placeholder { color: #9aa3ad; font-weight: 400; }
+
+/* OTP placeholder weight */
+.otp-input::placeholder { color: #9aa3ad; font-weight: 400; }
+.otp-input::-webkit-input-placeholder { color: #9aa3ad; font-weight: 400; }
+.otp-input:-ms-input-placeholder { color: #9aa3ad; font-weight: 400; }
+.otp-input::-ms-input-placeholder { color: #9aa3ad; font-weight: 400; }
+
+/* OTP / code input (larger, spaced digits if displayed) */
+.otp-input {
+  letter-spacing: 6px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 18px;
+  padding: 14px 18px;
+  border: 2px solid #c9d6df;
 }
 .signup01-label {
   font-size: 13px;
-  margin-bottom: 6px;
+  margin-bottom: 1px; /* tighten spacing to sit closer to the input */
   display: block;
+  font-weight: 700;
+  color: #233038;
 }
 .signup01-continue {
   margin-top: 22px;
   background: #0be07a;
   color: #052012;
-  padding: 12px 200px;
+  padding: 10px 18px;
+  min-width: 140px;
   border: none;
-  border-radius: 24px;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 15px;
 }
 .signup01-illustration {
   position: absolute;
@@ -186,8 +248,28 @@
 .signup-card-left,
 .signup-card-right { padding: 0; }
 .small-note { color: #6b7280; margin-top: 6px; }
+.role-pill {
+  background: linear-gradient(180deg, #f0fbf6 0%, #e6fff0 100%);
+  color: #064c38;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(11,107,74,0.12);
+  font-weight: 700;
+  font-size: 13px;
+}
 .phone-row { display:flex; gap:12px; align-items:center; }
 .phone-country { min-width: 140px; }
+.phone-prefix {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 12px;
+  border: 2px solid #c9d6df;
+  border-radius: 10px;
+  background: #f8fbfc;
+  color: #233038;
+  font-weight: 700;
+}
+.phone-number-input { flex: 1; }
 .form-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:18px; }
 .primary-btn { background:#0b6b4a; color: #fff; padding:10px 18px; border-radius:8px; border:none; font-weight:600 }
 .secondary-btn { background:transparent; color:#374151; padding:10px 18px; border-radius:8px; border:1px solid #e6e9ee }

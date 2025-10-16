@@ -31,80 +31,9 @@ export default function Header() {
     return () => document.removeEventListener('click', onDoc);
   }, []);
 
-  if (token) {
-
-    return (
-      <header className={"wc-header"}>
-        <div className="wc-header-inner">
-          <div className="wc-left">
-            <Link to={loggedInHome} className="wc-logo">
-              <img src={logo} alt="WorkConnect" className="wc-logo-img" />
-              <span className="wc-logo-fallback"></span>
-            </Link>
-          </div>
-          <nav className="wc-center">
-            <Link to="/jobhunter/dashboard">Home</Link>
-            <Link to="/jobs">Jobs</Link>
-            <Link to="/profile">Profile</Link>
-          </nav>
-
-          <div className="wc-right" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }} ref={menuRef}>
-            {/* notification bell */}
-            <button
-              aria-label="notifications"
-              onClick={(e) => { e.stopPropagation(); /* placeholder: open notifications panel */ }}
-              className="wc-notif"
-            >
-              {/* simple bell svg */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                <path d="M15 17H9a3 3 0 0 1-3-3V11a6 6 0 0 1 12 0v3a3 3 0 0 1-3 3z" stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#333" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {profile && profile.unreadNotifications > 0 && (
-                <span className="wc-notif-badge">{profile.unreadNotifications > 99 ? '99+' : profile.unreadNotifications}</span>
-              )}
-            </button>
-
-            <button
-              aria-label="profile"
-              onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
-              style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' }}
-            >
-              {/* profile avatar (fallback to profile.photo or site logo) */}
-              <img
-                src={(profile && (profile.avatar || profile.photo)) || logo}
-                alt={displayName ? `${displayName} avatar` : 'Profile'}
-                className="wc-avatar"
-                style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', display: 'block', border: '1px solid rgba(0,0,0,0.06)' }}
-              />
-            </button>
-
-            {open && (
-              <div className="wc-dropdown" role="menu" aria-label="Account menu">
-                <div className="wc-dropdown-top">
-                  <img src={(profile && (profile.avatar || profile.photo)) || logo} alt="avatar" className="wc-avatar-lg" />
-                  <div className="wc-dropdown-top-meta">
-                    <div className="wc-dropdown-name">{displayName || 'Profile'}</div>
-                    {profile && profile.role && <div className="wc-role-pill">{profile.role === 'employer' ? 'Owner' : profile.role}</div>}
-                  </div>
-                </div>
-
-                <div className="wc-dropdown-sep" />
-
-                <button className="wc-dropdown-row" onClick={() => { navigate('/profile'); setOpen(false); }}>
-                  <span>My Account</span>
-                </button>
-
-                <button className="wc-dropdown-row" onClick={() => { logout(); navigate('/'); }}>
-                  <span>Log out</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-    );
-  }
+  // When the user is authenticated, hide the global header only on dashboard routes
+  const isEmployerDashboard = /^\/employer/.test(location.pathname);
+  if (token && (isJobhunterDashboard || isEmployerDashboard)) return null;
 
   return (
     <header className={`wc-header ${hideNav ? 'wc-header--compact' : ''}`}>
@@ -122,8 +51,8 @@ export default function Header() {
               // compact dashboard nav
               <>
                 <Link to="/jobhunter/dashboard">Home</Link>
-                <Link to="/jobs">Jobs</Link>
-                <Link to="/profile">Profile</Link>
+                <Link to="/jobhunter/jobs">Jobs</Link>
+                <Link to="/jobhunter/profile">Profile</Link>
               </>
             ) : (
               // default site nav

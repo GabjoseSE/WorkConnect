@@ -58,9 +58,17 @@ function SignUp03() {
 
   return (
     <div className="signup01-container">
-      <SignupProgress currentStep={3} />
+      <div className="signup01-header">
+        <button className="signup-back-icon" onClick={() => navigate('/signup-02')} aria-label="Go back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <SignupProgress currentStep={3} />
+      </div>
       <h1 className="signup01-title">Professional details</h1>
 
+      {/* top: ask if user is a student */}
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Are you a student?</label>
         <div>
@@ -73,28 +81,39 @@ function SignUp03() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Professional headline</label>
-        <br />
-        <input className="signup01-input" value={headline} onChange={e => setHeadline(e.target.value)} placeholder="e.g. Frontend Developer" />
+        <input
+          className="signup01-input"
+          value={headline}
+          onChange={e => setHeadline(e.target.value)}
+          placeholder={isStudent ? "e.g. Student Intern, IT Student, Computer Science Student, Aspiring Frontend Developer" : "e.g. Frontend Developer"}
+        />
       </div>
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Years of experience</label>
-        <br />
         <select className="signup01-input" value={experienceYears} onChange={e => setExperienceYears(e.target.value)}>
           <option value="">Select</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5+">5+</option>
+          {isStudent ? (
+            <>
+              <option value="0-1">0–1 year</option>
+              <option value="internship">Internship / Academic Projects</option>
+            </>
+          ) : (
+            <>
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5+">5+</option>
+            </>
+          )}
         </select>
       </div>
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Key skills (comma separated)</label>
-        <br />
-        <input className="signup01-input" value={skills} onChange={e => setSkills(e.target.value)} placeholder="e.g. React, Node.js, CSS" />
+        <input className="signup01-input" value={skills} onChange={e => setSkills(e.target.value)} placeholder={isStudent ? "e.g. HTML, CSS, JavaScript, Python, Database Management" : "e.g. React, Node.js, CSS"} />
         <div className="skill-chips">
           {(skills.split(',').map(s => s.trim()).filter(Boolean)).map((s, i) => (
             <div className="skill-chip" key={i}>{s}</div>
@@ -104,8 +123,8 @@ function SignUp03() {
 
   <div style={{ marginTop: 12 }}>
     <label className="signup01-label">Upload Resume (PDF or DOCX)</label>
-    <br />
-  <input type="file" accept=".pdf,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={e => setResumeFile(e.target.files[0])} />
+    <input type="file" accept=".pdf,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={e => setResumeFile(e.target.files[0])} />
+    <div className="resume-note">{isStudent ? 'Optional — you may upload a Student CV / Academic Resume' : ''}</div>
   {resumeFile && <div className="resume-note">Selected: {resumeFile.name}</div>}
   {!resumeFile && data.resumeUrl && <div className="resume-note">Existing resume: <a href={data.resumeUrl} target="_blank" rel="noreferrer">View</a></div>}
   {uploading && <div className="uploading">Uploading resume…</div>}
@@ -113,25 +132,26 @@ function SignUp03() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Education Level</label>
-        <br />
         <select className="signup01-input" value={education} onChange={e => setEducation(e.target.value)}>
           <option value="">Select</option>
-          <option value="highschool">High School</option>
-          <option value="bachelors">Bachelor's</option>
-          <option value="masters">Master's</option>
-          <option value="phd">PhD</option>
+          {isStudent ? (
+            <>
+              <option value="college">College Student</option>
+              <option value="senior-high">Senior High Student</option>
+              <option value="graduate">Graduate</option>
+            </>
+          ) : (
+            <>
+              <option value="highschool">High School</option>
+              <option value="bachelors">Bachelor's</option>
+              <option value="masters">Master's</option>
+              <option value="phd">PhD</option>
+            </>
+          )}
         </select>
       </div>
 
-      <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Are you a student?</label>
-        <div>
-          <label style={{ marginRight: 12 }}>
-            <input type="checkbox" checked={isStudent} onChange={e => setIsStudent(e.target.checked)} />{' '}
-            Yes, I'm a student
-          </label>
-        </div>
-      </div>
+      {/* student checkbox lives in the conditional student section */}
 
       {isStudent && (
         <div style={{ marginTop: 12 }}>
@@ -188,29 +208,35 @@ function SignUp03() {
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Desired position / title</label>
-        <br />
-        <input className="signup01-input" value={desiredPosition} onChange={e => setDesiredPosition(e.target.value)} placeholder="e.g. Senior Frontend Engineer" />
+        <input className="signup01-input" value={desiredPosition} onChange={e => setDesiredPosition(e.target.value)} placeholder={isStudent ? "e.g. Intern, On-the-Job Trainee, Entry-Level Developer" : "e.g. Senior Frontend Engineer"} />
       </div>
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">Work setup</label>
-        <br />
         <select className="signup01-input" value={workSetup} onChange={e => setWorkSetup(e.target.value)}>
           <option value="">Select</option>
-          <option value="onsite">On-site</option>
-          <option value="remote">Remote</option>
-          <option value="hybrid">Hybrid</option>
+          {isStudent ? (
+            <>
+              <option value="intern-onsite">Internship (Onsite)</option>
+              <option value="intern-hybrid">Internship (Hybrid)</option>
+              <option value="intern-remote">Internship (Remote)</option>
+            </>
+          ) : (
+            <>
+              <option value="onsite">On-site</option>
+              <option value="remote">Remote</option>
+              <option value="hybrid">Hybrid</option>
+            </>
+          )}
         </select>
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Expected salary (optional)</label>
-        <br />
-        <input className="signup01-input" value={expectedSalary} onChange={e => setExpectedSalary(e.target.value)} placeholder="e.g. 40000" />
+        <label className="signup01-label">{isStudent ? 'Allowance (optional)' : 'Expected salary (optional)'}</label>
+        <input className="signup01-input" value={expectedSalary} onChange={e => setExpectedSalary(e.target.value)} placeholder={isStudent ? 'e.g. 2000 (monthly allowance)' : 'e.g. 40000'} />
       </div>
 
-      <div style={{ marginTop: 18 }}>
-        <button className="signup01-continue" onClick={() => navigate('/signup-02')} style={{ marginRight: 8 }}>Back</button>
+      <div className="form-actions">
         <button className="signup01-continue" onClick={onNext} disabled={uploading}>{uploading ? 'Uploading…' : 'Next'}</button>
       </div>
     </div>

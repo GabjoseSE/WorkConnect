@@ -21,11 +21,19 @@ import SignUpE02 from "./pages/signup/employer/SignUpE02";
 import SignUpE03 from "./pages/signup/employer/SignUpE03";
 import SignUpE04 from "./pages/signup/employer/SignUpE04";
 import SignUpE05 from "./pages/signup/employer/SignUpE05";
-import JobhunterDashboard from './pages/dashboard/JobhunterDashboard';
-import EmployerDashboard from './pages/dashboard/EmployerDashboard';
+import JobhunterDashboard from './pages/jobhunter_dashboard/JobhunterDashboard';
+import EmployerDashboard from './pages/employer_dashboard/EmployerDashboard';
+import DashboardLayout from './pages/jobhunter_dashboard/DashboardLayout';
+import Profile from './pages/jobhunter_dashboard/Profile';
+import SavedJobs from './pages/jobhunter_dashboard/SavedJobs';
+import Applications from './pages/jobhunter_dashboard/Applications';
+import Notifications from './pages/jobhunter_dashboard/Notifications';
+import Messages from './pages/jobhunter_dashboard/Messages';
+import Settings from './pages/jobhunter_dashboard/Settings';
 
 // Import the site header (navbar)
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 // The main App component that defines routing and layout
 function App() {
@@ -46,8 +54,18 @@ function App() {
           <Route path="/jobs" element={<Jobs />} />
 
           {/* Dashboard routes for roles */}
-          <Route path="/jobhunter/dashboard" element={<JobhunterDashboard />} />
           <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+          {/* Jobhunter dashboard (uses a layout with persistent sidebar) */}
+          <Route path="/jobhunter" element={<DashboardLayout />}>
+            <Route path="dashboard" element={<JobhunterDashboard />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="jobs" element={<Jobs />} />
+            <Route path="saved-jobs" element={<SavedJobs />} />
+            <Route path="applications" element={<Applications />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
 
           {/* When user visits '/login', show Login page */}
           <Route path="/login" element={<Login />} />
@@ -65,6 +83,9 @@ function App() {
             <Route path="/employer-signup-04" element={<SignUpE04 />} />
             <Route path="/employer-signup-05" element={<SignUpE05 />} />
         </Routes>
+
+        {/* Site footer rendered on every page */}
+        <Footer />
       </div>
     </Router>
   );

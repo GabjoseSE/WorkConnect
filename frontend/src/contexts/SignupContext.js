@@ -10,6 +10,7 @@ export function SignupProvider({ children }) {
     lastName: '',
     email: '',
     password: '',
+    emailVerified: false,
     // Step 2: contact
     phone: '',
   phoneCountry: '+63',

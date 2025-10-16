@@ -64,8 +64,15 @@ function SignUp04() {
 
   return (
     <div className="signup01-container">
-      <SignupProgress currentStep={4} />
-      <h1 className="signup01-title">Finalize your profile</h1>
+      <div className="signup01-header">
+        <button className="signup-back-icon" onClick={() => navigate('/signup-03')} aria-label="Go back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <SignupProgress currentStep={4} />
+      </div>
+      <h1 className="signup01-title">Finish and Submit</h1>
       <p className="small-note">Review your information below, enter the verification code we sent, then finish signup.</p>
 
       {/* summary view (readable) */}
@@ -79,31 +86,10 @@ function SignUp04() {
         <div><strong>Resume:</strong> {data.resumeUrl ? <a href={data.resumeUrl} target="_blank" rel="noreferrer">View</a> : 'Not provided'}</div>
       </div>
 
-      <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Preferred job type</label>
-        <br />
-        <select className="signup01-input" value={jobType} onChange={e => setJobType(e.target.value)}>
-          <option value="full-time">Full-time</option>
-          <option value="part-time">Part-time</option>
-          <option value="contract">Contract</option>
-          <option value="remote">Remote</option>
-        </select>
+      <div className="form-actions">
+        <button className="signup01-continue" onClick={onFinish} disabled={loading}>{loading ? 'Saving...' : 'Finish and Continue'}</button>
       </div>
-
-      {/* verification code input + resend */}
-      <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Verification code</label>
-        <br />
-        <input className="signup01-input" placeholder="Enter code" value={code} onChange={e => setCode(e.target.value)} />
-        <div style={{ marginTop: 8 }}>
-          <span className="small-note">Enter the code you received (local dev accepts any code).</span>
-        </div>
-      </div>
-
-      <div style={{ marginTop: 18 }}>
-        <button className="signup01-continue" onClick={() => navigate('/signup-03')} style={{ marginRight: 8 }}>Back</button>
-        <button className="signup01-continue" onClick={onVerifyAndFinish} disabled={loading}>{loading ? 'Saving...' : 'Verify & Finish'}</button>
-      </div>
+      
     </div>
   );
 }
