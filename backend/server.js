@@ -49,6 +49,8 @@ app.use('/api/auth', loginRoutes);
 const statusRoutes = require('./routes/status');
 app.use('/api/status', statusRoutes);
 
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
