@@ -125,17 +125,7 @@
             z-index: 1; /* Ensure text is above the line */
         }
 
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 50%;
-            height: 1px;
-            background: #edf6f2;
-            transform: translateY(-50%);
-            z-index: 0;
-        }
+        
 
         /* Form Group/Input Styling */
         .form-group {
@@ -206,7 +196,7 @@
         .forgot-link {
             color: #0aa96f;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 400;
             transition: color 0.2s;
             text-align: left;
         }
@@ -265,3 +255,42 @@
                 border-bottom: 1px solid #f3f7f5;
             }
         }
+
+/* eye toggle (show/hide password) - matching signup styles */
+.eye-toggle-label {
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+    background: transparent;
+    border: none;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.eye-toggle-label:hover { color: #00c37a; }
+
+.input-with-icon { position: relative; display: block; width: 100%; }
+.input-with-icon .wc-input { display: block; width: 100%; box-sizing: border-box; padding-right: 54px; position: relative; z-index: 1; background-clip: padding-box; }
+.input-with-icon .eye-toggle-label {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent; /* transparent inside field */
+    border: none;
+    border-radius: 6px;
+    z-index: 3; /* above input */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+.input-with-icon .eye-toggle-label svg { width: 18px; height: 18px; }
+
+/* Remove default focus outline when clicking with mouse, keep visible focus for keyboard users */
+.input-with-icon .eye-toggle-label:focus { outline: none; }
+.input-with-icon .eye-toggle-label:focus-visible { outline: 2px solid rgba(11,107,74,0.12); border-radius: 6px; }

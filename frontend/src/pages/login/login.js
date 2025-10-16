@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
+import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import { useAuth } from "../../contexts/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const auth = useAuth();
@@ -66,15 +68,28 @@ function Login() {
 
               <div className="form-group">
                 <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  className={`wc-input ${error ? 'error' : ''}`}
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
+                <div className="input-with-icon">
+                  <input
+                    id="password"
+                    className={`wc-input ${error ? 'error' : ''}`}
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
+
+                  <button
+                    type="button"
+                    className="eye-toggle-label"
+                    onClick={() => setShowPassword((s) => !s)}
+                    aria-pressed={showPassword}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <BsEyeSlash /> : <BsEye />}
+                  </button>
+                </div>
               </div>
 
               {error && <div className="error-box" role="alert">{error}</div>}
