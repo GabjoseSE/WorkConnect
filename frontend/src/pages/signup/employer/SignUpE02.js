@@ -128,7 +128,7 @@ export default function SignUpE02() {
       </div>
 
       <div style={{ marginTop: 22 }}>
-        <button className="signup01-continue" onClick={onNext}>Next: HR / Owner Info</button>
+        <button className="signup01-continue" onClick={onNext}>Next</button>
       </div>
     </div>
   );

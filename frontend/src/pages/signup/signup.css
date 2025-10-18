@@ -12,6 +12,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 18px;
+  /* create stacking context so header children can be layered */
+  position: relative;
 }
 .signup01-progress {
   height: 8px;
@@ -33,7 +35,7 @@
   margin: 8px 0 18px 0;
 }
 /* ensure progress uses full available width in header layout */
-.signup-progress-steps { width: 100%; min-width: 260px; }
+.signup-progress-steps { width: 100%; min-width: 260px; z-index: 1; }
 .signup-progress-steps .progress-line {
   position: absolute;
   left: 6%;
@@ -94,6 +96,9 @@
   justify-content: center;
   cursor: pointer;
   color: var(--wc-neutral);
+  /* make sure the back icon sits above absolute-positioned progress dots */
+  position: relative;
+  z-index: 2;
 }
 .signup-back-icon:hover { background: rgba(0,121,107,0.04); }
 .signup-back-icon:focus { outline: 2px solid rgba(0,121,107,0.12); border-radius: 8px; }
