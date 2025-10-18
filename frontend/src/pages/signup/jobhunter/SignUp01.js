@@ -87,11 +87,31 @@ function SignUp01() {
   // mark current step for progress bar
   useEffect(() => setCurrentStep(1), [setCurrentStep]);
 
-  // OTP UI state
+  // OTP UI state + resend timer
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
   const [otpMessage, setOtpMessage] = useState('');
+
+  // resend timer (seconds)
+  const RESEND_SECONDS = 60; // seconds before user can resend
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const timerRef = React.useRef(null);
+
+  const startTimer = () => {
+    setRemainingSeconds(RESEND_SECONDS);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setRemainingSeconds(s => {
+        if (s <= 1) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  };
 
   const onVerifyOtp = async () => {
     setOtpError('');
@@ -109,6 +129,25 @@ function SignUp01() {
       setOtpError('Verification failed. Try again');
     }
   };
+
+  // resend handler
+  const onResend = async () => {
+    if (remainingSeconds > 0) return;
+    try {
+      const resp = await sendCode(data.email, 'email');
+      setOtpMessage(resp?.message || 'A verification code was resent to your email');
+      startTimer();
+    } catch (err) {
+      setOtpError('Failed to resend code. Try again later');
+    }
+  };
+
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
 
   return (
     <div className="signup01-container">
@@ -217,9 +256,14 @@ function SignUp01() {
               <input className={`signup01-input ${otpError ? 'invalid-input' : ''}`} placeholder="Enter code" value={otp} onChange={e => { setOtpError(''); setOtp(e.target.value) }} />
               {otpError && <div className="signup-error">{otpError}</div>}
               {otpMessage && <div className="small-note">{otpMessage}</div>}
-                <div className="form-actions">
-                  <button className="signup01-continue" onClick={onVerifyOtp}>Verify &amp; Continue</button>
-                </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
+                <button className="secondary-btn" type="button" onClick={onResend} disabled={remainingSeconds > 0}>
+                  {remainingSeconds > 0 ? `Resend (${remainingSeconds}s)` : 'Resend code'}
+                </button>
+              </div>
+              <div className="form-actions">
+                <button className="signup01-continue" onClick={onVerifyOtp}>Verify &amp; Continue</button>
+              </div>
             </div>
           )}
         </div>
