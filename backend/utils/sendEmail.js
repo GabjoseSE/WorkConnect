@@ -12,7 +12,7 @@ const sendEmail = async (to, subject, text) => {
     });
 
     const mailOptions = {
-      from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+      from: `"WorkConnect" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text,
