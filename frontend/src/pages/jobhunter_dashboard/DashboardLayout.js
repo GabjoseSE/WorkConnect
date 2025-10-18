@@ -9,14 +9,18 @@ export default function DashboardLayout() {
   const { profile, logout } = useAuth();
   const navigate = useNavigate();
 
-  const doLogout = async () => {
-    try {
-      await logout();
-    } catch (e) {
-      console.warn('Logout failed', e);
-    }
-    navigate('/login');
-  };
+const doLogout = async () => {
+  const confirmed = window.confirm("Are you sure you want to log out?");
+  if (!confirmed) return;
+
+  try {
+    await logout();
+  } catch (e) {
+    console.warn('Logout failed', e);
+  }
+  navigate('/login');
+};
+
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
