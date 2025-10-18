@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../pages/signup/signup.css';
@@ -19,11 +19,37 @@ export default function DashboardLayout() {
   };
 
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape' && mobileOpen) setMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (mobileOpen) document.body.classList.add('sidebar-open');
+    else document.body.classList.remove('sidebar-open');
+  }, [mobileOpen]);
 
   return (
     <div className="dashboard-root">
-      <aside className={`dashboard-sidebar ${collapsed ? 'collapsed' : ''}`}>
-        <button className="sidebar-toggle" onClick={() => setCollapsed(s => !s)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+      {/* overlay shown only on mobile when sidebar is open */}
+      {mobileOpen && <div className="dashboard-overlay show" onClick={() => setMobileOpen(false)} aria-hidden />}
+
+  <aside className={`dashboard-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`} style={{ position: 'relative' }}>
+        <button
+          className="sidebar-toggle"
+          onClick={() => {
+            // On narrow screens toggle mobile open; otherwise collapse
+            if (window.innerWidth <= 900) setMobileOpen(o => !o);
+            else setCollapsed(s => !s);
+          }}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-pressed={mobileOpen}
+        >
           {collapsed ? (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
               <path d="M9 6L15 12L9 18" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -112,7 +138,7 @@ export default function DashboardLayout() {
           </ul>
         </nav>
 
-        <div style={{ marginTop: 20 }}>
+        <div style={{ position: 'absolute', bottom: 18, left: 12, right: 12 }}>
           <button className="secondary-btn logout-btn" onClick={doLogout} style={{ width: '100%' }}>
             <span className="logout-icon" aria-hidden>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 13v-2H7V8l-5 4 5 4v-3h9zM20 3h-8v2h8v14h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="#233038"/></svg>

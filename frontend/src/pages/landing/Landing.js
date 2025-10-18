@@ -28,15 +28,7 @@ function Landing() {
           showCaptions={false}
         />
 
-        {/* CTA buttons */}
-        <div className="cta-buttons">
-          <Link to="/choose-role">
-            <button className="btn-primary">Sign Up</button>
-          </Link>
-          <Link to="/login">
-            <button className="btn-outline">Login</button>
-          </Link>
-        </div>
+        {/* CTA buttons removed per request */}
       </section>
 
       {/* Divider */}

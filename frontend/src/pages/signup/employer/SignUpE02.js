@@ -38,7 +38,7 @@ export default function SignUpE02() {
             <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <SignupProgress currentStep={2} steps={["Account","Company","Owner","Verify","Profile"]} />
+  <SignupProgress currentStep={2} steps={["Account","Company","Owner","Profile"]} />
       </div>
       <h1 className="signup01-title">Company details</h1>
       <p className="small-note">Tell us about your company so candidates can learn more.</p>

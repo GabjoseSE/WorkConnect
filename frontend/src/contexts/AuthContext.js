@@ -43,11 +43,13 @@ export function AuthProvider({ children }) {
     try {
       const p = await apiGetOwnProfile(res.token, res.userId);
       setProfile(p);
+      // return profile to caller so they can act immediately
+      return { ...res, profile: p };
     } catch (err) {
       // ignore; profile can be created later
       console.warn('Failed to fetch profile after login', err);
+      return res;
     }
-    return res;
   };
 
   // if token exists (e.g. page reload) and we don't have profile, try to fetch it

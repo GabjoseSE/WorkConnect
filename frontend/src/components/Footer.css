@@ -4,6 +4,8 @@
   color: #2a2a2a;
   padding: 18px 12px;
   font-size: 14px;
+  min-height: 64px;
+  box-sizing: border-box;
 }
 .wc-footer-inner {
   max-width: 1100px;

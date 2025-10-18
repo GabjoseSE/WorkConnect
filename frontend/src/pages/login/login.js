@@ -19,8 +19,8 @@ function Login() {
     setLoading(true);
 
     try {
-      await auth.login(email, password);
-      const role = auth.profile?.role || "jobhunter";
+      const result = await auth.login(email, password);
+      const role = result?.profile?.role || auth.profile?.role || "jobhunter";
       if (role === "employer") navigate("/employer/dashboard");
       else navigate("/jobhunter/dashboard");
     } catch (err) {

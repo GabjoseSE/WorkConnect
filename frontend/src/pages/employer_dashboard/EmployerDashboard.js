@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 export default function EmployerDashboard() {
   const { profile } = useAuth();
+
   return (
     <div style={{ padding: 24 }}>
       <h1>Employer Dashboard</h1>

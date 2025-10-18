@@ -25,8 +25,9 @@ export default function SignUpE03() {
     setFullNameError(''); setEmailError('');
     if (!fullName) { setFullNameError('Please enter full name'); if (fullNameRef.current) { fullNameRef.current.focus(); fullNameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     if (!email) { setEmailError('Please enter a work email'); if (emailRef.current) { emailRef.current.focus(); emailRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
-    update({ ownerName: fullName, ownerPosition: position, ownerPhone: phone, email });
-    navigate('/employer-signup-04');
+  update({ ownerName: fullName, ownerPosition: position, ownerPhone: phone, email });
+  // verification moved to step 1; go directly to company profile step (SignUpE04)
+  navigate('/employer-signup-04');
   };
 
   return (
@@ -37,7 +38,7 @@ export default function SignUpE03() {
             <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <SignupProgress currentStep={3} steps={["Account","Company","Owner","Verify","Profile"]} />
+  <SignupProgress currentStep={3} steps={["Account","Company","Owner","Profile"]} />
       </div>
       <h1 className="signup01-title">Owner / HR representative</h1>
       <p className="small-note">This person will manage hiring and job posts.</p>
@@ -70,7 +71,7 @@ export default function SignUpE03() {
       </div>
 
       <div style={{ marginTop: 22 }}>
-        <button className="signup01-continue" onClick={onNext}>Next: Verification</button>
+        <button className="signup01-continue" onClick={onNext}>Next: Company Profile</button>
       </div>
     </div>
   );

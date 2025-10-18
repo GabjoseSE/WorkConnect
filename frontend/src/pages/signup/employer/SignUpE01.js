@@ -83,7 +83,7 @@ export default function SignUpE01() {
     <div className="signup01-container">
       <div className="signup01-header">
         <button className="signup-back-icon" aria-hidden style={{ visibility: 'hidden' }} />
-        <SignupProgress currentStep={1} steps={["Account","Company","Owner","Verify","Profile"]} />
+  <SignupProgress currentStep={1} steps={["Account","Company","Owner","Profile"]} />
       </div>
       <h1 className="signup01-title">Hire talent faster. Create your company account today.</h1>
       <p className="small-note">Use your company email (e.g., name@company.com)</p>
@@ -129,7 +129,26 @@ export default function SignUpE01() {
       {error && <div className="signup-error">{error}</div>}
 
       <div style={{ marginTop: 22 }}>
-        <button className="signup01-continue" onClick={onNext}>Next: Company Details</button>
+        {!showOtp && (
+          <button className="signup01-continue" onClick={onNext}>Next: Company Details</button>
+        )}
+
+        {showOtp && (
+          <div>
+            <label className="signup01-label">Verification code</label>
+            <input
+              className={`signup01-input ${otpError ? 'invalid-input' : ''}`}
+              placeholder="Enter code"
+              value={otp}
+              onChange={e => { setOtpError(''); setOtp(e.target.value); }}
+            />
+            {otpError && <div className="signup-error">{otpError}</div>}
+            {otpMessage && <div className="small-note">{otpMessage}</div>}
+            <div style={{ marginTop: 12 }}>
+              <button className="signup01-continue" onClick={onVerifyOtp}>Verify &amp; Continue</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

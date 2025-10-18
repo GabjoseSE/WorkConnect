@@ -20,9 +20,17 @@ import SignUpE01 from "./pages/signup/employer/SignUpE01";
 import SignUpE02 from "./pages/signup/employer/SignUpE02";
 import SignUpE03 from "./pages/signup/employer/SignUpE03";
 import SignUpE04 from "./pages/signup/employer/SignUpE04";
-import SignUpE05 from "./pages/signup/employer/SignUpE05";
 import JobhunterDashboard from './pages/jobhunter_dashboard/JobhunterDashboard';
 import EmployerDashboard from './pages/employer_dashboard/EmployerDashboard';
+import EmployerLayout from './pages/employer_dashboard/EmployerLayout';
+import EmployerProfile from './pages/employer_dashboard/Profile';
+import EmployerJobs from './pages/employer_dashboard/Jobs';
+import EmployerApplicants from './pages/employer_dashboard/Applicants';
+import EmployerMessages from './pages/employer_dashboard/Messages';
+import EmployerNotifications from './pages/employer_dashboard/Notifications';
+import EmployerAnalytics from './pages/employer_dashboard/Analytics';
+import EmployerSettings from './pages/employer_dashboard/Settings';
+import EmployerHelp from './pages/employer_dashboard/Help';
 import DashboardLayout from './pages/jobhunter_dashboard/DashboardLayout';
 import Profile from './pages/jobhunter_dashboard/Profile';
 import SavedJobs from './pages/jobhunter_dashboard/SavedJobs';
@@ -54,7 +62,17 @@ function App() {
           <Route path="/jobs" element={<Jobs />} />
 
           {/* Dashboard routes for roles */}
-          <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+          <Route path="/employer" element={<EmployerLayout />}>
+            <Route path="dashboard" element={<EmployerDashboard />} />
+            <Route path="profile" element={<EmployerProfile />} />
+            <Route path="jobs" element={<EmployerJobs />} />
+            <Route path="applicants" element={<EmployerApplicants />} />
+            <Route path="messages" element={<EmployerMessages />} />
+            <Route path="notifications" element={<EmployerNotifications />} />
+            <Route path="analytics" element={<EmployerAnalytics />} />
+            <Route path="settings" element={<EmployerSettings />} />
+            <Route path="help" element={<EmployerHelp />} />
+          </Route>
           {/* Jobhunter dashboard (uses a layout with persistent sidebar) */}
           <Route path="/jobhunter" element={<DashboardLayout />}>
             <Route path="dashboard" element={<JobhunterDashboard />} />
@@ -81,7 +99,6 @@ function App() {
             <Route path="/employer-signup-02" element={<SignUpE02 />} />
             <Route path="/employer-signup-03" element={<SignUpE03 />} />
             <Route path="/employer-signup-04" element={<SignUpE04 />} />
-            <Route path="/employer-signup-05" element={<SignUpE05 />} />
         </Routes>
 
         {/* Site footer rendered on every page */}
