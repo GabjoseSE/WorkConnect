@@ -1,7 +1,7 @@
 import React from 'react';
 
 function SignupProgress({ currentStep = 1, steps: propSteps }) {
-  const defaultSteps = ['Account', 'Personal', 'Experience', 'Finish'];
+  const defaultSteps = ['Account', 'Personal', 'Background', 'Finish'];
   const steps = Array.isArray(propSteps) && propSteps.length > 0 ? propSteps : defaultSteps;
   const lastIndex = Math.max(1, steps.length - 1);
   // progress line uses 6% left/right insets in CSS; compute usable width accordingly

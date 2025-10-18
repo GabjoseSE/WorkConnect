@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Header.css';
 import logo from '../assets/logo.svg';
 import { useAuth } from '../contexts/AuthContext';
+import SignupContext from '../contexts/SignupContext';
 
 export default function Header() {
   const location = useLocation();
@@ -32,17 +33,16 @@ export default function Header() {
   }, []);
 
   // When the user is authenticated, hide the global header only on dashboard routes
-  const isEmployerDashboard = /^\/employer/.test(location.pathname);
+  // match '/employer' or '/employer/' followed by dashboard sub-routes, but not '/employer-signup...'
+  const isEmployerDashboard = /^\/employer(\/|$)/.test(location.pathname);
   if (token && (isJobhunterDashboard || isEmployerDashboard)) return null;
 
   return (
     <header className={`wc-header ${hideNav ? 'wc-header--compact' : ''}`}>
       <div className="wc-header-inner">
         <div className="wc-left">
-          <Link to="/" className="wc-logo">
-            <img src={logo} alt="WorkConnect" className="wc-logo-img" />
-            <span className="wc-logo-fallback"></span>
-          </Link>
+          {/* When leaving the signup flow via the logo, clear transient signup state */}
+          <LogoLink />
         </div>
 
         {!hideNav && (
@@ -75,5 +75,26 @@ export default function Header() {
         )}
       </div>
     </header>
+  );
+}
+
+function LogoLink() {
+  const location = useLocation();
+  const signupCtx = useContext(SignupContext);
+
+  return (
+    <Link
+      to="/"
+      className="wc-logo"
+      onClick={() => {
+        // If the user is on a signup-related path, clear the signup context so inputs reset next time
+        if (/^\/signup|^\/choose-role|^\/employer-signup/.test(location.pathname)) {
+          try { signupCtx && signupCtx.reset && signupCtx.reset(); } catch (err) { /* no-op */ }
+        }
+      }}
+    >
+      <img src={logo} alt="WorkConnect" className="wc-logo-img" />
+      <span className="wc-logo-fallback"></span>
+    </Link>
   );
 }

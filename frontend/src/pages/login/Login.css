@@ -56,7 +56,7 @@
             width: 44px;
             height: 44px;
             border-radius: 10px;
-            background: #0aa96f; /* Primary Green */
+            background: var(--wc-primary); /* Primary */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,7 +67,7 @@
 
         .brand-name {
             font-weight: 700;
-            color: #0a6f57; /* Darker Green */
+            color: var(--wc-neutral);
         }
 
         .login-card-header h2 {
@@ -76,7 +76,7 @@
         }
 
         .login-sub {
-            color: #566c66;
+            color: rgba(55,71,79,0.72); /* fallback near --wc-neutral */
             font-size: 13px;
             margin: 0;
         }
@@ -92,11 +92,11 @@
             width: 100%;
             padding: 10px 12px;
             border-radius: 8px;
-            border: 1px solid #e8f4ee;
+            border: 1px solid rgba(77,182,172,0.12); /* subtle secondary */
             background: white;
             cursor: pointer;
             font-weight: 600;
-            color: #0a6f57;
+            color: var(--wc-neutral);
             transition: background-color 0.2s;
         }
         .social-btn:hover {
@@ -120,7 +120,7 @@
         .divider span {
             background: #fff;
             padding: 0 10px;
-            color: #8aa49a;
+            color: rgba(77,182,172,0.6);
             position: relative;
             z-index: 1; /* Ensure text is above the line */
         }
@@ -137,7 +137,7 @@
 
         .form-group label {
             font-size: 13px;
-            color: #2f534b;
+            color: var(--wc-neutral);
         }
 
         .wc-input {
@@ -150,8 +150,8 @@
 
         .wc-input:focus {
             outline: none;
-            box-shadow: 0 0 0 4px rgba(10, 169, 111, 0.08);
-            border-color: #0aa96f;
+            box-shadow: 0 0 0 4px rgba(0, 121, 107, 0.08); /* subtle primary glow */
+            border-color: var(--wc-primary);
         }
 
         .wc-input.error {
@@ -188,20 +188,20 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #556d66;
+            color: rgba(55,71,79,0.6);
             font-size: 13px;
             order: 1;
         }
 
         .forgot-link {
-            color: #0aa96f;
+            color: var(--wc-primary);
             text-decoration: none;
             font-weight: 400;
             transition: color 0.2s;
             text-align: left;
         }
         .forgot-link:hover {
-            color: #078c59;
+            color: color-mix(in srgb, var(--wc-primary) 80%, black 20%);
         }
 
         /* Sign-in Button */
@@ -210,32 +210,32 @@
             padding: 12px;
             border-radius: 10px;
             border: none;
-            background: #0aa96f;
+            background: var(--wc-primary);
             color: white;
             font-weight: 700;
             cursor: pointer;
             transition: background-color 0.2s;
         }
         .signin-btn:hover:not([disabled]) {
-            background: #078c59;
+            background: color-mix(in srgb, var(--wc-primary) 80%, black 20%);
         }
 
         .signin-btn[disabled] {
             opacity: 0.7;
             cursor: not-allowed;
-            background: #0aa96f;
+            background: var(--wc-primary);
         }
 
         /* Sign-up CTA */
         .signup-cta {
             margin-top: 14px;
-            color: #56736a;
+            color: rgba(55,71,79,0.64);
             text-align: center;
             font-size: 14px;
         }
 
         .join-link {
-            color: #0aa96f;
+            color: var(--wc-primary);
             font-weight: 600;
             text-decoration: none;
         }

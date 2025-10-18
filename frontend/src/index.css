@@ -7,6 +7,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root {
+  --wc-primary: #00796B; /* primary color */
+  --wc-secondary: #4db6ac; /* secondary */
+  --wc-neutral: #37474f; /* neutral */
+  --wc-accent: #FF7043; /* accent */
+  --wc-bg: #ffffff;
+  --wc-muted: #6b7280;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

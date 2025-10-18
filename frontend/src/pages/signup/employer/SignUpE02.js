@@ -22,11 +22,42 @@ export default function SignUpE02() {
   const companyRef = useRef(null);
   const locationRef = useRef(null);
 
+  // structured address fields
+  const [streetAddress, setStreetAddress] = useState(data.companyStreetAddress || '');
+  const [city, setCity] = useState(data.companyCity || '');
+  const [region, setRegion] = useState(data.companyRegion || '');
+  const [postalCode, setPostalCode] = useState(data.companyPostalCode || '');
+  const [country, setCountry] = useState(data.companyCountry || '');
+  const cityRef = useRef(null);
+
   const onNext = () => {
     setCompanyError(''); setLocationError('');
     if (!companyName) { setCompanyError('Please enter your company name'); if (companyRef.current) { companyRef.current.focus(); companyRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
-    if (!location) { setLocationError('Please enter company location'); if (locationRef.current) { locationRef.current.focus(); locationRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
-    update({ companyName, companyWebsite: website, industry, companySize: size, companyLocation: location });
+
+    // Require at least city and country for location specificity; encourage street address but keep it optional
+    if (!city || !country) {
+      setLocationError('Please provide at least the city and country for the company location');
+      if (cityRef.current) { cityRef.current.focus(); cityRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      return;
+    }
+
+    // build a human-readable combined location string for backward compatibility
+    const combined = `${streetAddress ? streetAddress + ', ' : ''}${city}${region ? ', ' + region : ''}${postalCode ? ' ' + postalCode : ''}${country ? ', ' + country : ''}`;
+
+    update({
+      companyName,
+      companyWebsite: website,
+      industry,
+      companySize: size,
+      // structured fields
+      companyStreetAddress: streetAddress,
+      companyCity: city,
+      companyRegion: region,
+      companyPostalCode: postalCode,
+      companyCountry: country,
+      // legacy/combined field
+      companyLocation: combined,
+    });
     navigate('/employer-signup-03');
   };
 
@@ -71,8 +102,28 @@ export default function SignUpE02() {
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Company location (city, country)</label>
-        <input ref={locationRef} className={`signup01-input ${locationError ? 'invalid-input' : ''}`} value={location} onChange={e => { setLocationError(''); setLocation(e.target.value) }} placeholder="City, Country" />
+        <label className="signup01-label">Street Address</label>
+        <input className={`signup01-input`} value={streetAddress} onChange={e => setStreetAddress(e.target.value)} placeholder="Full street address, building number, suite/unit (optional)" />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">City / Municipality</label>
+        <input ref={cityRef} className={`signup01-input ${locationError ? 'invalid-input' : ''}`} value={city} onChange={e => { setLocationError(''); setCity(e.target.value) }} placeholder="City / Municipality" />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">State / Province / Region</label>
+        <input className="signup01-input" value={region} onChange={e => setRegion(e.target.value)} placeholder="State, province, or region" />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">ZIP / Postal Code</label>
+        <input className="signup01-input" value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="ZIP or postal code" />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <label className="signup01-label">Country</label>
+        <input className={`signup01-input ${locationError ? 'invalid-input' : ''}`} value={country} onChange={e => { setLocationError(''); setCountry(e.target.value) }} placeholder="Country" />
         {locationError && <div className="signup-error">{locationError}</div>}
       </div>
 

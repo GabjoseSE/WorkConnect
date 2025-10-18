@@ -113,7 +113,11 @@ function SignUp01() {
   return (
     <div className="signup01-container">
       <div className="signup01-header">
-        <button className="signup-back-icon" aria-hidden style={{ visibility: 'hidden' }} />
+        <button className="signup-back-icon" aria-label="Exit signup" onClick={() => navigate('/choose-role') }>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
         <SignupProgress currentStep={1} />
       </div>
 

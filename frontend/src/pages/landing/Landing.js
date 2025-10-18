@@ -1,45 +1,80 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Landing.css"; // external CSS for styling
-import Slideshow from "../../components/Slideshow";
-import slide1 from '../../assets/slide1.jpg';
-import slide2 from '../../assets/slide2.jpg';
-import slide3 from '../../assets/slide3.jpg';
+// Change the hero background image below by replacing the import path with your image
+// e.g. import slide1 from '../../assets/your-hero-image.jpg'
+import slide1 from '../../assets/hero_image.svg';
 
 function Landing() {
   return (
     <div className="landing-container">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <h1 className="hero-title">Welcome to WorkConnect</h1>
-        <p className="hero-subtitle">
-          The platform that connects employers with skilled jobseekers.  
-          Find your next opportunity or your next hire today.
-        </p>
+      {/* HERO */}
+      <header className="landing-hero" style={{ backgroundImage: `url(${slide1})` }}>
+        <div className="landing-hero-inner">
+          <h1>Where Talent Meets Opportunity</h1>
+          <p className="lead">Find talent faster or discover your next opportunity.</p>
+          <div className="cta-row">
+            <Link to="/jobs" className="primary-btn">Find Jobs</Link>
+            <Link to="/employer/jobs" className="secondary-btn">Post a Job</Link>
+          </div>
+        </div>
+      </header>
 
-        {/* Right-to-left slideshow under the main heading */}
-        <Slideshow
-          slides={[
-            { image: slide1, caption: 'Discover vetted candidates in minutes — filter by skills, location, and experience.' },
-            { image: slide2, caption: 'Post jobs for free and receive candidate matches directly in your dashboard.' },
-            { image: slide3, caption: 'Employers get smart recommendations; jobseekers get tailored job alerts.' },
-          ]}
-          duration={9000}
-          showCaptions={false}
-        />
-
-        {/* CTA buttons removed per request */}
+      {/* HOW IT WORKS */}
+      <section className="how-it-works">
+        <h2>How it works</h2>
+        <div className="steps">
+          <div className="step">1. Create an account</div>
+          <div className="arrow">→</div>
+          <div className="step">2. Search or post jobs</div>
+          <div className="arrow">→</div>
+          <div className="step">3. Connect and hire</div>
+        </div>
       </section>
 
-      {/* Divider */}
-      <div className="divider">or</div>
+      {/* BENEFITS */}
+      <section className="benefits">
+        <div className="benefit">
+          <h3>For Job Seekers</h3>
+          <ul>
+            <li>Easy job search</li>
+            <li>Instant updates</li>
+            <li>Verified employers</li>
+          </ul>
+        </div>
+        <div className="benefit">
+          <h3>For Employers</h3>
+          <ul>
+            <li>Quick posting</li>
+            <li>Candidate filtering</li>
+            <li>Real-time applications</li>
+          </ul>
+        </div>
+      </section>
 
-      {/* Browse Jobs Section */}
-      <section className="browse-section">
-        <p>
-          Want to explore current opportunities?  
-          <Link to="/jobs" className="browse-link">Browse Jobs</Link>
-        </p>
+      {/* FEATURED JOBS / COMPANIES */}
+      <section className="featured">
+        <h2>Featured Jobs / Companies</h2>
+        <div className="featured-grid">
+          <div className="card">Job Title — Company A</div>
+          <div className="card">Job Title — Company B</div>
+          <div className="card">Job Title — Company C</div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section className="testimonials">
+        <h2>Testimonials</h2>
+        <div className="testimonials-grid">
+          <blockquote>“Found my dream job in two weeks.” — Anna</blockquote>
+          <blockquote>“Posting was easy and we hired fast.” — BetaCorp HR</blockquote>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="cta-join">
+        <h2>Join WorkConnect Today</h2>
+        <Link to="/choose-role" className="primary-btn">Sign up now</Link>
       </section>
     </div>
   );

@@ -99,6 +99,10 @@ function SignUp02() {
             <label className="signup01-label">State / Province</label>
               <input className="signup01-input" name="stateprovince" value={data.stateprovince || ''} onChange={e => update({ stateprovince: e.target.value })} placeholder="State / Province" />
           </div>
+          <div style={{ marginTop: 12 }}>
+            <label className="signup01-label">Postal Code</label>
+              <input className="signup01-input" name="postalCode" value={data.postalCode || ''} onChange={e => update({ postalCode: e.target.value })} placeholder="Postal / ZIP code" />
+          </div>
 
           <div style={{ marginTop: 12 }}>
             <label className="signup01-label">Gender (optional)</label>
@@ -109,10 +113,7 @@ function SignUp02() {
                 <option value="other">Other</option>
               </select>
           </div>
-          <div style={{ marginTop: 12 }}>
-            <label className="signup01-label">Postal Code</label>
-              <input className="signup01-input" name="postalCode" value={data.postalCode || ''} onChange={e => update({ postalCode: e.target.value })} placeholder="Postal / ZIP code" />
-          </div>
+          
 
           <div style={{ marginTop: 12 }}>
             <label className="signup01-label">Country</label>

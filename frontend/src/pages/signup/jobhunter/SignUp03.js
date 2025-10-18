@@ -14,14 +14,15 @@ function SignUp03() {
   const [experienceYears, setExperienceYears] = useState(data.experienceYears || '');
   const [skills, setSkills] = useState((data.skills || []).join(', '));
   const [resumeFile, setResumeFile] = useState(null);
-  const [education, setEducation] = useState(data.education || '');
+  const [highestDegree, setHighestDegree] = useState(data.highestDegree || data.education || '');
+  const [fieldOfStudy, setFieldOfStudy] = useState(data.fieldOfStudy || '');
   const [desiredPosition, setDesiredPosition] = useState(data.desiredPosition || '');
   const [workSetup, setWorkSetup] = useState(data.workSetup || '');
   const [expectedSalary, setExpectedSalary] = useState(data.expectedSalary || '');
   // student fields
   const [isStudent, setIsStudent] = useState(data.isStudent || false);
   const [schoolName, setSchoolName] = useState(data.schoolName || '');
-  const [program, setProgram] = useState(data.program || '');
+  // program removed - use fieldOfStudy as single source of truth
   const [yearLevel, setYearLevel] = useState(data.yearLevel || '');
   const [expectedGraduationDate, setExpectedGraduationDate] = useState(data.expectedGraduationDate || '');
   const [studentId, setStudentId] = useState(data.studentId || '');
@@ -31,9 +32,10 @@ function SignUp03() {
   const [prefHours, setPrefHours] = useState(data.prefHours || '');
   const [prefLocation, setPrefLocation] = useState(data.prefLocation || 'remote');
 
-  const onNext = () => {
-    (async () => {
-      try {
+  const [uploading, setUploading] = useState(false);
+
+  const onNext = async () => {
+    try {
         const skillsArr = skills.split(',').map(s => s.trim()).filter(Boolean);
         let resumeUrl = data.resumeUrl;
         if (resumeFile) {
@@ -42,8 +44,8 @@ function SignUp03() {
           resumeUrl = r.url;
           setUploading(false);
         }
-        update({ headline, experienceYears, skills: skillsArr, resumeUrl, education, desiredPosition, workSetup, expectedSalary,
-          isStudent, schoolName, program, yearLevel, expectedGraduationDate, studentId,
+        update({ headline, experienceYears, skills: skillsArr, resumeUrl, highestDegree, fieldOfStudy, desiredPosition, workSetup, expectedSalary,
+          isStudent, schoolName, yearLevel, expectedGraduationDate, studentId,
           jobType: prefJobType, prefField, prefHours, prefLocation
         });
         navigate('/signup-04');
@@ -51,10 +53,7 @@ function SignUp03() {
         setUploading(false);
         alert('Failed to upload resume: ' + (err.message || err));
       }
-    })();
   };
-
-  const [uploading, setUploading] = useState(false);
 
   return (
     <div className="signup01-container">
@@ -130,53 +129,65 @@ function SignUp03() {
   {uploading && <div className="uploading">Uploading resume…</div>}
       </div>
 
-      <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Education Level</label>
-        <select className="signup01-input" value={education} onChange={e => setEducation(e.target.value)}>
-          <option value="">Select</option>
-          {isStudent ? (
-            <>
-              <option value="college">College Student</option>
-              <option value="senior-high">Senior High Student</option>
-              <option value="graduate">Graduate</option>
-            </>
-          ) : (
-            <>
-              <option value="highschool">High School</option>
-              <option value="bachelors">Bachelor's</option>
-              <option value="masters">Master's</option>
-              <option value="phd">PhD</option>
-            </>
-          )}
-        </select>
-      </div>
+      
 
       {/* student checkbox lives in the conditional student section */}
 
+      {/* Educational background - adapts for students */}
+      <div style={{ marginTop: 12 }}>
+        <h3 style={{ marginBottom: 8 }}>Educational background</h3>
+        <div>
+          <label className="signup01-label">Highest Degree Obtained / Current Level</label>
+          <select className="signup01-input" value={highestDegree} onChange={e => setHighestDegree(e.target.value)}>
+            <option value="">Select</option>
+            {isStudent ? (
+              <>
+                <option value="senior-high">Senior High School (Grade 12)</option>
+                <option value="bachelors">College (Bachelor's)</option>
+                <option value="graduate">Graduate</option>
+                <option value="vocational">Vocational / Certificate</option>
+              </>
+            ) : (
+              <>
+                <option value="highschool">High School Diploma</option>
+                <option value="associate">Associate</option>
+                <option value="bachelors">Bachelor's</option>
+                <option value="masters">Master's</option>
+                <option value="phd">PhD</option>
+                <option value="vocational">Vocational / Certificate</option>
+              </>
+            )}
+          </select>
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <label className="signup01-label">Field of Study / Major</label>
+          <input className="signup01-input" value={fieldOfStudy} onChange={e => setFieldOfStudy(e.target.value)} placeholder="e.g. Information Technology, Business Administration" />
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <label className="signup01-label">School / University Name</label>
+          <input className="signup01-input" value={schoolName} onChange={e => setSchoolName(e.target.value)} placeholder="Full official name of the institution" />
+        </div>
+
+        {isStudent && (
+          <>
+            <div style={{ marginTop: 12 }}>
+              <label className="signup01-label">Year Level</label>
+              <input className="signup01-input" value={yearLevel} onChange={e => setYearLevel(e.target.value)} placeholder="e.g. 1st Year, 3rd Year, Senior High 12th Grade" />
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <label className="signup01-label">Expected Graduation Date</label>
+              <input className="signup01-input" type="date" value={expectedGraduationDate} onChange={e => setExpectedGraduationDate(e.target.value)} />
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <label className="signup01-label">Student ID (optional)</label>
+              <input className="signup01-input" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="Official student ID number (optional)" />
+            </div>
+          </>
+        )}
+      </div>
+
       {isStudent && (
         <div style={{ marginTop: 12 }}>
-          <h3 style={{ marginBottom: 8 }}>Academic Information</h3>
-          <div>
-            <label className="signup01-label">School / University name</label>
-            <input className="signup01-input" value={schoolName} onChange={e => setSchoolName(e.target.value)} />
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <label className="signup01-label">Program or course</label>
-            <input className="signup01-input" value={program} onChange={e => setProgram(e.target.value)} placeholder="e.g. BS Information Technology" />
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <label className="signup01-label">Year level</label>
-            <input className="signup01-input" value={yearLevel} onChange={e => setYearLevel(e.target.value)} placeholder="e.g. 3rd Year, 1st Semester" />
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <label className="signup01-label">Expected graduation date</label>
-            <input className="signup01-input" type="date" value={expectedGraduationDate} onChange={e => setExpectedGraduationDate(e.target.value)} />
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <label className="signup01-label">Student ID (optional)</label>
-            <input className="signup01-input" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="Student ID" />
-          </div>
-
           <h3 style={{ marginTop: 18 }}>Job Preferences</h3>
           <div>
             <label className="signup01-label">Desired job type</label>
@@ -203,33 +214,9 @@ function SignUp03() {
               <option value="hybrid">Hybrid</option>
             </select>
           </div>
+
         </div>
       )}
-
-      <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Desired position / title</label>
-        <input className="signup01-input" value={desiredPosition} onChange={e => setDesiredPosition(e.target.value)} placeholder={isStudent ? "e.g. Intern, On-the-Job Trainee, Entry-Level Developer" : "e.g. Senior Frontend Engineer"} />
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <label className="signup01-label">Work setup</label>
-        <select className="signup01-input" value={workSetup} onChange={e => setWorkSetup(e.target.value)}>
-          <option value="">Select</option>
-          {isStudent ? (
-            <>
-              <option value="intern-onsite">Internship (Onsite)</option>
-              <option value="intern-hybrid">Internship (Hybrid)</option>
-              <option value="intern-remote">Internship (Remote)</option>
-            </>
-          ) : (
-            <>
-              <option value="onsite">On-site</option>
-              <option value="remote">Remote</option>
-              <option value="hybrid">Hybrid</option>
-            </>
-          )}
-        </select>
-      </div>
 
       <div style={{ marginTop: 12 }}>
         <label className="signup01-label">{isStudent ? 'Allowance (optional)' : 'Expected salary (optional)'}</label>

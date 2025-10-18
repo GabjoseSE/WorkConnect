@@ -82,7 +82,11 @@ export default function SignUpE01() {
   return (
     <div className="signup01-container">
       <div className="signup01-header">
-        <button className="signup-back-icon" aria-hidden style={{ visibility: 'hidden' }} />
+        <button className="signup-back-icon" onClick={() => navigate('/choose-role')} aria-label="Go back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
   <SignupProgress currentStep={1} steps={["Account","Company","Owner","Profile"]} />
       </div>
       <h1 className="signup01-title">Hire talent faster. Create your company account today.</h1>
@@ -130,7 +134,9 @@ export default function SignUpE01() {
 
       <div style={{ marginTop: 22 }}>
         {!showOtp && (
-          <button className="signup01-continue" onClick={onNext}>Next: Company Details</button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="signup01-continue" onClick={onNext}>Next</button>
+          </div>
         )}
 
         {showOtp && (
@@ -144,7 +150,7 @@ export default function SignUpE01() {
             />
             {otpError && <div className="signup-error">{otpError}</div>}
             {otpMessage && <div className="small-note">{otpMessage}</div>}
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
               <button className="signup01-continue" onClick={onVerifyOtp}>Verify &amp; Continue</button>
             </div>
           </div>
