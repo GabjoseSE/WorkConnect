@@ -3,40 +3,47 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Profile = require('../models/Profile');
+const EmployersProfile = require('../models/employersProfile'); // ✅ add this line
 
-// POST /api/auth/signup
 router.post('/signup', async (req, res) => {
   try {
-    const { email, password, ...profileData } = req.body;
+    const { email, password, role, ...profileData } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'email and password required' });
 
-    // check existing user
     let existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ error: 'user exists' });
 
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
-
+    const hash = await bcrypt.hash(password, 10);
     const user = new User({ email, passwordHash: hash });
     await user.save();
 
-    // create or update profile and link by userId
-    let profile = await Profile.findOne({ email });
-    if (profile) {
-      profile = Object.assign(profile, profileData);
-      profile.userId = user._id;
-      await profile.save();
-    } else {
-      profile = new Profile(Object.assign({}, profileData, { email, userId: user._id }));
-      await profile.save();
+    // ✅ Save a generic profile
+    const profile = await Profile.create({
+      userId: user._id,
+      email,
+      role: role || 'jobhunter',
+      ...profileData,
+    });
+
+    // ✅ If employer, create a separate employer profile
+    if (role === 'employer') {
+      await EmployersProfile.create({
+        userId: user._id,
+        companyName: profileData.companyName || '',
+        companyWebsite: profileData.companyWebsite || '',
+        companySize: profileData.companySize || '',
+        ownerEmail: email,
+        emailVerified: false,
+      });
     }
 
-    res.status(201).json({ userId: user._id, profile });
+    res.status(201).json({ userId: user._id, role, profile });
   } catch (err) {
-    console.error(err);
+    console.error('Signup error:', err);
     res.status(500).json({ error: 'server error' });
   }
 });
+
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
