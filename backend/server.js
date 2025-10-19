@@ -29,7 +29,7 @@ const profileRoutes = require('./routes/profile');
 app.use('/api/profile', profileRoutes);
 
 // uploads route & static serving
-const uploadRoutes = require('./routes/upload');
+const uploadRoutes = require('./routes/uploads');
 app.use('/api/uploads', uploadRoutes);
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
 
@@ -48,6 +48,10 @@ app.use('/api/auth', loginRoutes);
 // status route
 const statusRoutes = require('./routes/status');
 app.use('/api/status', statusRoutes);
+
+// jobs route (list and create job posts)
+const jobsRoutes = require('./routes/jobs');
+app.use('/api/jobs', jobsRoutes);
 
 
 

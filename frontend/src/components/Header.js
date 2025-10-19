@@ -58,8 +58,6 @@ export default function Header() {
               // default site nav
               <>
                 <Link to="/">Home</Link>
-                <Link to="/jobs">Jobs</Link>
-                <Link to="/employers">Employers</Link>
                 <Link to="/about">About</Link>
                 <Link to="/contact">Contact</Link>
               </>

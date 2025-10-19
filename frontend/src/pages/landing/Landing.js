@@ -14,8 +14,8 @@ function Landing() {
           <h1>Where Talent Meets Opportunity</h1>
           <p className="lead">Find talent faster or discover your next opportunity.</p>
           <div className="cta-row">
-            <Link to="/jobs" className="primary-btn">Find Jobs</Link>
-            <Link to="/employer/jobs" className="secondary-btn">Post a Job</Link>
+            <Link to="/signup-01" className="primary-btn">Find Jobs</Link>
+            <Link to="/employer-signup-01" className="secondary-btn">Post a Job</Link>
           </div>
         </div>
       </header>

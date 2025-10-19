@@ -9,7 +9,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Import all page components used in the app
 import Login from "./pages/login/login";
-import Jobs from "./pages/Jobs";
+import Jobs from "./pages/jobhunter_dashboard/Jobs";
 import Landing from "./pages/landing/Landing";
 import SignUp01 from "./pages/signup/jobhunter/SignUp01";
 import SignUp02 from "./pages/signup/jobhunter/SignUp02";
@@ -24,7 +24,7 @@ import JobhunterDashboard from './pages/jobhunter_dashboard/JobhunterDashboard';
 import EmployerDashboard from './pages/employer_dashboard/EmployerDashboard';
 import EmployerLayout from './pages/employer_dashboard/EmployerLayout';
 import EmployerProfile from './pages/employer_dashboard/Profile';
-import EmployerJobs from './pages/employer_dashboard/Jobs';
+import EmployerJobs from './pages/employer_dashboard/JobPosting';
 import EmployerApplicants from './pages/employer_dashboard/Applicants';
 import EmployerMessages from './pages/employer_dashboard/Messages';
 import EmployerNotifications from './pages/employer_dashboard/Notifications';
@@ -42,30 +42,31 @@ import Settings from './pages/jobhunter_dashboard/Settings';
 // Import the site header (navbar)
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { useAuth } from './contexts/AuthContext';
+import { JobsProvider } from './contexts/JobsContext';
 
 // The main App component that defines routing and layout
 function App() {
+  const { token } = useAuth();
   return (
     // Router enables navigation without reloading the page
-    <Router>
-      {/* Main container for the app */}
-      <div className="App">
-        {/* Header component stays visible across all pages */}
-        <Header />
+    <JobsProvider>
+      <Router>
+        {/* Main container for the app */}
+        <div className="App">
+          {/* Header component stays visible across all pages */}
+          <Header />
 
-        {/* Routes define which page to show for each URL */}
-        <Routes>
+          {/* Routes define which page to show for each URL */}
+          <Routes>
           {/* When user visits '/', show Landing page */}
           <Route path="/" element={<Landing />} />
-
-          {/* When user visits '/jobs', show Jobs page */}
-          <Route path="/jobs" element={<Jobs />} />
 
           {/* Dashboard routes for roles */}
           <Route path="/employer" element={<EmployerLayout />}>
             <Route path="dashboard" element={<EmployerDashboard />} />
             <Route path="profile" element={<EmployerProfile />} />
-            <Route path="jobs" element={<EmployerJobs />} />
+            <Route path="jobPosting" element={<EmployerJobs />} />
             <Route path="applicants" element={<EmployerApplicants />} />
             <Route path="messages" element={<EmployerMessages />} />
             <Route path="notifications" element={<EmployerNotifications />} />
@@ -101,10 +102,11 @@ function App() {
             <Route path="/employer-signup-04" element={<SignUpE04 />} />
         </Routes>
 
-        {/* Site footer rendered on every page */}
-        <Footer />
-      </div>
-    </Router>
+          {/* Site footer: hide when user is logged in */}
+          {!token && <Footer />}
+        </div>
+      </Router>
+    </JobsProvider>
   );
 }
 

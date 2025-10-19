@@ -86,7 +86,7 @@ export default function EmployerLayout() {
               </Link>
             </li>
             <li>
-              <Link to="/employer/jobs" className="sidebar-link">
+              <Link to="/employer/JobPosting" className="sidebar-link">
                 <span className="icon" aria-hidden>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16v2H4zM4 11h10v2H4zM4 16h16v2H4z" fill="#233038"/></svg>
                 </span>
