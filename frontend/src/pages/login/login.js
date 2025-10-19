@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
@@ -13,6 +13,15 @@ function Login() {
   const auth = useAuth();
   const navigate = useNavigate();
 
+  // Set tab title on mount, reset on unmount
+  useEffect(() => {
+    const originalTitle = document.title;
+    document.title = "WorkConnect – Login";
+    return () => {
+      document.title = originalTitle;
+    };
+  }, []);
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -24,7 +33,6 @@ function Login() {
       if (role === "employer") navigate("/employer/dashboard");
       else navigate("/jobhunter/dashboard");
     } catch (err) {
-      // Friendly, non-revealing message if backend doesn't provide one
       const msg = err?.message || "The username or password you entered is incorrect.";
       setError(msg);
     } finally {
@@ -42,7 +50,7 @@ function Login() {
               <div className="brand-name">WorkConnect</div>
             </div>
             <h2 id="signin-title">Sign in to your account</h2>
-            <p className="login-sub">Welcome back — continue where you left off.</p>
+            <p className="login-sub" id="login-sub">Welcome back — continue where you left off.</p>
           </div>
 
           <div className="login-card-body">
@@ -52,7 +60,12 @@ function Login() {
 
             <div className="divider"><span>or</span></div>
 
-            <form onSubmit={onSubmit} aria-busy={loading} className={error ? 'has-error' : ''}>
+            <form
+              onSubmit={onSubmit}
+              aria-busy={loading}
+              className={error ? 'has-error' : ''}
+              aria-describedby="login-sub"
+            >
               <div className="form-group">
                 <label htmlFor="email">Email</label>
                 <input
@@ -63,6 +76,7 @@ function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
+                  autoFocus
                 />
               </div>
 
@@ -78,7 +92,6 @@ function Login() {
                     required
                     autoComplete="current-password"
                   />
-
                   <button
                     type="button"
                     className="eye-toggle-label"
@@ -92,7 +105,11 @@ function Login() {
                 </div>
               </div>
 
-              {error && <div className="error-box" role="alert">{error}</div>}
+              {error && (
+                <div className="error-box" role="alert" aria-live="assertive">
+                  {error}
+                </div>
+              )}
 
               <div className="form-actions">
                 <Link to="#" className="forgot-link">Forgot password?</Link>
