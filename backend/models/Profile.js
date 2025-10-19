@@ -6,7 +6,6 @@ const ProfileSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   email: { type: String, required: true },
-  // Employer / company fields
   companyName: String,
   companyWebsite: String,
   companyDescription: String,
@@ -15,7 +14,6 @@ const ProfileSchema = new mongoose.Schema({
   companySize: String,
   companyLocation: String,
   linkedin: String,
-  // Owner / HR representative fields
   ownerName: String,
   ownerPosition: String,
   ownerPhone: String,

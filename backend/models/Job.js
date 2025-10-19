@@ -5,14 +5,14 @@ const JobSchema = new mongoose.Schema({
   company: { type: String, required: true },
   location: { type: String },
   type: { type: String },
-  minSalary: { type: Number, required: false },
-  maxSalary: { type: Number, required: false },
-  currency: { type: String, required: false },
-  salaryFrequency: { type: String, required: false },
-  logoName: { type: String, required: false },
-  logoUrl: { type: String, required: false },
-  summary: { type: String },
-  description: { type: String },
+  minSalary: Number,
+  maxSalary: Number,
+  currency: String,
+  salaryFrequency: String,
+  logoName: String,
+  logoUrl: String,
+  summary: String,
+  description: String,
   easyApply: { type: Boolean, default: false },
   isRemote: { type: Boolean, default: false },
   isHybrid: { type: Boolean, default: false },
@@ -20,7 +20,7 @@ const JobSchema = new mongoose.Schema({
   postedAt: { type: Date, default: Date.now },
   applied: { type: Boolean, default: false },
   exclusive: { type: Boolean, default: false },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false }
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
 });
 
 module.exports = mongoose.model('Job', JobSchema);
