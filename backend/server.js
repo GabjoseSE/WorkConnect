@@ -53,6 +53,8 @@ app.use('/api/status', statusRoutes);
 const jobsRoutes = require('./routes/jobs');
 app.use('/api/jobs', jobsRoutes);
 
+const forgotPasswordRoutes = require('./routes/forgotPassword');
+app.use('/api/forgot-password', forgotPasswordRoutes);
 
 
 const PORT = process.env.PORT || 5000;
