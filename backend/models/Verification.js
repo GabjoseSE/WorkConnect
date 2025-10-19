@@ -8,7 +8,6 @@ const verificationSchema = new mongoose.Schema({
   used: { type: Boolean, default: false },
 }, { timestamps: true });
 
-// Auto-delete expired codes after TTL
 verificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('Verification', verificationSchema);
