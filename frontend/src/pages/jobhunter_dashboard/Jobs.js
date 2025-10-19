@@ -3,7 +3,7 @@ import './Jobs.css';
 import { useJobs } from '../../contexts/JobsContext';
 
 function Jobs() {
-  const { jobs } = useJobs();
+  const { jobs, savedJobs, toggleSave } = useJobs();
   const [selected, setSelected] = useState(jobs[0]);
   const [query, setQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState([]);
@@ -168,7 +168,21 @@ function Jobs() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                       <div style={{ fontWeight: 700, color: '#333' }}>{selected.salary || (selected.minSalary || selected.maxSalary ? `${selected.currency ? selected.currency + ' ' : ''}${selected.minSalary || ''}${selected.minSalary && selected.maxSalary ? ' - ' : ''}${selected.maxSalary || ''}${selected.salaryFrequency === 'hourly' ? '/hr' : '/yr'}` : '')}</div>
-                    <button className="wc-btn wc-btn-primary" style={{ marginTop: 10 }}>Apply</button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center' }}>
+                      <button className="wc-btn wc-btn-primary">Apply</button>
+                      <button
+                        className={`wc-btn wc-btn-ghost jobs-save-btn ${savedJobs.includes(selected.id) ? 'saved' : ''}`}
+                        title={savedJobs.includes(selected.id) ? 'Saved' : 'Save job'}
+                        onClick={() => toggleSave(selected)}
+                        aria-pressed={savedJobs.includes(selected.id)}
+                        style={{ marginTop: 10 }}
+                      >
+                        {/* bookmark icon */}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                          <path d="M6 2h12v18l-6-3-6 3V2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={savedJobs.includes(selected.id) ? 'currentColor' : 'none'} />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
 

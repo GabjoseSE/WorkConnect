@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { saveProfile } from '../../api/profile';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './profile.css';
 
 export default function Profile() {
-  const { profile } = useAuth(); // profile picture and basic info from auth
+  const { profile, token, setProfile } = useAuth(); // profile picture and basic info from auth
   const navigate = useNavigate();
 
   // lightweight local state for UI-only interactions (uploads, edits)
@@ -12,6 +13,9 @@ export default function Profile() {
   const [activities, setActivities] = useState([]);
   const [resumeFile, setResumeFile] = useState(null);
   const [avatarEditing, setAvatarEditing] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const avatarInputRef = useRef(null);
 
   // fallback profile when auth profile not present
   const user = profile || {
@@ -23,6 +27,24 @@ export default function Profile() {
     email: 'philip@example.com',
     phone: '+351 912 345 678'
   };
+
+  // Controlled fields for main profile inputs
+  const [firstName, setFirstName] = useState(user.firstName || '');
+  const [lastName, setLastName] = useState(user.lastName || '');
+  const [emailState, setEmailState] = useState(user.email || '');
+  const [phoneState, setPhoneState] = useState(user.phone || '');
+  // split location into city, province/state, country (if provided)
+  const locParts = (user.location || '').split(',').map(p => p.trim()).filter(Boolean);
+  const [cityState, setCityState] = useState(locParts[0] || '');
+  const [stateProvince, setStateProvince] = useState(locParts[1] || '');
+  const [country, setCountry] = useState(locParts.slice(2).join(', ') || '');
+  const [bioState, setBioState] = useState(user.bio || '');
+  const [gender, setGender] = useState(user.gender || '');
+  const [dob, setDob] = useState(user.dob ? new Date(user.dob).toISOString().substr(0,10) : '');
+  const [nationality, setNationality] = useState(user.nationality || '');
+  const [desiredJobType, setDesiredJobType] = useState(user.desiredJobType || 'Full-time');
+  const [workArrangement, setWorkArrangement] = useState(user.workArrangement || 'On-site');
+  const [expectedSalary, setExpectedSalary] = useState(user.expectedSalary || '');
 
   useEffect(() => {
     // keep previous behavior but with safer fallbacks
@@ -49,52 +71,82 @@ export default function Profile() {
     if (f) setResumeFile(f);
   };
 
+  // upload resume and save resumeUrl to profile
+  useEffect(() => {
+    if (!resumeFile || !token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const fd = new FormData();
+        fd.append('file', resumeFile);
+        const res = await fetch('/api/uploads', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        if (cancelled) return;
+        // save profile with resumeUrl
+        try {
+          const saved = await saveProfile({ ...profile, resumeUrl: data.url, __token: token });
+          if (setProfile) setProfile(saved);
+        } catch (err) {
+          console.warn('Failed to save resumeUrl', err);
+        }
+      } catch (err) {
+        console.warn('Resume upload failed', err);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeFile, token]);
+
   const handleAvatarEdit = () => {
-    setAvatarEditing(true);
-    // UI-only for now; wire to upload flow when backend ready
-    setTimeout(() => setAvatarEditing(false), 1500);
+    // open file picker instead of a plain edit state
+    if (avatarInputRef.current) avatarInputRef.current.click();
   };
 
-  // small wrapper to render an input (or textarea/select) with a right-side edit icon
-  function InputWrap({ children }) {
-    const [editing, setEditing] = useState(false);
-    const ref = React.useRef(null);
+  const handleAvatarChange = async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    // preview locally
+    const url = URL.createObjectURL(f);
+    // revoke previous preview when replacing
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    setAvatarPreview(url);
+    setAvatarFile(f);
 
-    React.useEffect(() => {
-      if (editing && ref.current && typeof ref.current.focus === 'function') {
-        try { ref.current.focus(); } catch (e) { /* ignore */ }
+    // upload to server via /api/uploads/logo then save profile.image
+    try {
+      const fd = new FormData();
+      fd.append('logo', f);
+      const res = await fetch('/api/uploads/logo', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      // save profile image url
+      if (token) {
+        try {
+          const saved = await saveProfile({ ...profile, image: data.url, __token: token });
+          if (setProfile) setProfile(saved);
+        } catch (err) {
+          console.warn('Failed to save profile image', err);
+        }
       }
-    }, [editing]);
+    } catch (err) {
+      console.debug('Avatar upload skipped or failed', err);
+    }
+  };
 
-    // detect if child is a select (hide edit icon on dropdowns)
-    const child = React.Children.only(children);
-    const isSelect = React.isValidElement(child) && (child.type === 'select' || child.props?.type === 'select');
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
 
-    const cloned = React.isValidElement(child)
-      ? React.cloneElement(child, { ref, readOnly: isSelect ? false : !editing })
-      : child;
-
-    return (
-      <div className="input-wrap">
-        {cloned}
-        {!isSelect && (
-          <>
-            {!editing ? (
-              <button type="button" className="field-edit" onClick={() => setEditing(true)} aria-label="Edit field">✏️</button>
-            ) : (
-              <button type="button" className="field-done" onClick={() => setEditing(false)} aria-label="Done">✓</button>
-            )}
-          </>
-        )}
-      </div>
-    );
-  }
+  // Note: InputWrap was removed per request. Inputs are rendered directly.
 
   // lists: languages, skills, portfolio links, certifications
-  const [languagesList, setLanguagesList] = useState(['English (Fluent)']);
+  const [languagesList, setLanguagesList] = useState(() => (profile && Array.isArray(profile.languages) ? profile.languages : []));
   const [newLanguage, setNewLanguage] = useState('');
 
-  const [skillsList, setSkillsList] = useState(['UI Design']);
+  const [skillsList, setSkillsList] = useState(() => (profile && Array.isArray(profile.skills) ? profile.skills : []));
   const [newSkill, setNewSkill] = useState('');
 
   const [portfolioList, setPortfolioList] = useState([]);
@@ -103,24 +155,102 @@ export default function Profile() {
   const [certsList, setCertsList] = useState([]);
   const [newCert, setNewCert] = useState('');
 
+  // education entries
+  const [educationList, setEducationList] = useState(() => (profile && Array.isArray(profile.education) ? profile.education : []));
+  const [newSchool, setNewSchool] = useState('');
+  const [newDegree, setNewDegree] = useState('');
+  const [newField, setNewField] = useState('');
+  const [newStartYear, setNewStartYear] = useState('');
+  const [newEndYear, setNewEndYear] = useState('');
+  const [newStatus, setNewStatus] = useState('Enrolled');
+  const [newEduDesc, setNewEduDesc] = useState('');
+
   function addIfNotEmpty(value, setter, clearSetter) {
     if (!value || !value.trim()) return;
     setter(prev => [...prev, value.trim()]);
     clearSetter('');
   }
 
+  // Debounced save: collect fields we care about and send to backend
+  const saveTimeout = useRef(null);
+  const scheduleSave = (patch) => {
+    if (!token) return; // only auto-save when authenticated
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(async () => {
+      try {
+        const payload = { ...profile, ...patch, __token: token };
+        const saved = await saveProfile(payload);
+        if (setProfile) setProfile(saved);
+      } catch (err) {
+        console.warn('Auto-save failed', err);
+      }
+    }, 700);
+  };
+
   function removeAt(index, setter) {
     setter(prev => prev.filter((_, i) => i !== index));
   }
+
+  // watch list changes and schedule save
+  useEffect(() => {
+    scheduleSave({ skills: skillsList });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skillsList]);
+
+  useEffect(() => {
+    if (profile && Array.isArray(profile.skills)) setSkillsList(profile.skills);
+  }, [profile]);
+
+  // if profile loads from server, populate languages (and keep in sync)
+  useEffect(() => {
+    if (profile && Array.isArray(profile.languages)) setLanguagesList(profile.languages);
+  }, [profile]);
+
+  useEffect(() => {
+    scheduleSave({ languages: languagesList });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [languagesList]);
+
+  useEffect(() => {
+    scheduleSave({ portfolio: portfolioList });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portfolioList]);
+
+  useEffect(() => {
+    scheduleSave({ certifications: certsList });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [certsList]);
+
+  // keep education in sync with profile when it loads
+  useEffect(() => {
+    // populate education from server only on first load (don't overwrite local edits)
+    if ((!educationList || educationList.length === 0) && profile && Array.isArray(profile.education)) {
+      setEducationList(profile.education);
+    }
+  }, [profile, educationList]);
+
+  // save education list when it changes
+  useEffect(() => {
+    scheduleSave({ education: educationList });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [educationList]);
+
+  // save when a field is finished editing (on blur)
+  const handleFieldBlur = () => {
+    const loc = [cityState, stateProvince, country].filter(Boolean).join(', ');
+    scheduleSave({ firstName, lastName, email: emailState, phone: phoneState, location: loc, bio: bioState, gender, dob, nationality, desiredJobType, workArrangement, expectedSalary });
+  };
+
 
   return (
     <div className="profile-page">
       <div className="profile-center">
         <header className="profile-top">
           <div className="profile-top-left">
-            <div className="profile-avatar large">
-              <img src={user.image} alt={`${user.firstName} ${user.lastName}`} />
-              <button className="edit-avatar-btn" onClick={handleAvatarEdit} aria-label="Edit avatar">✏️</button>
+            <div className="profile-avatar large" role="button" tabIndex={0} onClick={handleAvatarEdit} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleAvatarEdit(); }} aria-label="Change profile picture">
+              <img src={avatarPreview || user.image} alt={`${user.firstName} ${user.lastName}`} />
+              
+              <input ref={avatarInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
             </div>
             <div className="profile-meta">
               <h1 className="profile-name">{user.firstName} {user.lastName}</h1>
@@ -139,46 +269,101 @@ export default function Profile() {
             <section className="card">
               <div className="card-body">
                 <h3>Basic Information</h3>
-                <div className="form-row">
-                  <label>Full Name</label>
-                  <InputWrap>
-                    <input defaultValue={`${user.firstName} ${user.lastName}`} />
-                  </InputWrap>
+                <div className="form-row two-col">
+                  <div>
+                    <label>First Name</label>
+                    <div className="input-wrap">
+                      <input value={firstName} onChange={(e) => setFirstName(e.target.value)} onBlur={handleFieldBlur} />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Last Name</label>
+                    <div className="input-wrap">
+                      <input value={lastName} onChange={(e) => setLastName(e.target.value)} onBlur={handleFieldBlur} />
+                    </div>
+                  </div>
                 </div>
                 {/* Job Title / Role removed as requested */}
                 <div className="form-row two-col">
                   <div>
                     <label>Contact (Email)</label>
-                    <InputWrap>
-                      <input defaultValue={user.email} />
-                    </InputWrap>
+                    <div className="input-wrap">
+                      <input value={emailState} onChange={(e) => setEmailState(e.target.value)} onBlur={handleFieldBlur} />
+                    </div>
                   </div>
                   <div>
                     <label>Phone</label>
-                    <InputWrap>
-                      <input defaultValue={user.phone} />
-                    </InputWrap>
+                    <div className="input-wrap">
+                      <input value={phoneState} onChange={(e) => setPhoneState(e.target.value)} onBlur={handleFieldBlur} />
+                    </div>
                   </div>
                 </div>
                 <div className="form-row two-col">
                   <div>
                     <label>City</label>
-                    <InputWrap>
-                      <input defaultValue={(user.location || '').split(',')[0]} />
-                    </InputWrap>
+                    <div className="input-wrap">
+                      <input value={cityState} onChange={(e) => setCityState(e.target.value)} onBlur={handleFieldBlur} />
+                    </div>
                   </div>
                   <div>
-                    <label>Province / State</label>
-                    <InputWrap>
-                      <input />
-                    </InputWrap>
+                    <div className="province-country">
+                      <div>
+                        <label>Province / State</label>
+                        <div className="input-wrap">
+                          <input placeholder="Province / State" value={stateProvince} onChange={(e) => setStateProvince(e.target.value)} onBlur={handleFieldBlur} />
+                        </div>
+                      </div>
+                      <div>
+                        <label>Country</label>
+                        <div className="input-wrap">
+                          <input placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} onBlur={handleFieldBlur} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="form-row">
                   <label>About / Bio</label>
-                  <InputWrap>
-                    <textarea placeholder="Tell employers about yourself, your career goals and strengths." rows={5} />
-                  </InputWrap>
+                  <div className="input-wrap">
+                    <textarea value={bioState} onChange={(e) => setBioState(e.target.value)} onBlur={handleFieldBlur} placeholder="Tell employers about yourself, your career goals and strengths." rows={5} />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="card">
+              <div className="card-body">
+                <h3>Educational Background</h3>
+                <div className="form-row">
+                  <label>Education</label>
+                  <div className="list-input">
+                    <div className="chips">
+                      {educationList.map((e, i) => (
+                        <span className="chip" key={i}>{e.school} — {e.degree} ({e.startYear}{e.endYear ? ' – ' + e.endYear : ' – Present'}) · {e.status} <button onClick={() => removeAt(i, setEducationList)} className="chip-remove" aria-label={`Remove ${e.school}`}>×</button></span>
+                      ))}
+                    </div>
+                    <div className="add-row education-add">
+                      <input value={newSchool} onChange={(e) => setNewSchool(e.target.value)} placeholder="School / Institution" />
+                      <input value={newDegree} onChange={(e) => setNewDegree(e.target.value)} placeholder="Degree / Program" />
+                      <input value={newField} onChange={(e) => setNewField(e.target.value)} placeholder="Field of Study (optional)" />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input value={newStartYear} onChange={(e) => setNewStartYear(e.target.value)} placeholder="Start Year (e.g. 2019)" />
+                        <input value={newEndYear} onChange={(e) => setNewEndYear(e.target.value)} placeholder="End Year (e.g. 2023) or Present" />
+                      </div>
+                      <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+                        <option>Enrolled</option>
+                        <option>Graduated</option>
+                        <option>On leave</option>
+                        <option>Withdrawn</option>
+                      </select>
+                      <input value={newEduDesc} onChange={(e) => setNewEduDesc(e.target.value)} placeholder="Short description (optional)" />
+                      <button type="button" className="add-btn" onClick={() => {
+                        if (!newSchool.trim()) return;
+                        setEducationList(prev => [...prev, { school: newSchool.trim(), degree: newDegree.trim(), field: newField.trim(), startYear: newStartYear.trim(), endYear: newEndYear.trim(), status: newStatus, desc: newEduDesc.trim() }]);
+                        setNewSchool(''); setNewDegree(''); setNewField(''); setNewStartYear(''); setNewEndYear(''); setNewStatus('Enrolled'); setNewEduDesc('');
+                      }}>+</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -205,30 +390,24 @@ export default function Profile() {
                 <div className="form-row">
                   <label>Experience</label>
                   <div className="experience-item">
-                    <InputWrap><input placeholder="Company" /></InputWrap>
-                    <InputWrap><input placeholder="Position" /></InputWrap>
-                    <InputWrap><input placeholder="Duration (e.g. 2019 - 2021)" /></InputWrap>
-                    <InputWrap><textarea placeholder="Short description" rows={3}></textarea></InputWrap>
+                    <div className="input-wrap"><input placeholder="Company" /></div>
+                    <div className="input-wrap"><input placeholder="Position" /></div>
+                    <div className="input-wrap"><input placeholder="Duration (e.g. 2019 - 2021)" /></div>
+                    <div className="input-wrap"><textarea placeholder="Short description" rows={3}></textarea></div>
                   </div>
                 </div>
 
-                <div className="form-row two-col">
-                  <div>
-                    <label>Education</label>
-                    <InputWrap><input placeholder="School, Course, Year" /></InputWrap>
-                  </div>
-                  <div>
-                    <label>Certifications / Training</label>
-                    <div className="list-input">
-                      <div className="chips">
-                        {certsList.map((c, i) => (
-                          <span className="chip" key={i}>{c}<button onClick={() => removeAt(i, setCertsList)} className="chip-remove" aria-label={`Remove ${c}`}>×</button></span>
-                        ))}
-                      </div>
-                      <div className="add-row">
-                        <input value={newCert} onChange={(e) => setNewCert(e.target.value)} placeholder="Add certification" />
-                        <button type="button" className="add-btn" onClick={() => addIfNotEmpty(newCert, setCertsList, setNewCert)}>+</button>
-                      </div>
+                <div className="form-row">
+                  <label>Certifications / Training</label>
+                  <div className="list-input">
+                    <div className="chips">
+                      {certsList.map((c, i) => (
+                        <span className="chip" key={i}>{c}<button onClick={() => removeAt(i, setCertsList)} className="chip-remove" aria-label={`Remove ${c}`}>×</button></span>
+                      ))}
+                    </div>
+                    <div className="add-row">
+                      <input value={newCert} onChange={(e) => setNewCert(e.target.value)} placeholder="Add certification" />
+                      <button type="button" className="add-btn" onClick={() => addIfNotEmpty(newCert, setCertsList, setNewCert)}>+</button>
                     </div>
                   </div>
                 </div>
@@ -243,25 +422,25 @@ export default function Profile() {
                 <div className="form-row two-col">
                   <div>
                     <label>Gender</label>
-                    <InputWrap>
-                      <select>
-                        <option>Prefer not to say</option>
-                        <option>Female</option>
-                        <option>Male</option>
-                        <option>Other</option>
+                    <div className="input-wrap">
+                      <select value={gender} onChange={(e) => setGender(e.target.value)} onBlur={handleFieldBlur}>
+                        <option value="">Prefer not to say</option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Other">Other</option>
                       </select>
-                    </InputWrap>
+                    </div>
                   </div>
                   <div>
                     <label>Date of Birth</label>
-                    <InputWrap>
-                      <input type="date" />
-                    </InputWrap>
+                    <div className="input-wrap">
+                      <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} onBlur={handleFieldBlur} />
+                    </div>
                   </div>
                 </div>
                 <div className="form-row">
                   <label>Nationality</label>
-                  <InputWrap><input /></InputWrap>
+                  <div className="input-wrap"><input value={nationality} onChange={(e) => setNationality(e.target.value)} onBlur={handleFieldBlur} /></div>
                 </div>
                 <div className="form-row">
                   <label>Languages</label>
@@ -312,28 +491,28 @@ export default function Profile() {
                 <h3>Preferences</h3>
                 <div className="form-row">
                   <label>Desired Job Type</label>
-                  <InputWrap>
-                    <select>
+                  <div className="input-wrap">
+                    <select value={desiredJobType} onChange={(e) => setDesiredJobType(e.target.value)} onBlur={handleFieldBlur}>
                       <option>Full-time</option>
                       <option>Part-time</option>
                       <option>Internship</option>
                       <option>Contract</option>
                     </select>
-                  </InputWrap>
+                  </div>
                 </div>
                 <div className="form-row">
                   <label>Work Arrangement</label>
-                  <InputWrap>
-                    <select>
+                  <div className="input-wrap">
+                    <select value={workArrangement} onChange={(e) => setWorkArrangement(e.target.value)} onBlur={handleFieldBlur}>
                       <option>On-site</option>
                       <option>Remote</option>
                       <option>Hybrid</option>
                     </select>
-                  </InputWrap>
+                  </div>
                 </div>
                 <div className="form-row">
                   <label>Expected Salary (optional)</label>
-                  <InputWrap><input placeholder="e.g. 30,000 - 45,000 EUR" /></InputWrap>
+                  <div className="input-wrap"><input value={expectedSalary} onChange={(e) => setExpectedSalary(e.target.value)} onBlur={handleFieldBlur} placeholder="e.g. 30,000 - 45,000 EUR" /></div>
                 </div>
               </div>
             </section>

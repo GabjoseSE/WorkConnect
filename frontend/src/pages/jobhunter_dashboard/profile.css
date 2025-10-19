@@ -33,7 +33,8 @@
   width: 84px;
   height: 84px;
   border-radius: 50%;
-  overflow: hidden;
+  /* allow the edit overlay to be placed outside the avatar circle */
+  overflow: visible;
   box-shadow: 0 4px 10px rgba(0,0,0,0.04);
   position: relative;
 }
@@ -45,15 +46,37 @@
   display: block;
 }
 
-.edit-avatar-btn {
+/* keep the image clipped to the circular avatar while the overlay can sit outside */
+.profile-avatar.large img {
+  border-radius: 50%;
+  position: relative;
+  z-index: 1; /* place image below the overlay */
+}
+
+.profile-avatar.large { cursor: pointer }
+.profile-avatar.large:focus { outline: 3px solid rgba(16,185,129,0.12); }
+.edit-avatar-overlay {
   position: absolute;
-  right: -8px;
-  bottom: -8px;
+  /* push further outside so it's clearly outside the circle */
+  right: -10px;
+  bottom: -10px;
   background: #fff;
   border-radius: 50%;
-  padding: 6px;
-  border: 1px solid #e6e6e6;
+  padding: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  font-size: 14px;
+  line-height: 1;
+  box-shadow: 0 8px 20px rgba(15,23,42,0.12);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transform: translateZ(0);
+}
+.profile-avatar.large:hover .edit-avatar-overlay,
+.profile-avatar.large:focus .edit-avatar-overlay {
+  transform: translateY(-2px);
 }
 
 .profile-meta .profile-name {
@@ -127,8 +150,27 @@
 }
 .input-wrap input, .input-wrap textarea, .input-wrap select { padding-right: 36px }
 
-.form-row.two-col { display:flex; gap:12px }
-.form-row.two-col > div { flex:1 }
+.form-row.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.form-row.two-col > div {
+  min-width: 0; /* ensure inputs can shrink within grid cells */
+}
+
+/* inline layout for province + country inputs inside the same column */
+.province-country { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.province-country .input-wrap { margin: 0 }
+
+
+@media (max-width: 600px) {
+  .form-row.two-col {
+    grid-template-columns: 1fr; /* stack on small screens */
+  }
+  .province-country { grid-template-columns: 1fr; }
+}
 
 .experience-item input { margin-bottom:6px }
 .experience-item textarea { margin-top:6px }
@@ -154,10 +196,21 @@
 
 /* addable list UI (languages, skills, portfolio, certifications) */
 .list-input { display:flex; flex-direction:column; gap:8px }
-.chips { display:flex; flex-wrap:wrap; gap:8px }
-.chip { background:#eef2ff; padding:6px 8px; border-radius:999px; display:inline-flex; align-items:center; gap:8px }
+.chips { display:flex; flex-wrap:wrap; gap:6px }
+.chip { background:#eef2ff; padding:4px 6px; border-radius:999px; display:inline-flex; align-items:center; gap:6px; font-size:13px }
 .chip a { color:#1e3a8a; text-decoration:none }
-.chip-remove { background:transparent; border:none; margin-left:6px; cursor:pointer; font-weight:700 }
+.chip-remove { background:transparent; border:none; margin-left:4px; cursor:pointer; font-weight:700; font-size:12px; line-height:1 }
 .add-row { display:flex; gap:8px }
 .add-row input { flex:1 }
 .add-btn { background:#0ea5a4; color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer }
+
+/* Education add-row specific: stack inputs vertically for readability */
+.education-add { display:flex; flex-direction:column; gap:8px }
+.education-add input, .education-add select { width:100%; }
+
+@media (min-width:900px) {
+  /* on wide screens allow grouping years inline */
+  .education-add { flex-direction:row; align-items:center; flex-wrap:wrap }
+  .education-add input, .education-add select { width:auto; min-width:160px }
+  .education-add > div { display:flex; gap:8px }
+}

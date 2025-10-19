@@ -57,6 +57,17 @@ opacity: 1;
 transform: translateX(0);
 }
 
+/* Active state for current route */
+.sidebar-link.active {
+	background: linear-gradient(90deg, rgba(17, 129, 116, 0.08), rgba(17, 129, 116, 0.04));
+	box-shadow: inset 3px 0 0 0 #11c28f;
+	color: #0b7a63;
+}
+.sidebar-link.active .icon svg,
+.sidebar-link.active .icon path {
+	fill: #0b7a63 !important;
+}
+
 /* Ensure hover still works when collapsed */
 .dashboard-sidebar.collapsed .sidebar-link:hover {
 background: #f3faf7;

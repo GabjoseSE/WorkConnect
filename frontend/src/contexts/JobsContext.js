@@ -82,6 +82,32 @@ export function JobsProvider({ children }) {
     }
   });
 
+  const [savedJobs, setSavedJobs] = useState(() => {
+    try {
+      const raw = localStorage.getItem('wc_saved_jobs');
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // persist saved jobs locally
+  useEffect(() => {
+    try {
+      localStorage.setItem('wc_saved_jobs', JSON.stringify(savedJobs));
+    } catch (e) {
+      // ignore
+    }
+  }, [savedJobs]);
+
+  function toggleSave(job) {
+    setSavedJobs(prev => {
+      const exists = prev.includes(job.id);
+      if (exists) return prev.filter(id => id !== job.id);
+      return [...prev, job.id];
+    });
+  }
+
   // persist locally
   useEffect(() => {
     try {
@@ -182,7 +208,7 @@ export function JobsProvider({ children }) {
   }
 
   return (
-    <JobsContext.Provider value={{ jobs, setJobs, addJob }}>
+    <JobsContext.Provider value={{ jobs, setJobs, addJob, savedJobs, toggleSave }}>
       {children}
     </JobsContext.Provider>
   );

@@ -26,3 +26,9 @@
 
 /* explicitly apply stroke color to the svg path so currentColor is used reliably */
 .jobs-filter-pill .jobs-chevron path{stroke:currentColor}
+
+/* save button near Apply */
+.jobs-save-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:8px;border:1px solid #e7e7e7;background:#fff;cursor:pointer}
+.jobs-save-btn:hover{background:#f7f7f7}
+.jobs-save-btn.saved{background:#018a66;color:#fff;border-color:transparent}
+.jobs-save-btn svg{display:block}
