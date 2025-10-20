@@ -127,7 +127,7 @@ export default function SignUpE02() {
         {locationError && <div className="signup-error">{locationError}</div>}
       </div>
 
-      <div style={{ marginTop: 22 }}>
+      <div style={{ marginTop: 22, display: 'flex', justifyContent: 'flex-end' }}>
         <button className="signup01-continue" onClick={onNext}>Next</button>
       </div>
     </div>

@@ -4,9 +4,12 @@ import SignupProgress from '../SignupProgress';
 import { useSignup } from '../../../contexts/SignupContext';
 import '../../signup/signup.css';
 import CountrySelect from '../CountrySelect';
+import { signup } from '../../../api/auth';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export default function SignUpE03() {
   const navigate = useNavigate();
+  const auth = useAuth();
   const { data, update, setCurrentStep } = useSignup();
   useEffect(() => setCurrentStep(3), [setCurrentStep]);
 
@@ -25,9 +28,46 @@ export default function SignUpE03() {
     setFullNameError(''); setEmailError('');
     if (!fullName) { setFullNameError('Please enter full name'); if (fullNameRef.current) { fullNameRef.current.focus(); fullNameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     if (!email) { setEmailError('Please enter a work email'); if (emailRef.current) { emailRef.current.focus(); emailRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
+  if (!data.password) { alert('Password missing from earlier step; please go back and set a password.'); return; }
   update({ ownerName: fullName, ownerPosition: position, ownerPhone: phone, email });
-  // verification moved to step 1; go directly to company profile step (SignUpE04)
-  navigate('/employer-signup-04');
+  // Build payload and finish signup here
+  (async () => {
+    try {
+      const payload = {
+        email: email,
+        password: data.password,
+        role: 'employer',
+        // company fields may be present on the signup context
+        companyName: data.companyName,
+        companyWebsite: data.companyWebsite,
+        industry: data.industry,
+        companySize: data.companySize,
+        companyLocation: data.companyLocation,
+        companyDescription: data.companyDescription,
+        companyLogo: data.companyLogo,
+        ownerName: fullName,
+        ownerPosition: position,
+        ownerPhone: phone,
+      };
+
+      const result = await signup(payload);
+      // update signup context with returned profile/userId
+      update({ ...result.profile, userId: result.userId });
+
+      // attempt auto-login
+      try {
+        if (data.password) await auth.login(email, data.password);
+      } catch (e) {
+        console.warn('Auto-login failed', e);
+      }
+
+      // go to employer dashboard
+      navigate('/employer/dashboard');
+    } catch (err) {
+      console.error('Employer signup failed', err);
+      alert(err?.message || 'Failed to finish signup');
+    }
+  })();
   };
 
   return (
@@ -70,7 +110,7 @@ export default function SignUpE03() {
         {emailError && <div className="signup-error">{emailError}</div>}
       </div>
 
-      <div style={{ marginTop: 22 }}>
+      <div style={{ marginTop: 22 ,display: 'flex', justifyContent: 'flex-end'}}>
         <button className="signup01-continue" onClick={onNext}>Next</button>
       </div>
     </div>

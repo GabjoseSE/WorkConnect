@@ -168,6 +168,23 @@
             border-radius: 8px;
             margin-bottom: 12px;
             font-size: 14px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Info / success message box (used on reset flows) */
+        .info-box {
+            background: #f6fffa;
+            border: 1px solid #dff5ea;
+            color: #0a7d52;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* Form Actions (Remember Me / Forgot Password) */

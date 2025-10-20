@@ -10,7 +10,10 @@ export function SignupProvider({ children }) {
     lastName: '',
     email: '',
     password: '',
+  confirmPassword: '',
     emailVerified: false,
+  // whether verification was sent (so UI can preserve OTP state)
+  verificationSent: false,
     // Step 2: contact
     phone: '',
     phoneCountry: '+63',

@@ -27,19 +27,53 @@ router.post('/signup', async (req, res) => {
 
     // ✅ If employer, create a separate employer profile
     if (role === 'employer') {
-      await EmployersProfile.create({
+      // Build employer payload but do not include empty strings for enum fields
+      const employerPayload = {
         userId: user._id,
         companyName: profileData.companyName || '',
         companyWebsite: profileData.companyWebsite || '',
-        companySize: profileData.companySize || '',
+        industry: profileData.industry || '',
+        companyStreetAddress: profileData.companyStreetAddress || '',
+        companyCity: profileData.companyCity || '',
+        companyRegion: profileData.companyRegion || '',
+        companyPostalCode: profileData.companyPostalCode || '',
+        companyCountry: profileData.companyCountry || '',
+        companyLocation: profileData.companyLocation || '',
+        companyDescription: profileData.companyDescription || '',
+        companyLogo: profileData.companyLogo || '',
+        linkedin: profileData.linkedin || '',
+        ownerName: profileData.ownerName || '',
+        ownerPosition: profileData.ownerPosition || '',
+        ownerPhone: profileData.ownerPhone || '',
+        phoneCountry: profileData.phoneCountry || '+63',
         ownerEmail: email,
-        emailVerified: false,
-      });
+        emailVerified: !!profileData.emailVerified,
+      };
+
+      // Only include companySize if provided and non-empty to satisfy enum validation
+      if (profileData.companySize) {
+        employerPayload.companySize = profileData.companySize;
+      }
+
+      await EmployersProfile.create(employerPayload);
     }
 
     res.status(201).json({ userId: user._id, role, profile });
   } catch (err) {
     console.error('Signup error:', err);
+    res.status(500).json({ error: 'server error' });
+  }
+});
+
+// GET /api/auth/exists?email=foo@bar.com
+router.get('/exists', async (req, res) => {
+  try {
+    const email = (req.query.email || '').toString().trim().toLowerCase();
+    if (!email) return res.status(400).json({ error: 'email required' });
+    const existing = await User.findOne({ email });
+    res.json({ exists: !!existing });
+  } catch (err) {
+    console.error('Exists check error', err);
     res.status(500).json({ error: 'server error' });
   }
 });

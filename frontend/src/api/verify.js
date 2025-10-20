@@ -4,7 +4,11 @@ export async function sendCode(contact, method = 'email') {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contact, method }),
   });
-  if (!res.ok) throw new Error('Failed to send code');
+  if (!res.ok) {
+    let errText = 'Failed to send code';
+    try { const data = await res.json(); if (data && data.error) errText = data.error; } catch (e) { /* ignore */ }
+    throw new Error(errText);
+  }
   return res.json();
 }
 
@@ -14,6 +18,10 @@ export async function verifyCode(contact, code) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contact, code }),
   });
-  if (!res.ok) throw new Error('Failed to verify code');
+  if (!res.ok) {
+    let errText = 'Failed to verify code';
+    try { const data = await res.json(); if (data && data.error) errText = data.error; } catch (e) { /* ignore */ }
+    throw new Error(errText);
+  }
   return res.json();
 }

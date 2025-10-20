@@ -1,17 +1,17 @@
 .jobs-filters{display:flex;gap:10px;flex-wrap:wrap}
-.jobs-filter-pill{padding:8px 14px;border-radius:24px;border:1px solid #e7e7e7;background:#fff;cursor:pointer;font-size:13px}
-.jobs-filter-pill.active{background:#018a66;color:#fff;border-color:transparent;box-shadow:0 4px 8px rgba(1,138,102,0.12)}
-.jobs-filter-pill:focus{outline:none;box-shadow:0 0 0 3px rgba(1,138,102,0.08)}
+.jobs-filter-pill{padding:8px 14px;border-radius:24px;border:1px solid rgba(55,71,79,0.06);background:var(--wc-bg);cursor:pointer;font-size:13px;color:var(--wc-neutral)}
+.jobs-filter-pill.active{background:var(--wc-primary);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(12,32,55,0.06)}
+.jobs-filter-pill:focus{outline:none;box-shadow:0 0 0 3px rgba(11,107,74,0.08)}
 
 .jobs-filter-wrap{position:relative}
-.jobs-dropdown-menu{position:absolute;top:42px;left:0;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;box-shadow:0 8px 20px rgba(0,0,0,0.08);z-index:200}
+.jobs-dropdown-menu{position:absolute;top:42px;left:0;background:var(--wc-bg);border:1px solid rgba(55,71,79,0.06);border-radius:8px;padding:8px;box-shadow:0 8px 20px rgba(12,32,55,0.07);z-index:200}
 .jobs-dropdown-item{display:block;padding:6px 8px;font-size:14px}
 .jobs-dropdown-item input{margin-right:8px}
 
 /* active chips */
-.jobs-active-chips .jobs-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:20px;background:#f3f7f5;border:1px solid #e6efea;cursor:pointer}
-.jobs-active-chips .jobs-chip:focus{outline:none;box-shadow:0 0 0 3px rgba(1,138,102,0.08)}
-.jobs-clear{margin-left:6px;padding:6px 10px;border-radius:20px;border:1px solid #ddd;background:#fff;cursor:pointer}
+.jobs-active-chips .jobs-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:20px;background:rgba(77,182,172,0.06);border:1px solid rgba(77,182,172,0.12);cursor:pointer;color:var(--wc-primary)}
+.jobs-active-chips .jobs-chip:focus{outline:none;box-shadow:0 0 0 3px rgba(11,107,74,0.08)}
+.jobs-clear{margin-left:6px;padding:6px 10px;border-radius:20px;border:1px solid rgba(55,71,79,0.06);background:var(--wc-bg);cursor:pointer;color:var(--wc-neutral)}
 .jobs-filters-right{display:flex;justify-content:flex-end;width:100%}
 
 /* dropdown appear animation */
@@ -19,7 +19,7 @@
 @keyframes popIn{from{opacity:0;transform:translateY(-6px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* chevron in pills */
-.jobs-filter-pill{display:inline-flex;align-items:center;gap:8px;color:#2b2b2b}
+.jobs-filter-pill{display:inline-flex;align-items:center;gap:8px;color:var(--wc-neutral)}
 .jobs-filter-pill.active{color:#fff}
 .jobs-filter-pill .jobs-chevron{transition:transform 160ms ease-out;transform:rotate(0deg);}
 .jobs-filter-pill.open .jobs-chevron{transform:rotate(180deg)}
@@ -28,7 +28,7 @@
 .jobs-filter-pill .jobs-chevron path{stroke:currentColor}
 
 /* save button near Apply */
-.jobs-save-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:8px;border:1px solid #e7e7e7;background:#fff;cursor:pointer}
-.jobs-save-btn:hover{background:#f7f7f7}
-.jobs-save-btn.saved{background:#018a66;color:#fff;border-color:transparent}
+.jobs-save-btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:8px;border:1px solid rgba(55,71,79,0.06);background:var(--wc-bg);cursor:pointer;color:var(--wc-neutral)}
+.jobs-save-btn:hover{background:rgba(0,0,0,0.03)}
+.jobs-save-btn.saved{background:var(--wc-primary);color:#fff;border-color:transparent}
 .jobs-save-btn svg{display:block}

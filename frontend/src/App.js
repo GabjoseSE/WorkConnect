@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Import all page components used in the app
 import Login from "./pages/login/login";
+import ForgotPass from "./pages/login/forgotpass";
 import Jobs from "./pages/jobhunter_dashboard/Jobs";
 import Landing from "./pages/landing/Landing";
 import SignUp01 from "./pages/signup/jobhunter/SignUp01";
@@ -19,7 +20,6 @@ import ChooseRole from "./pages/signup/ChooseRole";
 import SignUpE01 from "./pages/signup/employer/SignUpE01";
 import SignUpE02 from "./pages/signup/employer/SignUpE02";
 import SignUpE03 from "./pages/signup/employer/SignUpE03";
-import SignUpE04 from "./pages/signup/employer/SignUpE04";
 import JobhunterDashboard from './pages/jobhunter_dashboard/JobhunterDashboard';
 import EmployerDashboard from './pages/employer_dashboard/EmployerDashboard';
 import EmployerLayout from './pages/employer_dashboard/EmployerLayout';
@@ -88,6 +88,7 @@ function App() {
 
           {/* When user visits '/login', show Login page */}
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPass />} />
 
           {/* Signup process split into multiple steps (01–04) */}
           <Route path="/signup-01" element={<SignUp01 />} />
@@ -99,7 +100,6 @@ function App() {
             <Route path="/employer-signup-01" element={<SignUpE01 />} />
             <Route path="/employer-signup-02" element={<SignUpE02 />} />
             <Route path="/employer-signup-03" element={<SignUpE03 />} />
-            <Route path="/employer-signup-04" element={<SignUpE04 />} />
         </Routes>
 
           {/* Site footer: hide when user is logged in */}

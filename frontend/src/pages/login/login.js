@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
@@ -10,6 +10,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const errorRef = useRef(null);
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -22,10 +23,28 @@ function Login() {
     };
   }, []);
 
+  useEffect(() => {
+    if (error && errorRef.current) {
+      try { errorRef.current.focus(); } catch (e) { /* ignore focus errors */ }
+    }
+  }, [error]);
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    // client-side validation for empty fields
+    if (!email || email.trim() === '') {
+      setError('Please enter your email.');
+      setLoading(false);
+      return;
+    }
+    if (!password || password.trim() === '') {
+      setError('Password field cannot be empty.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await auth.login(email, password);
@@ -33,8 +52,32 @@ function Login() {
       if (role === "employer") navigate("/employer/dashboard");
       else navigate("/jobhunter/dashboard");
     } catch (err) {
-      const msg = err?.message || "The username or password you entered is incorrect.";
-      setError(msg);
+      // map a wide range of server/network errors to friendly messages
+      const raw = String(err?.message || err || '');
+      const lc = raw.toLowerCase();
+
+      let friendly = 'Incorrect username or password.';
+      if (!raw || lc.includes('failed to fetch') || lc.includes('networkerror') || lc.includes('network request failed') || lc.includes('fetch')) {
+        friendly = 'Unable to connect. Please try again later.';
+      } else if (lc.includes('login failed') || lc.includes('incorrect') || lc.includes('invalid') || lc.includes('credentials') || lc.includes('password')) {
+        friendly = 'Incorrect username or password.';
+      } else if (lc.includes('email and password do not match')) {
+        friendly = 'Email and password do not match.';
+      } else if (lc.includes('no user') || lc.includes('not found') || lc.includes('user not found') || lc.includes('account not found')) {
+        friendly = 'Account not found.';
+      } else if (lc.includes('suspend') || lc.includes('deactivate') || lc.includes('deactivated')) {
+        friendly = 'Account suspended or deactivated.';
+      } else if (lc.includes('not verified') || lc.includes('verify')) {
+        friendly = 'Email not verified. Please check your inbox.';
+      } else if (lc.includes('too many') || lc.includes('attempts')) {
+        friendly = 'Too many failed attempts. Try again later.';
+      } else if (lc.includes('session expired')) {
+        friendly = 'Session expired. Please log in again.';
+      } else if (lc.includes('server') || lc.includes('internal')) {
+        friendly = 'Server error. Contact support.';
+      }
+
+      setError(friendly);
     } finally {
       setLoading(false);
     }
@@ -106,16 +149,13 @@ function Login() {
               </div>
 
               {error && (
-                <div className="error-box" role="alert" aria-live="assertive">
+                <div ref={errorRef} tabIndex={-1} className="error-box" role="alert" aria-live="assertive">
                   {error}
                 </div>
               )}
 
               <div className="form-actions">
-                <Link to="#" className="forgot-link">Forgot password?</Link>
-                <label className="remember">
-                  <input type="checkbox" /> Remember me
-                </label>
+                <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
               </div>
 
               <button type="submit" className="signin-btn" disabled={loading}>

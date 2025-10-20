@@ -15,18 +15,7 @@ export function AuthProvider({ children }) {
     }
   });
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem('wc_token', token);
-    } else {
-      localStorage.removeItem('wc_token');
-    }
-  }, [token]);
-
-  useEffect(() => {
-    if (userId) localStorage.setItem('wc_userId', userId);
-    else localStorage.removeItem('wc_userId');
-  }, [userId]);
+  // we persist token and userId explicitly in login/logout to control session vs persistent storage
 
   useEffect(() => {
     if (profile) localStorage.setItem('wc_profile', JSON.stringify(profile));
@@ -39,6 +28,13 @@ export function AuthProvider({ children }) {
     if (!res || !res.token) throw new Error('Login failed');
     setToken(res.token);
     setUserId(res.userId);
+    // Clear any stale profile while we fetch the correct one
+    setProfile(null);
+    // persist token and userId to localStorage (remember behavior removed)
+    try {
+      localStorage.setItem('wc_token', res.token);
+      localStorage.setItem('wc_userId', res.userId);
+    } catch (e) { /* ignore storage errors */ }
     // fetch profile and store (pass userId to support in-memory dev fallback)
     try {
       const p = await apiGetOwnProfile(res.token, res.userId);
@@ -56,7 +52,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let cancelled = false;
     async function fetchProfile() {
-      if (!token || profile) return;
+      if (!token) return;
+      // if we already have a profile, but it belongs to a different user, refetch
+      if (profile && userId && String(profile.userId) === String(userId)) return;
       try {
         const p = await apiGetOwnProfile(token, userId);
         if (!cancelled) setProfile(p);
@@ -72,6 +70,12 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUserId(null);
     setProfile(null);
+    try {
+      localStorage.removeItem('wc_token');
+      localStorage.removeItem('wc_userId');
+      sessionStorage.removeItem('wc_token');
+      sessionStorage.removeItem('wc_userId');
+    } catch (e) { /* ignore */ }
   };
 
   return (
