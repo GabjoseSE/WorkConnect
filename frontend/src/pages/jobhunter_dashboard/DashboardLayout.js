@@ -56,11 +56,11 @@ const doLogout = async () => {
         >
           {collapsed ? (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M9 6L15 12L9 18" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M9 6L15 12L9 18" stroke="#ffffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           ) : (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M15 6L9 12L15 18" stroke="#233038" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M15 6L9 12L15 18" stroke="#ffffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </button>

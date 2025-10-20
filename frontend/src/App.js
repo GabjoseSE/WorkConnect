@@ -26,7 +26,7 @@ import EmployerLayout from './pages/employer_dashboard/EmployerLayout';
 import EmployerProfile from './pages/employer_dashboard/Profile';
 import EmployerJobs from './pages/employer_dashboard/JobPosting';
 import EmployerApplicants from './pages/employer_dashboard/Applicants';
-import EmployerMessages from './pages/employer_dashboard/Messages';
+import EmployerMessages from './pages/employer_dashboard/EmployerMessages';
 import EmployerNotifications from './pages/employer_dashboard/Notifications';
 import EmployerAnalytics from './pages/employer_dashboard/Analytics';
 import EmployerSettings from './pages/employer_dashboard/Settings';

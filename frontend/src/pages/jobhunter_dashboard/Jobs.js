@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import './Jobs.css';
 import { useJobs } from '../../contexts/JobsContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { sendApplication } from '../../api/applications';
 
 function Jobs() {
   const { jobs, savedJobs, toggleSave } = useJobs();
@@ -12,6 +14,14 @@ function Jobs() {
   const [datePosted, setDatePosted] = useState(null); // '24h' | '7d' | '30d'
   const [openDropdown, setOpenDropdown] = useState(null);
   const filtersRef = useRef(null);
+  const { profile } = useAuth();
+
+  // apply modal state
+  const [showApply, setShowApply] = useState(false);
+  const [coverLetter, setCoverLetter] = useState('');
+  const [expectedSalary, setExpectedSalary] = useState('');
+  const [availability, setAvailability] = useState('Full-time');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     function onDoc(e) {
@@ -169,7 +179,7 @@ function Jobs() {
                   <div style={{ textAlign: 'right' }}>
                       <div style={{ fontWeight: 700, color: '#333' }}>{selected.salary || (selected.minSalary || selected.maxSalary ? `${selected.currency ? selected.currency + ' ' : ''}${selected.minSalary || ''}${selected.minSalary && selected.maxSalary ? ' - ' : ''}${selected.maxSalary || ''}${selected.salaryFrequency === 'hourly' ? '/hr' : '/yr'}` : '')}</div>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center' }}>
-                      <button className="wc-btn wc-btn-primary">Apply</button>
+                      <button className="wc-btn wc-btn-primary" onClick={() => setShowApply(true)}>Apply</button>
                       <button
                         className={`wc-btn wc-btn-ghost jobs-save-btn ${savedJobs.includes(selected.id) ? 'saved' : ''}`}
                         title={savedJobs.includes(selected.id) ? 'Saved' : 'Save job'}
@@ -203,8 +213,126 @@ function Jobs() {
           </div>
         </div>
       </div>
+
+      {/* Apply modal */}
+      {showApply && selected && (
+        <div className="wc-modal-backdrop" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+          <div className="wc-modal" style={{ width: 760, maxWidth: '95%', background: '#fff', borderRadius: 8, padding: 18, boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <h3 style={{ margin: 0 }}>Apply for: {selected.title}</h3>
+              <button onClick={() => setShowApply(false)} className="wc-btn wc-btn-ghost">Close</button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label>Full name</label>
+                <input value={profile?.fullName || profile?.name || ''} onChange={() => {}} readOnly style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+              <div>
+                <label>Email address</label>
+                <input value={profile?.email || ''} readOnly style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+              <div>
+                <label>Contact number</label>
+                <input value={profile?.phone || ''} readOnly style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+              <div>
+                <label>Location</label>
+                <input value={profile?.city || profile?.location || ''} readOnly style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label>Resume / CV (link)</label>
+                <input id="resumeUrl" placeholder="https://..." style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label>Highest educational attainment</label>
+                <input id="eduAttainment" placeholder="e.g. Bachelor's" style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label>Work experience (optional)</label>
+                <input id="weTitle" placeholder="Job title" style={{ width: '100%', padding: 8, marginTop: 6 }} />
+                <input id="weCompany" placeholder="Company" style={{ width: '100%', padding: 8, marginTop: 6 }} />
+                <input id="weDates" placeholder="Dates (start - end)" style={{ width: '100%', padding: 8, marginTop: 6 }} />
+                <input id="weResponsibilities" placeholder="Key responsibilities" style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label>Skills (comma separated)</label>
+                <input id="skills" placeholder="React, Node.js, Figma" style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label>Cover letter / short message</label>
+                <textarea value={coverLetter} onChange={e => setCoverLetter(e.target.value)} style={{ width: '100%', padding: 8, minHeight: 100, marginTop: 6 }} />
+              </div>
+
+              <div>
+                <label>Expected salary</label>
+                <input value={expectedSalary} onChange={e => setExpectedSalary(e.target.value)} placeholder="Optional" style={{ width: '100%', padding: 8, marginTop: 6 }} />
+              </div>
+              <div>
+                <label>Availability</label>
+                <select value={availability} onChange={e => setAvailability(e.target.value)} style={{ width: '100%', padding: 8, marginTop: 6 }}>
+                  <option>Full-time</option>
+                  <option>Part-time</option>
+                  <option>Remote</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
+              <button className="wc-btn wc-btn-ghost" onClick={() => setShowApply(false)}>Cancel</button>
+              <button className="wc-btn wc-btn-primary" onClick={async () => {
+                if (!profile) return alert('You must be logged in to apply');
+                setSubmitting(true);
+                try {
+                  const payload = {
+                    applicantId: profile.userId || profile._id,
+                    employerId: selected.employerId || selected.companyId || selected.postedBy || '',
+                    jobId: selected.id || selected._id || '',
+                    jobTitle: selected.title,
+                    fullName: profile.fullName || profile.name || '',
+                    email: profile.email || '',
+                    contactNumber: profile.phone || '',
+                    location: profile.city || profile.location || '',
+                    profilePictureUrl: profile.avatar || profile.picture || '',
+                    resumeUrl: (document.getElementById('resumeUrl') || {}).value || '',
+                    education: {
+                      highestAttainment: (document.getElementById('eduAttainment') || {}).value || ''
+                    },
+                    workExperience: [{
+                      jobTitle: (document.getElementById('weTitle') || {}).value || '',
+                      company: (document.getElementById('weCompany') || {}).value || '',
+                      startDate: (document.getElementById('weDates') || {}).value || '',
+                      endDate: '',
+                      responsibilities: (document.getElementById('weResponsibilities') || {}).value || ''
+                    }],
+                    skills: ((document.getElementById('skills') || {}).value || '').split(',').map(s => s.trim()).filter(Boolean),
+                    coverLetter,
+                    expectedSalary,
+                    availability,
+                    applicationDate: new Date().toISOString()
+                  };
+
+                  await sendApplication(payload);
+                  alert('Application submitted');
+                  setShowApply(false);
+                } catch (err) {
+                  console.error(err);
+                  alert('Failed to submit application');
+                } finally { setSubmitting(false); }
+              }}>Submit application</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
 
 export default Jobs;
+

@@ -53,6 +53,14 @@ app.use('/api/status', statusRoutes);
 const jobsRoutes = require('./routes/jobs');
 app.use('/api/jobs', jobsRoutes);
 
+// messages route
+const messagesRoutes = require('./routes/messages');
+app.use('/api/messages', messagesRoutes);
+
+// applications route
+const applicationsRoutes = require('./routes/applications');
+app.use('/api/applications', applicationsRoutes);
+
 const forgotPasswordRoutes = require('./routes/forgotPassword');
 app.use('/api/forgot-password', forgotPasswordRoutes);
 
