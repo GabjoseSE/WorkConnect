@@ -32,6 +32,10 @@
 .jobs-save-btn:hover{background:rgba(0,0,0,0.03)}
 .jobs-save-btn.saved{background:var(--wc-primary);color:#fff;border-color:transparent}
 .jobs-save-btn svg{display:block}
+/* Ensure save button aligns with primary Apply button */
+.jobs-save-btn { height: 40px; box-sizing: border-box; }
+.wc-btn.wc-btn-primary, .wc-btn.wc-btn-outline { height: 40px; padding: 0 14px; display: inline-flex; align-items: center; }
+.jobs-save-btn { margin-top: 0; }
 
 /* Make Jobs page fill the page content and match JobPosting layout when the sidebar collapses */
 .jobs-root.page-content { height: 100%; min-height: 0; display: flex; flex-direction: column; }
@@ -46,3 +50,14 @@
 /* Make search input expand to available width and keep button sized */
 .jobs-search { display: flex; gap: 12px; align-items: center; }
 .jobs-search .jobs-search-input { flex: 1; min-width: 0; }
+
+/* Modal form label + input layout adjustments */
+.wc-modal label { display: block; font-size: 13px; color: var(--wc-muted); margin-bottom: 6px; }
+.wc-modal .wc-input { width: 100%; }
+.wc-modal .wc-input[type="file"] { padding: 6px 8px; }
+.wc-modal .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.wc-modal .grid-form .full-row { grid-column: 1 / -1; }
+.wc-modal .modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:14px; }
+
+/* Smaller label appearance for compact modal layout */
+.wc-modal label.small { font-size: 12px; color: var(--wc-muted); margin-bottom:4px; }

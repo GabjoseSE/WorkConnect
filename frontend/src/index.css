@@ -36,6 +36,33 @@ body {
   border-color: rgba(10,169,111,0.14);
 }
 
+/* Generic input style used across forms and modals */
+.wc-input,
+input.wc-input,
+textarea.wc-input,
+select.wc-input {
+  height: 40px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #e7e7e7;
+  background: var(--wc-bg);
+  color: var(--wc-neutral);
+  box-sizing: border-box;
+  font-size: 14px;
+  min-width: 0;
+}
+.wc-input:focus,
+input.wc-input:focus,
+textarea.wc-input:focus,
+select.wc-input:focus {
+  outline: none;
+  box-shadow: 0 6px 18px rgba(10,169,111,0.06);
+  border-color: rgba(10,169,111,0.14);
+}
+
+/* smaller textarea adjustment to keep visual height but allow resizing */
+textarea.wc-input { min-height: 100px; resize: vertical; height: auto; }
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

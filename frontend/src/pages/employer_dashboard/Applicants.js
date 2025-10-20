@@ -111,7 +111,7 @@ export default function Applicants() {
                     <div className="app-summary">{(a.skills || []).slice(0,3).join(', ')}</div>
                     <div className="app-meta">{new Date(a.applicationDate || a.createdAt).toLocaleDateString()}</div>
                   </div>
-                  <div className="app-card-actions"><button className="wc-btn wc-btn-ghost">View Profile</button></div>
+                  <div className="app-card-actions"><button className="wc-btn wc-btn-outline">View Profile</button></div>
                 </div>
               ))
             )}

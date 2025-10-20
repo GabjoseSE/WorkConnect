@@ -28,4 +28,12 @@ router.post('/logo', upload.single('logo'), (req, res) => {
   res.json({ url, name: req.file.originalname });
 });
 
+// POST /api/uploads/resume
+// Accepts form field 'file' and returns a public url and original name
+router.post('/resume', upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const url = `/uploads/${req.file.filename}`;
+  res.json({ url, name: req.file.originalname });
+});
+
 module.exports = router;
