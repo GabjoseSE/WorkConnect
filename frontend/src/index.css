@@ -16,6 +16,26 @@ body {
   --wc-muted: #6b7280;
 }
 
+/* Unified search input styles (applies to .search, .wc-search, .country-search, and header .search-box input) */
+.search,
+.wc-search,
+.country-search,
+.search-box input {
+  height: 40px; /* match previous inline size */
+  padding: 10px 12px; /* match previous inline padding */
+  border-radius: 6px; /* previous inline border-radius */
+  border: 1px solid #e7e7e7; /* previous inline border color */
+  background: var(--wc-bg);
+  color: var(--wc-neutral);
+  box-sizing: border-box;
+  min-width: 0; /* better flex behavior */
+}
+.search:focus, .wc-search:focus, .country-search:focus, .search-box input:focus {
+  outline: none;
+  box-shadow: 0 6px 18px rgba(10,169,111,0.06);
+  border-color: rgba(10,169,111,0.14);
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

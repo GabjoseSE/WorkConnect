@@ -1,0 +1,84 @@
+
+
+.employer-applicants-root { display:flex; gap:20px; padding:20px 28px; width:100%; max-width: none; margin:0; box-sizing:border-box; align-items:stretch; /* make this fill the parent .page-content */
+	height: 100%;
+	min-height: 0;
+	flex: 1 1 auto;
+}
+.card { background: #fff; border:1px solid rgba(12,32,55,0.06); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; box-shadow: 0 8px 24px rgba(12,32,55,0.06) }
+.card.job-posts { width:360px; flex: 0 0 360px }
+.card.applicants-panel { flex:1; display:flex; flex-direction:column; min-height:0 }
+.card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid rgba(12,32,55,0.04) }
+.card-header h3 { margin:0; font-size:18px; color:var(--wc-neutral); font-weight:700 }
+/* Header search styling */
+.card-header .search-box { display:flex; align-items:center }
+.card-header .search { height:36px; padding:8px 10px; border-radius:8px; border:1px solid rgba(55,71,79,0.06); background:var(--wc-bg); color:var(--wc-neutral); min-width:140px }
+.card-header .search:focus { outline:none; box-shadow:0 6px 18px rgba(10,169,111,0.06); border-color: rgba(10,169,111,0.14); }
+/* Ensure header action buttons align like other buttons across the app */
+.header-actions { display:flex; gap:8px; align-items:center }
+/* Style header buttons to match project button design */
+.header-actions .wc-btn,
+.header-actions .wc-btn-ghost {
+	padding: 10px 14px;
+	border-radius: 8px;
+	font-weight: 600;
+	height: 40px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	transition: transform 140ms ease, box-shadow 160ms ease, background-color 120ms ease;
+}
+.header-actions .wc-btn {
+	background: var(--wc-primary);
+	color: #fff;
+	border: none;
+	box-shadow: 0 8px 24px rgba(12,32,55,0.06);
+}
+.header-actions .wc-btn:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(12,32,55,0.08); }
+.header-actions .wc-btn-ghost {
+	background: transparent;
+	border: 1px solid rgba(55,71,79,0.06);
+	color: var(--wc-neutral);
+}
+.header-actions .wc-btn-ghost:hover { background: rgba(77,182,172,0.04); }
+.card-body { padding:14px; flex:1; min-height:0; display:flex; flex-direction:column }
+.list-body { flex:1; overflow:auto; min-height:0 }
+.job-item { display:flex; gap:12px; padding:12px; border-radius:6px; align-items:center; cursor:pointer; border:1px solid transparent; transition: background .12s ease, border-color .12s ease }
+.job-item + .job-item { margin-top:10px }
+.job-item:hover { background: rgba(245,247,249,0.9) }
+.job-item.active { background: linear-gradient(90deg, rgba(77,182,172,0.06), rgba(77,182,172,0.02)); border-color: rgba(77,182,172,0.06) }
+.job-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(180deg, rgba(77,182,172,0.12), rgba(77,182,172,0.08)); overflow:hidden; display:inline-block; flex:0 0 44px }
+.job-avatar img { width:100%; height:100%; object-fit:cover; display:block }
+.job-title { font-weight:700; color:var(--wc-neutral) }
+.job-meta { color:var(--wc-muted); font-size:13px }
+
+.applicants-body { display:flex; flex-direction:column; gap:14px }
+.filters-row { display:flex; gap:12px; align-items:center }
+.filters-row .search { flex:1; padding:10px 12px; border:1px solid rgba(55,71,79,0.06); border-radius:8px; background:var(--wc-bg) }
+.tabs { display:flex; gap:8px }
+.tab { padding:6px 10px; border-radius:8px; border:1px solid rgba(55,71,79,0.06); background:transparent }
+.tab.active { background:rgba(77,182,172,0.08); border-color:transparent }
+
+.applicants-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:8px }
+.app-card { display:flex; gap:12px; align-items:center; padding:12px; border:1px solid rgba(12,32,55,0.04); border-radius:8px; background:var(--wc-bg); min-height:72px }
+.app-card .avatar { width:44px; height:44px; border-radius:50%; background:#eef7f6 }
+.app-name { font-weight:700; color:var(--wc-neutral) }
+.app-summary { color:var(--wc-muted); font-size:13px }
+.app-meta { color:var(--wc-muted); font-size:12px }
+.app-card-actions { margin-left:auto }
+
+.empty { color:var(--wc-muted); padding:20px; text-align:center }
+
+@media (max-width: 900px) {
+	.employer-applicants-root { flex-direction:column; padding:12px }
+	.card.job-posts { width:100%; flex: none }
+	.applicants-grid { grid-template-columns:1fr }
+}
+
+/* When the dashboard sidebar is collapsed, ensure the applicants content fills the page area */
+.dashboard-sidebar.collapsed ~ .page-content .employer-applicants-root,
+.dashboard-sidebar.collapsed + .page-content .employer-applicants-root {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+

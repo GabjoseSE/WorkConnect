@@ -44,7 +44,7 @@ function CountrySelect({ value, onChange, className, showCode = true }) {
 
       {open && (
         <div className="country-dropdown">
-          <input className="country-search" placeholder="Search country or code" value={q} onChange={e => setQ(e.target.value)} />
+          <input className="wc-search country-search" placeholder="Search country or code" value={q} onChange={e => setQ(e.target.value)} />
           <ul className="country-list">
             {list.map(c => (
               <li key={c.code} className="country-item" onClick={() => { onChange(c.code); setOpen(false); }}>

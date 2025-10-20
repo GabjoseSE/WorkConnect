@@ -75,11 +75,11 @@ function Jobs() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div className="jobs-root page-content" style={{ padding: 20 }}>
+  <div className="jobs-inner" style={{ width: '100%', height: '100%' }}>
         {/* search */}
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 18 }}>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search jobs, company or location" style={{ flex: 1, padding: '10px 12px', borderRadius: 6, border: '1px solid #e7e7e7' }} />
+        <div className="jobs-search" style={{ marginBottom: 18 }}>
+          <input className="wc-search jobs-search-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search jobs, company or location" />
           <button className="wc-btn wc-btn-outline">Search</button>
         </div>
 
@@ -148,27 +148,29 @@ function Jobs() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 18 }}>
+        <div className="jobs-columns" style={{ display: 'flex', gap: 18, height: '100%' }}>
           {/* left list */}
-          <div style={{ width: 320, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 12 }}>
-            {filtered.length === 0 ? (
-              <div style={{ padding: 24, color: '#777' }}>No jobs match your filters.</div>
-            ) : (
-              filtered.map(job => (
-                <div key={job.id} onClick={() => setSelected(job)} style={{ padding: 12, borderRadius: 6, cursor: 'pointer', background: selected?.id === job.id ? '#f6fffa' : 'transparent', borderBottom: '1px solid #f3f3f3' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontWeight: 700 }}>{job.title}</div>
-                    <div style={{ fontSize: 12, color: '#0aa96f', border: '1px solid #e6f2ea', padding: '4px 8px', borderRadius: 6 }}>{job.type}</div>
+          <div className="jobs-left" style={{ width: 320, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 12, display: 'flex', flexDirection: 'column' }}>
+            <div className="jobs-left-list" style={{ overflow: 'auto', minHeight: 0 }}>
+              {filtered.length === 0 ? (
+                <div style={{ padding: 24, color: '#777' }}>No jobs match your filters.</div>
+              ) : (
+                filtered.map(job => (
+                  <div key={job.id} onClick={() => setSelected(job)} style={{ padding: 12, borderRadius: 6, cursor: 'pointer', background: selected?.id === job.id ? '#f6fffa' : 'transparent', borderBottom: '1px solid #f3f3f3' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: 700 }}>{job.title}</div>
+                      <div style={{ fontSize: 12, color: '#0aa96f', border: '1px solid #e6f2ea', padding: '4px 8px', borderRadius: 6 }}>{job.type}</div>
+                    </div>
+                    <div style={{ color: '#666', fontSize: 13, marginTop: 6 }}>{job.company} · {job.location}</div>
+                    <div style={{ color: '#444', marginTop: 8, fontSize: 13 }}>{job.summary}</div>
                   </div>
-                  <div style={{ color: '#666', fontSize: 13, marginTop: 6 }}>{job.company} · {job.location}</div>
-                  <div style={{ color: '#444', marginTop: 8, fontSize: 13 }}>{job.summary}</div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
 
           {/* right detail */}
-          <div style={{ flex: 1, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 18 }}>
+          <div className="jobs-right" style={{ flex: 1, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 18, display: 'flex', flexDirection: 'column' }}>
             {selected ? (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
@@ -196,16 +198,18 @@ function Jobs() {
                   </div>
                 </div>
 
-                <hr style={{ margin: '18px 0', border: 'none', borderTop: '1px solid #f3f3f3' }} />
+                <div className="jobs-right-scroll" style={{ overflow: 'auto', minHeight: 0 }}>
+                  <hr style={{ margin: '18px 0', border: 'none', borderTop: '1px solid #f3f3f3' }} />
 
-                <h4>Job Description</h4>
-                <p style={{ color: '#444' }}>{selected.description}</p>
+                  <h4>Job Description</h4>
+                  <p style={{ color: '#444' }}>{selected.description}</p>
 
-                <h4>Requirements</h4>
-                <ul>
-                  <li>Relevant experience</li>
-                  <li>Good communication</li>
-                </ul>
+                  <h4>Requirements</h4>
+                  <ul>
+                    <li>Relevant experience</li>
+                    <li>Good communication</li>
+                  </ul>
+                </div>
               </>
             ) : (
               <div style={{ color: '#888' }}>Select a job to view details</div>

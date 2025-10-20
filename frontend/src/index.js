@@ -5,6 +5,7 @@ import './styles/flag-icon-emoji.css';
 import App from './App';
 import { SignupProvider } from './contexts/SignupContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './components/ToastProvider';
 import reportWebVitals from './reportWebVitals';
 
 
@@ -13,7 +14,9 @@ root.render(
   <React.StrictMode>
     <AuthProvider>
       <SignupProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </SignupProvider>
     </AuthProvider>
   </React.StrictMode>

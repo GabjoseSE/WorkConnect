@@ -73,7 +73,7 @@ export default function Messages() {
               <div className="panel-title">Conversations</div>
             </div>
             <div className="panel-body">
-              <div className="messages-search"><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search conversations" /></div>
+              <div className="messages-search"><input className="wc-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search conversations" /></div>
               <div className="messages-filters">
                 {['All','Unread','Archived'].map(f => (
                   <button key={f} className={`filter-btn ${filter===f ? 'active' : ''}`} onClick={() => setFilter(f)}>{f}</button>
