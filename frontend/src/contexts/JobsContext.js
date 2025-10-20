@@ -82,10 +82,20 @@ export function JobsProvider({ children }) {
     }
   });
 
+  // savedJobs is an array of objects: { id, savedAt }
   const [savedJobs, setSavedJobs] = useState(() => {
     try {
       const raw = localStorage.getItem('wc_saved_jobs');
-      return raw ? JSON.parse(raw) : [];
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      // support old format where array might be list of ids (strings/numbers)
+      if (parsed.length === 0) return [];
+      if (typeof parsed[0] === 'string' || typeof parsed[0] === 'number') {
+        return parsed.map(id => ({ id, savedAt: null }));
+      }
+      // already in new format
+      return parsed.map(p => ({ id: p.id, savedAt: p.savedAt || null }));
     } catch (e) {
       return [];
     }
@@ -100,13 +110,22 @@ export function JobsProvider({ children }) {
     }
   }, [savedJobs]);
 
-  function toggleSave(job) {
+  function toggleSave(jobOrId) {
+    const id = typeof jobOrId === 'string' || typeof jobOrId === 'number' ? jobOrId : (jobOrId && (jobOrId.id || jobOrId._id || jobOrId._id) );
+    if (!id) return;
     setSavedJobs(prev => {
-      const exists = prev.includes(job.id);
-      if (exists) return prev.filter(id => id !== job.id);
-      return [...prev, job.id];
+      const exists = prev.findIndex(s => String(s.id) === String(id));
+      if (exists !== -1) {
+        // remove
+        return prev.filter(s => String(s.id) !== String(id));
+      }
+      // add with timestamp
+      return [{ id, savedAt: new Date().toISOString() }, ...prev];
     });
   }
+
+  // convenience derived array of ids for legacy checks
+  const savedJobIds = savedJobs.map(s => s.id);
 
   // persist locally
   useEffect(() => {
@@ -208,7 +227,7 @@ export function JobsProvider({ children }) {
   }
 
   return (
-    <JobsContext.Provider value={{ jobs, setJobs, addJob, savedJobs, toggleSave }}>
+    <JobsContext.Provider value={{ jobs, setJobs, addJob, savedJobs, savedJobIds, toggleSave }}>
       {children}
     </JobsContext.Provider>
   );

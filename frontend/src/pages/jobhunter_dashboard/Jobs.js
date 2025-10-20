@@ -477,12 +477,33 @@ function Jobs() {
                     applicationDate: new Date().toISOString()
                   };
 
+                  // If employerId is missing, try to resolve it by fetching the canonical job from the backend
+                  if (!payload.employerId && payload.jobId) {
+                    try {
+                      const base = process.env.REACT_APP_API_BASE || '';
+                      const jobsRes = await fetch(`${base}/api/jobs`);
+                      if (jobsRes.ok) {
+                        const jobsData = await jobsRes.json();
+                        const found = (Array.isArray(jobsData) ? jobsData : (jobsData.jobs || [])).find(j => String(j._id || j.id) === String(payload.jobId));
+                        if (found) {
+                          payload.employerId = found.createdBy || found.created_by || payload.employerId || '';
+                        }
+                      }
+                    } catch (e) {
+                      // ignore backend lookup errors — we'll handle missing employer below
+                    }
+                  }
+
                   // validate required fields before sending to avoid 400 from server
                   if (!payload.applicantId || !payload.employerId || !payload.jobId) {
                     const missing = [];
                     if (!payload.applicantId) missing.push('applicantId');
                     if (!payload.employerId) missing.push('employerId');
                     if (!payload.jobId) missing.push('jobId');
+                    // give a clearer error when employerId is missing
+                    if (missing.length === 1 && missing[0] === 'employerId') {
+                      throw new Error('This job does not have an associated employer on the server — cannot submit application.');
+                    }
                     throw new Error('Missing required fields: ' + missing.join(', '));
                   }
 
