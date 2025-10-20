@@ -1,36 +1,43 @@
 const mongoose = require('mongoose');
 
 const ProfileSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, index: true },
-  role: { type: String, enum: ['jobhunter', 'employer'], default: 'jobhunter' },
+  // Basic account info
+  email: { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+  role: { type: String, enum: ['jobhunter'], default: 'jobhunter' },
+
+  // Personal info
   firstName: String,
   lastName: String,
-  email: { type: String, required: true },
-  companyName: String,
-  companyWebsite: String,
-  companyDescription: String,
-  companyLogo: String,
-  industry: String,
-  companySize: String,
-  companyLocation: String,
-  linkedin: String,
-  ownerName: String,
-  ownerPosition: String,
-  ownerPhone: String,
+  gender: String,
+  dob: Date,
+  nationality: String,
+
+  // Contact
   phone: String,
-  skills: [String],
-  image: String, // avatar/profile image url
+  image: String, // profile avatar
   bio: String,
+  linkedin: String,
+
+  // Job preferences
+  desiredJobType: String,
+  workArrangement: String, // e.g. remote, hybrid, on-site
+  expectedSalary: String,
+
+  // Professional info
+  skills: [String],
   languages: [String],
   portfolio: [String],
   certifications: [String],
+
+  // Experience and education
   experience: [
     {
       company: String,
       position: String,
       duration: String,
       description: String,
-    }
+    },
   ],
   education: [
     {
@@ -41,17 +48,12 @@ const ProfileSchema = new mongoose.Schema({
       endYear: String,
       status: String, // e.g., Enrolled, Graduated
       description: String,
-    }
+    },
   ],
-  gender: String,
-  dob: Date,
-  nationality: String,
-  desiredJobType: String,
-  workArrangement: String,
-  expectedSalary: String,
-  resumeUrl: String,
-  updatedAt: { type: Date, default: Date.now },
+
+  // Metadata
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Profile', ProfileSchema);

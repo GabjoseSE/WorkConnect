@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
-const User = require('../models/User');
 
 // GET /api/messages/conversations?userId=...
 router.get('/conversations', async (req, res) => {
