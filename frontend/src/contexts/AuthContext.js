@@ -27,17 +27,19 @@ export function AuthProvider({ children }) {
     const res = await apiLogin({ email, password });
     if (!res || !res.token) throw new Error('Login failed');
     setToken(res.token);
-    setUserId(res.userId);
+    // backend may return `id` instead of `userId` — accept either
+    const resolvedUserId = res.userId || res.id || null;
+    setUserId(resolvedUserId);
     // Clear any stale profile while we fetch the correct one
     setProfile(null);
     // persist token and userId to localStorage (remember behavior removed)
     try {
       localStorage.setItem('wc_token', res.token);
-      localStorage.setItem('wc_userId', res.userId);
+      if (resolvedUserId) localStorage.setItem('wc_userId', resolvedUserId);
     } catch (e) { /* ignore storage errors */ }
-    // fetch profile and store (pass userId to support in-memory dev fallback)
+    // fetch profile and store (pass email and userId to support various server behaviors)
     try {
-      const p = await apiGetOwnProfile(res.token, res.userId);
+      const p = await apiGetOwnProfile(res.token, resolvedUserId, email);
       setProfile(p);
       // return profile to caller so they can act immediately
       return { ...res, profile: p };
@@ -56,7 +58,8 @@ export function AuthProvider({ children }) {
       // if we already have a profile, but it belongs to a different user, refetch
       if (profile && userId && String(profile.userId) === String(userId)) return;
       try {
-        const p = await apiGetOwnProfile(token, userId);
+    // try fetching with token/userId first, fallback to token+email if userId absent
+    const p = await apiGetOwnProfile(token, userId, null);
         if (!cancelled) setProfile(p);
       } catch (err) {
         console.warn('Failed to fetch profile on load', err);

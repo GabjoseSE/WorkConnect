@@ -11,12 +11,59 @@
   margin: 0 auto;
 }
 
+/* When rendered inside the dashboard layout (.page-content), make the profile page
+   behave like other dashboard pages: full height, internal scrolling, and aligned
+   columns so collapsing the sidebar doesn't shift layout unexpectedly. */
+.page-content > .profile-page {
+  height: 100%;
+  min-height: 0; /* allow children to use flex-basis/overflow correctly */
+  display: flex;
+  flex-direction: column;
+  /* remove the standalone page padding so the page-content controls spacing */
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.page-content > .profile-page .profile-center {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* occupy full width inside the page-content so collapsed sidebar leaves
+     consistent spacing like Jobs layout */
+  max-width: none;
+  width: 100%;
+  padding: 28px 20px; /* preserve the page padding from the standalone layout */
+  box-sizing: border-box;
+}
+
+.page-content > .profile-page .profile-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  /* stretch to fill available vertical space inside page-content */
+  height: 100%;
+}
+
+.page-content > .profile-page .profile-main {
+  overflow: auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.page-content > .profile-page .profile-side {
+  overflow: auto;
+  min-height: 0;
+  height: 100%;
+}
+
 /* Top header with avatar and quick meta */
 .profile-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
   background: #fff;
   padding: 18px;
   border-radius: 10px;
@@ -89,7 +136,7 @@
 .profile-contact, .profile-location { margin: 2px 0; color: #6b7280 }
 
 .profile-top-right .settings-btn {
-  background: #0f766e;
+  background: var(--wc-primary);
   border: none;
   color: #fff;
   padding: 8px 12px;
@@ -124,6 +171,36 @@
 
 
 .card-body h3 { margin-top: 0; margin-bottom: 12px; font-size: 18px }
+
+/* per-card header with edit/save button */
+.card-header { display:flex; align-items:center; justify-content:space-between; }
+.card-header h3 { margin: 0; }
+.edit-btn {
+  background: transparent;
+  border: 1px solid rgba(55,71,79,0.08);
+  height: 40px;
+  min-width: 96px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--wc-primary);
+  border-color: rgba(77,182,172,0.18);
+}
+.edit-btn:hover { background: rgba(77,182,172,0.06) }
+.edit-btn[disabled] { opacity: 0.5; cursor: not-allowed }
+/* Save state: solid primary button matching settings-btn */
+.edit-btn.save {
+  background: var(--wc-primary);
+  color: #fff;
+  border-color: transparent;
+}
+.edit-btn.save:hover { background: color-mix(in srgb, var(--wc-primary) 90%, black 10%); }
 
 .form-row { margin-bottom: 12px }
 .form-row label { display:block; font-weight:600; color:#111827; margin-bottom:6px }
@@ -177,7 +254,7 @@
 
 .file-upload { display:flex; gap:12px; align-items:center }
 .file-upload input[type=file] { display:none }
-.upload-cta { background:#eef2ff; color:#1e3a8a; padding:8px 12px; border-radius:8px; cursor:pointer }
+.upload-cta { background: rgba(77,182,172,0.08); color: var(--wc-primary); padding:8px 12px; border-radius:8px; cursor:pointer }
 
 .secondary { background:#fff; border:1px solid #d1d5db; padding:8px 10px; border-radius:8px; cursor:pointer }
 .danger { background:#fff; border:1px solid #fca5a5; color:#b91c1c; padding:8px 10px; border-radius:8px; cursor:pointer }
@@ -199,10 +276,14 @@
 .chips { display:flex; flex-wrap:wrap; gap:6px }
 .chip { background:#eef2ff; padding:4px 6px; border-radius:999px; display:inline-flex; align-items:center; gap:6px; font-size:13px }
 .chip a { color:#1e3a8a; text-decoration:none }
+.chip { background: rgba(77,182,172,0.06); padding:4px 6px; border-radius:999px; display:inline-flex; align-items:center; gap:6px; font-size:13px }
+.chip a { color: var(--wc-primary); text-decoration:none }
+.upload-cta { background: rgba(77,182,172,0.08); color: var(--wc-primary); padding:8px 12px; border-radius:8px; cursor:pointer }
+.upload-cta:hover { background: rgba(77,182,172,0.12) }
 .chip-remove { background:transparent; border:none; margin-left:4px; cursor:pointer; font-weight:700; font-size:12px; line-height:1 }
 .add-row { display:flex; gap:8px }
 .add-row input { flex:1 }
-.add-btn { background:#0ea5a4; color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer }
+.add-btn { background: var(--wc-primary); color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer }
 
 /* Education add-row specific: stack inputs vertically for readability */
 .education-add { display:flex; flex-direction:column; gap:8px }

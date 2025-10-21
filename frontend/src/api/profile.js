@@ -16,9 +16,12 @@ export async function saveProfile(payload) {
   return res.json();
 }
 
-export async function getOwnProfile(token, userId) {
+export async function getOwnProfile(token, userId, email) {
   const base = `${process.env.REACT_APP_API_URL || ''}/api/profile`;
-  const url = userId ? `${base}?userId=${encodeURIComponent(userId)}` : base;
+  // prefer explicit email query when provided (works around token payload differences)
+  let url = base;
+  if (email) url = `${base}?email=${encodeURIComponent(email)}`;
+  else if (userId) url = `${base}?userId=${encodeURIComponent(userId)}`;
   const res = await fetch(url, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` },

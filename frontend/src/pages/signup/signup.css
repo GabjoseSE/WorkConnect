@@ -303,6 +303,18 @@
 }
 .secondary-btn:focus { outline: 2px solid rgba(11,107,74,0.08); outline-offset: 2px; }
 
+/* Inline action button to visually match input height when placed beside fields */
+.btn-inline {
+  padding: 10px 12px; /* vertical padding matches .signup01-input */
+  border-radius: 10px; /* match input radius */
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid rgba(55,71,79,0.12); /* match input border thickness/color */
+  background: rgba(247,249,249,0.9);
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
   .phone-country { min-width: 96px; }
 }

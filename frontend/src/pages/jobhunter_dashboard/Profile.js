@@ -8,6 +8,14 @@ export default function Profile() {
   const { profile, token, setProfile } = useAuth(); // profile picture and basic info from auth
   const navigate = useNavigate();
 
+  // editing state per section
+  const [editingBasic, setEditingBasic] = useState(false);
+  const [editingEducation, setEditingEducation] = useState(false);
+  const [editingProfessional, setEditingProfessional] = useState(false);
+  const [editingPersonal, setEditingPersonal] = useState(false);
+  const [editingDocuments, setEditingDocuments] = useState(false);
+  const [editingPreferences, setEditingPreferences] = useState(false);
+
   // lightweight local state for UI-only interactions (uploads, edits)
   const [completeness, setCompleteness] = useState(82);
   const [activities, setActivities] = useState([]);
@@ -17,15 +25,16 @@ export default function Profile() {
   const [avatarFile, setAvatarFile] = useState(null);
   const avatarInputRef = useRef(null);
 
-  // fallback profile when auth profile not present
+  // Use profile from auth when available; otherwise use safe empty defaults
+  const defaultAvatar = 'https://ui-avatars.com/api/?name=User&background=E0E7FF&color=1D4ED8';
   const user = profile || {
-    firstName: 'Philip',
-    lastName: 'Maya',
-    role: 'UI/UX Designer',
-    location: 'Porto, Portugal',
-    image: 'https://ui-avatars.com/api/?name=Philip+Maya&background=E0E7FF&color=1D4ED8',
-    email: 'philip@example.com',
-    phone: '+351 912 345 678'
+    firstName: '',
+    lastName: '',
+    role: '',
+    location: '',
+    image: defaultAvatar,
+    email: '',
+    phone: ''
   };
 
   // Controlled fields for main profile inputs
@@ -187,6 +196,19 @@ export default function Profile() {
     }, 700);
   };
 
+  // immediate save helper (used when user clicks Save)
+  const saveNow = async (patch) => {
+    if (!token) return;
+    try {
+      const payload = { ...profile, ...patch, __token: token };
+      const saved = await saveProfile(payload);
+      if (setProfile) setProfile(saved);
+    } catch (err) {
+      console.warn('Save failed', err);
+      alert('Failed to save. Please try again.');
+    }
+  };
+
   function removeAt(index, setter) {
     setter(prev => prev.filter((_, i) => i !== index));
   }
@@ -259,27 +281,35 @@ export default function Profile() {
               <p className="profile-location">{user.location}</p>
             </div>
           </div>
-          <div className="profile-top-right">
-            <button className="settings-btn" onClick={handleSettingsClick}>Settings</button>
-          </div>
+          
         </header>
 
         <div className="profile-grid">
           <main className="profile-main">
             <section className="card">
               <div className="card-body">
-                <h3>Basic Information</h3>
+                <div className="card-header">
+                  <h3>Basic Information</h3>
+                  <button className={`edit-btn ${editingBasic ? 'save' : ''}`} onClick={async () => {
+                    if (editingBasic) {
+                      // save
+                      const loc = [cityState, stateProvince, country].filter(Boolean).join(', ');
+                      await saveNow({ firstName, lastName, email: emailState, phone: phoneState, location: loc, bio: bioState });
+                    }
+                    setEditingBasic(!editingBasic);
+                  }}>{editingBasic ? 'Save' : 'Edit'}</button>
+                </div>
                 <div className="form-row two-col">
                   <div>
                     <label>First Name</label>
                     <div className="input-wrap">
-                      <input value={firstName} onChange={(e) => setFirstName(e.target.value)} onBlur={handleFieldBlur} />
+                          <input value={firstName} onChange={(e) => setFirstName(e.target.value)} onBlur={handleFieldBlur} readOnly={!editingBasic} />
                     </div>
                   </div>
                   <div>
                     <label>Last Name</label>
                     <div className="input-wrap">
-                      <input value={lastName} onChange={(e) => setLastName(e.target.value)} onBlur={handleFieldBlur} />
+                          <input value={lastName} onChange={(e) => setLastName(e.target.value)} onBlur={handleFieldBlur} readOnly={!editingBasic} />
                     </div>
                   </div>
                 </div>
@@ -288,13 +318,13 @@ export default function Profile() {
                   <div>
                     <label>Contact (Email)</label>
                     <div className="input-wrap">
-                      <input value={emailState} onChange={(e) => setEmailState(e.target.value)} onBlur={handleFieldBlur} />
+                      <input value={emailState} onChange={(e) => setEmailState(e.target.value)} onBlur={handleFieldBlur} readOnly={!editingBasic} />
                     </div>
                   </div>
                   <div>
                     <label>Phone</label>
                     <div className="input-wrap">
-                      <input value={phoneState} onChange={(e) => setPhoneState(e.target.value)} onBlur={handleFieldBlur} />
+                      <input value={phoneState} onChange={(e) => setPhoneState(e.target.value)} onBlur={handleFieldBlur} readOnly={!editingBasic} />
                     </div>
                   </div>
                 </div>
@@ -325,7 +355,7 @@ export default function Profile() {
                 <div className="form-row">
                   <label>About / Bio</label>
                   <div className="input-wrap">
-                    <textarea value={bioState} onChange={(e) => setBioState(e.target.value)} onBlur={handleFieldBlur} placeholder="Tell employers about yourself, your career goals and strengths." rows={5} />
+                    <textarea value={bioState} onChange={(e) => setBioState(e.target.value)} onBlur={handleFieldBlur} placeholder="Tell employers about yourself, your career goals and strengths." rows={5} readOnly={!editingBasic} />
                   </div>
                 </div>
               </div>
@@ -333,19 +363,27 @@ export default function Profile() {
 
             <section className="card">
               <div className="card-body">
-                <h3>Educational Background</h3>
+                <div className="card-header">
+                  <h3>Educational Background</h3>
+                  <button className={`edit-btn ${editingEducation ? 'save' : ''}`} onClick={async () => {
+                    if (editingEducation) {
+                      await saveNow({ education: educationList });
+                    }
+                    setEditingEducation(!editingEducation);
+                  }}>{editingEducation ? 'Save' : 'Edit'}</button>
+                </div>
                 <div className="form-row">
                   <label>Education</label>
                   <div className="list-input">
                     <div className="chips">
                       {educationList.map((e, i) => (
-                        <span className="chip" key={i}>{e.school} — {e.degree} ({e.startYear}{e.endYear ? ' – ' + e.endYear : ' – Present'}) · {e.status} <button onClick={() => removeAt(i, setEducationList)} className="chip-remove" aria-label={`Remove ${e.school}`}>×</button></span>
+                        <span className="chip" key={i}>{e.school} — {e.degree} ({e.startYear}{e.endYear ? ' – ' + e.endYear : ' – Present'}) · {e.status} <button onClick={() => removeAt(i, setEducationList)} className="chip-remove" aria-label={`Remove ${e.school}`} disabled={!editingEducation}>×</button></span>
                       ))}
                     </div>
                     <div className="add-row education-add">
-                      <input value={newSchool} onChange={(e) => setNewSchool(e.target.value)} placeholder="School / Institution" />
-                      <input value={newDegree} onChange={(e) => setNewDegree(e.target.value)} placeholder="Degree / Program" />
-                      <input value={newField} onChange={(e) => setNewField(e.target.value)} placeholder="Field of Study (optional)" />
+                      <input value={newSchool} onChange={(e) => setNewSchool(e.target.value)} placeholder="School / Institution" disabled={!editingEducation} />
+                      <input value={newDegree} onChange={(e) => setNewDegree(e.target.value)} placeholder="Degree / Program" disabled={!editingEducation} />
+                      <input value={newField} onChange={(e) => setNewField(e.target.value)} placeholder="Field of Study (optional)" disabled={!editingEducation} />
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <input value={newStartYear} onChange={(e) => setNewStartYear(e.target.value)} placeholder="Start Year (e.g. 2019)" />
                         <input value={newEndYear} onChange={(e) => setNewEndYear(e.target.value)} placeholder="End Year (e.g. 2023) or Present" />
@@ -358,6 +396,7 @@ export default function Profile() {
                       </select>
                       <input value={newEduDesc} onChange={(e) => setNewEduDesc(e.target.value)} placeholder="Short description (optional)" />
                       <button type="button" className="add-btn" onClick={() => {
+                        if (!editingEducation) return;
                         if (!newSchool.trim()) return;
                         setEducationList(prev => [...prev, { school: newSchool.trim(), degree: newDegree.trim(), field: newField.trim(), startYear: newStartYear.trim(), endYear: newEndYear.trim(), status: newStatus, desc: newEduDesc.trim() }]);
                         setNewSchool(''); setNewDegree(''); setNewField(''); setNewStartYear(''); setNewEndYear(''); setNewStatus('Enrolled'); setNewEduDesc('');
@@ -370,19 +409,27 @@ export default function Profile() {
 
             <section className="card">
               <div className="card-body">
-                <h3>Professional Information</h3>
+                <div className="card-header">
+                  <h3>Professional Information</h3>
+                  <button className={`edit-btn ${editingProfessional ? 'save' : ''}`} onClick={async () => {
+                    if (editingProfessional) {
+                      await saveNow({ skills: skillsList, portfolio: portfolioList, certifications: certsList });
+                    }
+                    setEditingProfessional(!editingProfessional);
+                  }}>{editingProfessional ? 'Save' : 'Edit'}</button>
+                </div>
 
                 <div className="form-row">
                   <label>Skills</label>
                   <div className="list-input">
                     <div className="chips">
                       {skillsList.map((s, i) => (
-                        <span className="chip" key={i}>{s}<button onClick={() => removeAt(i, setSkillsList)} className="chip-remove" aria-label={`Remove ${s}`}>×</button></span>
+                        <span className="chip" key={i}>{s}<button onClick={() => removeAt(i, setSkillsList)} className="chip-remove" aria-label={`Remove ${s}`} disabled={!editingProfessional}>×</button></span>
                       ))}
                     </div>
                     <div className="add-row">
-                      <input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} placeholder="Add skill" />
-                      <button type="button" className="add-btn" onClick={() => addIfNotEmpty(newSkill, setSkillsList, setNewSkill)}>+</button>
+                      <input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} placeholder="Add skill" disabled={!editingProfessional} />
+                      <button type="button" className="add-btn" onClick={() => { if (editingProfessional) addIfNotEmpty(newSkill, setSkillsList, setNewSkill); }}>+</button>
                     </div>
                   </div>
                 </div>
@@ -402,12 +449,12 @@ export default function Profile() {
                   <div className="list-input">
                     <div className="chips">
                       {certsList.map((c, i) => (
-                        <span className="chip" key={i}>{c}<button onClick={() => removeAt(i, setCertsList)} className="chip-remove" aria-label={`Remove ${c}`}>×</button></span>
+                        <span className="chip" key={i}>{c}<button onClick={() => removeAt(i, setCertsList)} className="chip-remove" aria-label={`Remove ${c}`} disabled={!editingProfessional}>×</button></span>
                       ))}
                     </div>
                     <div className="add-row">
-                      <input value={newCert} onChange={(e) => setNewCert(e.target.value)} placeholder="Add certification" />
-                      <button type="button" className="add-btn" onClick={() => addIfNotEmpty(newCert, setCertsList, setNewCert)}>+</button>
+                      <input value={newCert} onChange={(e) => setNewCert(e.target.value)} placeholder="Add certification" disabled={!editingProfessional} />
+                      <button type="button" className="add-btn" onClick={() => { if (editingProfessional) addIfNotEmpty(newCert, setCertsList, setNewCert); }}>+</button>
                     </div>
                   </div>
                 </div>

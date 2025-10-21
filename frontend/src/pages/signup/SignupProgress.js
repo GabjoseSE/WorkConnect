@@ -2,7 +2,7 @@ import React from 'react';
 import { useSignup } from '../../contexts/SignupContext';
 
 function SignupProgress({ currentStep = 1, steps: propSteps }) {
-  const defaultSteps = ['Account', 'Personal', 'Background', 'Finish'];
+  const defaultSteps = ['Account', 'Personal', 'Review'];
   const steps = Array.isArray(propSteps) && propSteps.length > 0 ? propSteps : defaultSteps;
   const lastIndex = Math.max(1, steps.length - 1);
   // If SignupContext is provided, prefer its currentStep so all steps stay in sync

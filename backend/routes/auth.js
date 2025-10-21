@@ -78,13 +78,15 @@ router.post('/login', async (req, res) => {
     const valid = await bcrypt.compare(password, account.passwordHash);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
+    // Sign token with `userId` to match auth middleware expectation
     const token = jwt.sign(
-      { id: account._id, email, role: account.role || 'employer' },
+      { userId: account._id, email, role: account.role || 'employer' },
       process.env.JWT_SECRET || 'devsecret',
       { expiresIn: '7d' }
     );
 
-    res.json({ token, id: account._id, role: account.role || 'employer' });
+    // Return userId field (frontend expects userId or id; prefer userId)
+    res.json({ token, userId: account._id, role: account.role || 'employer' });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'server error' });

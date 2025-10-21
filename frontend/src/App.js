@@ -14,7 +14,6 @@ import Jobs from "./pages/jobhunter_dashboard/Jobs";
 import Landing from "./pages/landing/Landing";
 import SignUp01 from "./pages/signup/jobhunter/SignUp01";
 import SignUp02 from "./pages/signup/jobhunter/SignUp02";
-import SignUp03 from "./pages/signup/jobhunter/SignUp03";
 import SignUp04 from "./pages/signup/jobhunter/SignUp04";
 import ChooseRole from "./pages/signup/ChooseRole";
 import SignUpE01 from "./pages/signup/employer/SignUpE01";
@@ -93,7 +92,7 @@ function App() {
           {/* Signup process split into multiple steps (01–04) */}
           <Route path="/signup-01" element={<SignUp01 />} />
           <Route path="/signup-02" element={<SignUp02 />} />
-          <Route path="/signup-03" element={<SignUp03 />} />
+          {/* Step 3 removed — professional details moved into profile page. */}
           <Route path="/signup-04" element={<SignUp04 />} />
           <Route path="/choose-role" element={<ChooseRole />} />
             {/* Employer signup flow */}

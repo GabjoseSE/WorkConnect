@@ -47,8 +47,9 @@ function SignUp02() {
       }
       return;
     }
-    update({ phone: result.e164 });
-    navigate('/signup-03');
+  update({ phone: result.e164 });
+  // Step 3 was removed; go directly to step 4
+  navigate('/signup-04');
   };
 
   return (
