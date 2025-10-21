@@ -22,7 +22,7 @@ import SignUpE03 from "./pages/signup/employer/SignUpE03";
 import JobhunterDashboard from './pages/jobhunter_dashboard/JobhunterDashboard';
 import EmployerDashboard from './pages/employer_dashboard/EmployerDashboard';
 import EmployerLayout from './pages/employer_dashboard/EmployerLayout';
-import EmployerProfile from './pages/employer_dashboard/Profile';
+import EmployerProfile from './pages/employer_dashboard/EmployerProfile';
 import EmployerJobs from './pages/employer_dashboard/JobPosting';
 import EmployerApplicants from './pages/employer_dashboard/Applicants';
 import EmployerMessages from './pages/employer_dashboard/EmployerMessages';

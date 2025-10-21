@@ -47,8 +47,9 @@ function Login() {
     }
 
     try {
-      const result = await auth.login(email, password);
-      const role = result?.profile?.role || auth.profile?.role || "jobhunter";
+  const result = await auth.login(email, password);
+  // prefer role from freshly fetched profile, then server-returned role, then auth context
+  const role = result?.profile?.role || result?.role || auth.profile?.role || "jobhunter";
       if (role === "employer") navigate("/employer/dashboard");
       else navigate("/jobhunter/dashboard");
     } catch (err) {

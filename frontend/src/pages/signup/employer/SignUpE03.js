@@ -29,6 +29,11 @@ export default function SignUpE03() {
     if (!fullName) { setFullNameError('Please enter full name'); if (fullNameRef.current) { fullNameRef.current.focus(); fullNameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     if (!email) { setEmailError('Please enter a work email'); if (emailRef.current) { emailRef.current.focus(); emailRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
   if (!data.password) { alert('Password missing from earlier step; please go back and set a password.'); return; }
+  // ensure company name exists in signup context (required by backend)
+  if (!data.companyName) {
+    alert('Company name is missing from your company details. Please go back to Step 2 and enter your company name.');
+    return;
+  }
   update({ ownerName: fullName, ownerPosition: position, ownerPhone: phone, email });
   // Build payload and finish signup here
   (async () => {

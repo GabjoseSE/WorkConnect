@@ -38,6 +38,8 @@ router.post('/signup', async (req, res) => {
         linkedin: profileData.linkedin || '',
         passwordHash: hash, // store password here for employers
       });
+      // ensure required `userId` is set (use the document's own _id as the account id)
+      employer.userId = employer._id;
       await employer.save();
       return res.status(201).json({ role: 'employer', id: employer._id });
     }
@@ -57,6 +59,13 @@ router.post('/signup', async (req, res) => {
     res.status(201).json({ role: 'jobhunter', id: jobhunter._id });
   } catch (err) {
     console.error('Signup error:', err);
+    // If Mongoose validation produced the error, return a 400 with details to help the client
+    if (err && err.name === 'ValidationError') {
+      const message = err.message || 'Validation failed';
+      const details = {};
+      Object.keys(err.errors || {}).forEach(k => { details[k] = err.errors[k].message || err.errors[k].kind; });
+      return res.status(400).json({ error: message, details });
+    }
     res.status(500).json({ error: 'server error' });
   }
 });
