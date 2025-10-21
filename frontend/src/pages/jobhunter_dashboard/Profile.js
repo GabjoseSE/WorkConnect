@@ -263,6 +263,86 @@ export default function Profile() {
     scheduleSave({ firstName, lastName, email: emailState, phone: phoneState, location: loc, bio: bioState, gender, dob, nationality, desiredJobType, workArrangement, expectedSalary });
   };
 
+  // account modal state
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [isProcessingAccount, setIsProcessingAccount] = useState(false);
+
+  const handleDeactivate = async () => {
+    if (!token) return;
+    setIsProcessingAccount(true);
+    try {
+      const res = await fetch('/api/account/deactivate', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
+      if (!res.ok) throw new Error('Request failed');
+      // clear local auth and redirect to login
+      localStorage.removeItem('wc_token');
+      localStorage.removeItem('wc_userId');
+      if (setProfile) setProfile(null);
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Deactivate failed', err);
+      alert('Failed to deactivate account. Please try again.');
+    } finally {
+      setIsProcessingAccount(false);
+      setShowAccountModal(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    // now handled by the password confirm modal; this function will be replaced
+    return;
+  };
+
+  // password confirm modal state
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmError, setConfirmError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [confirmAction, setConfirmAction] = useState('');
+
+  const openPasswordConfirm = (action = 'delete') => {
+    setConfirmPassword('');
+    setConfirmError('');
+    setConfirmAction(action);
+    setShowPasswordModal(true);
+  };
+
+  // generic submit for delete or deactivate using password
+  const submitConfirmWithPassword = async () => {
+    if (!token) return;
+    if (!confirmPassword || confirmPassword.length < 6) {
+      setConfirmError('Please enter your password.');
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      let res;
+      if (confirmAction === 'deactivate') {
+        res = await fetch('/api/account/deactivate', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ password: confirmPassword }) });
+      } else {
+        // default to delete
+        res = await fetch('/api/account', { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ password: confirmPassword }) });
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setConfirmError(data && data.message ? data.message : 'Request failed.');
+        return;
+      }
+      // success: clear auth and redirect
+      localStorage.removeItem('wc_token');
+      localStorage.removeItem('wc_userId');
+      if (setProfile) setProfile(null);
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Action failed', err);
+      setConfirmError('Failed to perform action. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setShowPasswordModal(false);
+      setShowAccountModal(false);
+    }
+  };
+
 
   return (
     <div className="profile-page">
@@ -574,12 +654,54 @@ export default function Profile() {
                   <button className="secondary">Manage Privacy Settings</button>
                 </div>
                 <div className="form-row">
-                  <button className="danger">Deactivate / Delete Account</button>
+                  <button className="danger" onClick={() => setShowAccountModal(true)}>Deactivate / Delete Account</button>
                 </div>
               </div>
             </section>
           </aside>
         </div>
+        {showAccountModal && (
+          <div className="wc-modal-backdrop" role="dialog" aria-modal="true" onClick={() => { if (!isProcessingAccount) setShowAccountModal(false); }}>
+            <div className="wc-modal" role="document" onClick={(e) => e.stopPropagation()}>
+              <h3>Account actions</h3>
+              <div className="action-descs">
+                <div className="action-desc">
+                  <strong>Deactivate</strong>
+                  <div className="action-text">Temporarily hides your profile and content. You can reactivate later.</div>
+                  <div className="action-actions">
+                    <button className="secondary" onClick={() => { if (!isProcessingAccount) openPasswordConfirm('deactivate'); }} disabled={isProcessingAccount}>Deactivate</button>
+                  </div>
+                </div>
+                <div className="action-desc">
+                  <strong className="danger-label">Delete</strong>
+                  <div className="action-text">Permanently removes your account and all associated data. This action is irreversible.</div>
+                  <div className="action-actions">
+                    <button className="danger" onClick={() => { if (!isProcessingAccount) openPasswordConfirm(); }} disabled={isProcessingAccount}>Delete</button>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-actions" style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <button className="edit-btn" onClick={() => { if (!isProcessingAccount) setShowAccountModal(false); }} disabled={isProcessingAccount}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {showPasswordModal && (
+          <div className="wc-modal-backdrop" role="dialog" aria-modal="true" onClick={() => { if (!isDeleting) setShowPasswordModal(false); }}>
+            <div className="wc-modal" role="document" onClick={(e) => e.stopPropagation()}>
+              <h3>Confirm account deletion</h3>
+              <p>Enter your password to confirm permanent deletion of your account.</p>
+              <div style={{ marginTop: 12 }}>
+                <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Your password" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e6e6e9' }} />
+                {confirmError && <div className="confirm-error" style={{ marginTop: 8 }}>{confirmError}</div>}
+              </div>
+              <div className="modal-actions" style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <button className="secondary" onClick={() => { if (!isDeleting) setShowPasswordModal(false); }} disabled={isDeleting}>Cancel</button>
+                <button className="danger" onClick={() => { if (!isDeleting) submitConfirmWithPassword(); }} disabled={isDeleting}>{confirmAction === 'deactivate' ? 'Deactivate account' : 'Delete account'}</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
