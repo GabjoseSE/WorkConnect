@@ -9,11 +9,18 @@ try {
 } catch (e) {
   Profile = null;
 }
+let EmployersProfile;
+try {
+  EmployersProfile = require('../models/employersProfile');
+} catch (e) {
+  EmployersProfile = null;
+}
 
 // in-memory fallback store when MongoDB isn't connected (dev mode)
 const inMemoryProfiles = new Map();
 function isDbConnected() {
-  return mongoose && mongoose.connection && mongoose.connection.readyState === 1 && Profile;
+  // consider connected if mongoose connection is ready and at least one profile model is available
+  return mongoose && mongoose.connection && mongoose.connection.readyState === 1 && (Profile || EmployersProfile);
 }
 
 // create or update profile
@@ -27,28 +34,49 @@ router.post('/', auth, async (req, res) => {
 
     if (!isDbConnected()) {
       // dev fallback: store in memory
-      const existing = inMemoryProfiles.get(email);
+      // support indexing by email and userId (and ownerEmail for employers) so GET by userId works
+      const existing = (email && inMemoryProfiles.get(email)) || (effectiveUserId && inMemoryProfiles.get(effectiveUserId));
       const record = Object.assign({}, existing || {}, req.body, { createdAt: existing ? existing.createdAt : new Date() });
-      inMemoryProfiles.set(email, record);
+      if (email) inMemoryProfiles.set(email, record);
+      if (effectiveUserId) inMemoryProfiles.set(effectiveUserId, record);
+      if (req.body && req.body.ownerEmail) inMemoryProfiles.set(req.body.ownerEmail, record);
       return res.status(existing ? 200 : 201).json(record);
     }
-
-  let profile;
-  if (effectiveUserId) profile = await Profile.findOne({ userId: effectiveUserId });
-    if (!profile && email) profile = await Profile.findOne({ email });
+    // Try to find existing profile in either model
+    let profile = null;
+    let usingEmployers = false;
+    if (effectiveUserId) {
+      if (Profile) profile = await Profile.findOne({ userId: effectiveUserId });
+      if (!profile && EmployersProfile) {
+        profile = await EmployersProfile.findOne({ userId: effectiveUserId });
+        if (profile) usingEmployers = true;
+      }
+    }
+    if (!profile && email) {
+      if (Profile) profile = await Profile.findOne({ email });
+      if (!profile && EmployersProfile) {
+        // employer profiles store contact email in ownerEmail
+        profile = await EmployersProfile.findOne({ ownerEmail: email });
+        if (profile) usingEmployers = true;
+      }
+    }
 
     if (profile) {
-      profile = Object.assign(profile, req.body);
-  if (effectiveUserId) profile.userId = effectiveUserId;
+      // merge incoming fields
+      Object.assign(profile, req.body);
+      if (effectiveUserId) profile.userId = effectiveUserId;
       await profile.save();
       return res.json(profile);
     }
 
+    // create new profile - choose model based on presence of employer-like fields
+    const isEmployerPayload = !!(req.body.companyName || req.body.ownerEmail || req.body.companyWebsite);
+    const Model = (EmployersProfile && isEmployerPayload) ? EmployersProfile : Profile;
     const newProfileData = Object.assign({}, req.body);
-  if (effectiveUserId) newProfileData.userId = effectiveUserId;
-    profile = new Profile(newProfileData);
-    await profile.save();
-    res.status(201).json(profile);
+    if (effectiveUserId) newProfileData.userId = effectiveUserId;
+    const created = new Model(newProfileData);
+    await created.save();
+    res.status(201).json(created);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server error' });
@@ -72,19 +100,40 @@ router.get('/', async (req, res) => {
       }
     }
 
-    if (!email && !userId && !authUserId) return res.status(400).json({ error: 'email or userId query required' });
+  if (!email && !userId && !authUserId) return res.status(400).json({ error: 'email or userId query required' });
 
     if (!isDbConnected()) {
-      const key = email || userId || authUserId;
-      const profile = inMemoryProfiles.get(key);
+      // try multiple keys in dev fallback (email, userId, authUserId)
+      const tryKeys = [];
+      if (email) tryKeys.push(email);
+      if (userId) tryKeys.push(userId);
+      if (authUserId) tryKeys.push(authUserId);
+      // also try ownerEmail variants when email not provided
+      if (!email && userId) tryKeys.push(userId);
+      let profile = null;
+      for (const k of tryKeys) {
+        profile = inMemoryProfiles.get(k);
+        if (profile) break;
+      }
       if (!profile) return res.status(404).json({ error: 'not found' });
       return res.json(profile);
     }
 
-    let profile;
-    if (authUserId) profile = await Profile.findOne({ userId: authUserId });
-    if (!profile && userId) profile = await Profile.findOne({ userId });
-    if (!profile && email) profile = await Profile.findOne({ email });
+    // Try to find profile in either Profile or EmployersProfile collections
+    let profile = null;
+    // prefer authenticated userId
+    if (authUserId) {
+      if (Profile) profile = await Profile.findOne({ userId: authUserId });
+      if (!profile && EmployersProfile) profile = await EmployersProfile.findOne({ userId: authUserId });
+    }
+    if (!profile && userId) {
+      if (Profile) profile = await Profile.findOne({ userId });
+      if (!profile && EmployersProfile) profile = await EmployersProfile.findOne({ userId });
+    }
+    if (!profile && email) {
+      if (Profile) profile = await Profile.findOne({ email });
+      if (!profile && EmployersProfile) profile = await EmployersProfile.findOne({ ownerEmail: email });
+    }
     if (!profile) return res.status(404).json({ error: 'not found' });
 
     // Ensure we return a plain object and compute a friendly `location` string
