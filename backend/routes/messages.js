@@ -56,4 +56,32 @@ router.post('/send', async (req, res) => {
   }
 });
 
+// POST /api/messages/start
+router.post('/start', async (req, res) => {
+  try {
+    const { from, to, title } = req.body;
+    if (!from || !to) return res.status(400).json({ error: 'from and to required' });
+
+    // Try to find an existing conversation with these participants
+    let convo = await Conversation.findOne({
+      participants: { $all: [from, to] },
+    });
+
+    // If none exists, create it
+    if (!convo) {
+      convo = new Conversation({
+        title: title || '',
+        participants: [from, to],
+      });
+      await convo.save();
+    }
+
+    res.json({ conversationId: convo._id, conversation: convo });
+  } catch (err) {
+    console.error('Error starting conversation:', err);
+    res.status(500).json({ error: 'server error' });
+  }
+});
+
+
 module.exports = router;

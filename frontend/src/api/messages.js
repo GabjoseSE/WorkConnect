@@ -21,3 +21,14 @@ export async function sendMessage(payload) {
   }
   return res.json();
 }
+
+export async function startConversation(from, to, title = '') {
+  const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/messages/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to, title }),
+  });
+  if (!res.ok) throw new Error('Failed to start conversation');
+  return res.json();
+}
+
