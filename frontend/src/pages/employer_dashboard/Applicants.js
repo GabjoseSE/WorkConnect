@@ -4,15 +4,18 @@ import { getEmployerApplications } from '../../api/applications';
 import './Applicants.css';
 
 export default function Applicants() {
-  const { profile } = useAuth();
+  const { profile, userId } = useAuth();
   const [apps, setApps] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [selectedJobId, setSelectedJobId] = useState(null);
 
   useEffect(() => {
-    if (!profile) return;
+    // prefer profile.userId/_id but fall back to top-level userId from AuthContext if available
+    const employerId = (profile && (profile.userId || profile._id)) || userId || null;
+    if (!employerId) return;
     // load all applications for this employer and derive jobs list, then merge with posted jobs
-    const employerId = profile.userId || profile._id;
+  // Note: If AuthContext provides a separate userId (e.g. from login), use it — some consumers expect it at top-level
+  // However this component only receives `profile` from useAuth; if needed, consider reading useAuth().userId directly.
     async function load() {
       try {
         const d = await getEmployerApplications(employerId);
@@ -42,6 +45,26 @@ export default function Applicants() {
               }
             });
           }
+          // if no jobs were returned for this createdBy, try fetching all jobs and match by company
+          if (Object.keys(jobMap).length === 0) {
+            try {
+              const res2 = await fetch(`${base}/api/jobs`);
+              if (res2.ok) {
+                const all = await res2.json();
+                all.forEach(j => {
+                  const jid = j._id || j.id || 'unknown-' + (j.title || '') + String(Math.random()).slice(2,8);
+                  // include if createdBy matches OR no createdBy and company matches profile.company
+                  if (j.createdBy && String(j.createdBy) === String(employerId)) {
+                    if (!jobMap[jid]) jobMap[jid] = { jobId: jid, title: j.title || 'Untitled', count: 0, logoUrl: j.logoUrl || j.logo || null };
+                  } else if (!j.createdBy && profile && profile.company && String((j.company||'').trim()).toLowerCase() === String((profile.company||'').trim()).toLowerCase()) {
+                    if (!jobMap[jid]) jobMap[jid] = { jobId: jid, title: j.title || 'Untitled', count: 0, logoUrl: j.logoUrl || j.logo || null };
+                  }
+                });
+              }
+            } catch (e) {
+              console.warn('Fallback fetch all jobs failed', e);
+            }
+          }
         } catch (e) {
           // ignore job fetch errors; we still have job list derived from applications
           console.warn('Could not fetch jobs to merge with applications', e);
@@ -55,7 +78,7 @@ export default function Applicants() {
       }
     }
     load();
-  }, [profile]);
+  }, [profile, userId]);
 
   const filtered = selectedJobId ? apps.filter(a => (a.jobId || 'unknown') === selectedJobId) : apps;
 

@@ -10,11 +10,17 @@ const ProfileSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   gender: String,
-  dob: Date,
+  dob: Date, // maps from data.dateOfBirth
   nationality: String,
 
-  // Contact
+  // Contact and location
   phone: String,
+  phoneCountry: String,
+  country: String,
+  addressLine: String,
+  city: String,
+  stateprovince: String,
+  postalCode: String,
   image: String, // profile avatar
   bio: String,
   linkedin: String,

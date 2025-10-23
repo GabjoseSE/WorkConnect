@@ -55,8 +55,31 @@ export default function EmployerJobs() {
       const res = await fetch(`${base}/api/jobs?createdBy=${encodeURIComponent(employerId)}`);
       if (res.ok) {
         const data = await res.json();
-        setPostedJobs(data || []);
-        if (data && data.length && !selectedJobId) setSelectedJobId(data[0]._id || data[0].id);
+        // if no jobs were returned for this creator, attempt a fallback:
+        // fetch all jobs and include ones that either have no createdBy or match the employer's company name
+        if ((!data || data.length === 0) && profile && profile.company) {
+          try {
+            const allRes = await fetch(`${base}/api/jobs`);
+            if (allRes.ok) {
+              const allJobs = await allRes.json();
+              const filtered = (allJobs || []).filter(j => {
+                // include jobs explicitly created by this employer OR jobs without createdBy that match company
+                if (j.createdBy) return String(j.createdBy) === String(employerId);
+                return String((j.company || '').trim()).toLowerCase() === String((profile.company || '').trim()).toLowerCase();
+              });
+              setPostedJobs(filtered || []);
+              if (filtered && filtered.length && !selectedJobId) setSelectedJobId(filtered[0]._id || filtered[0].id);
+            } else {
+              setPostedJobs([]);
+            }
+          } catch (e) {
+            console.warn('Fallback fetch all jobs failed', e);
+            setPostedJobs([]);
+          }
+        } else {
+          setPostedJobs(data || []);
+          if (data && data.length && !selectedJobId) setSelectedJobId(data[0]._id || data[0].id);
+        }
       }
     } catch (err) {
       console.warn('Could not load posted jobs', err);
@@ -65,7 +88,8 @@ export default function EmployerJobs() {
     }
   }
 
-  useEffect(() => { loadPostedJobs(); }, [profile]);
+  // reload posted jobs when profile or userId changes (userId may be set before full profile loads)
+  useEffect(() => { loadPostedJobs(); }, [profile, userId]);
   const [city, setCity] = useState('');
   const [stateOrProvince, setStateOrProvince] = useState('');
   const [country, setCountry] = useState('');
@@ -239,7 +263,8 @@ export default function EmployerJobs() {
 
     try {
       // attach current employer id so the job is saved to their account
-      if (profile && (profile.userId || profile._id)) payload.createdBy = profile.userId || profile._id;
+      // prefer profile.userId/_id but fall back to top-level userId from AuthContext
+      if ((profile && (profile.userId || profile._id)) || userId) payload.createdBy = (profile && (profile.userId || profile._id)) || userId;
       let savedJob = null;
       let fromServer = false;
       if (selectedJobId) {

@@ -42,11 +42,15 @@ export default function Profile() {
   const [lastName, setLastName] = useState(user.lastName || '');
   const [emailState, setEmailState] = useState(user.email || '');
   const [phoneState, setPhoneState] = useState(user.phone || '');
-  // split location into city, province/state, country (if provided)
-  const locParts = (user.location || '').split(',').map(p => p.trim()).filter(Boolean);
-  const [cityState, setCityState] = useState(locParts[0] || '');
-  const [stateProvince, setStateProvince] = useState(locParts[1] || '');
-  const [country, setCountry] = useState(locParts.slice(2).join(', ') || '');
+  // Prefer structured fields when available (stored in Profile or EmployersProfile).
+  // Fall back to legacy `location` string when necessary.
+  const legacyParts = (user.location || '').split(',').map(p => p.trim()).filter(Boolean);
+  const initialCity = user.city || user.companyCity || legacyParts[0] || '';
+  const initialState = user.stateprovince || user.companyRegion || legacyParts[1] || '';
+  const initialCountry = user.country || user.companyCountry || legacyParts.slice(2).join(', ') || '';
+  const [cityState, setCityState] = useState(initialCity);
+  const [stateProvince, setStateProvince] = useState(initialState);
+  const [country, setCountry] = useState(initialCountry);
   const [bioState, setBioState] = useState(user.bio || '');
   const [gender, setGender] = useState(user.gender || '');
   const [dob, setDob] = useState(user.dob ? new Date(user.dob).toISOString().substr(0,10) : '');

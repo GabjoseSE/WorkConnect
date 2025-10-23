@@ -44,19 +44,26 @@ router.post('/signup', async (req, res) => {
       return res.status(201).json({ role: 'employer', id: employer._id });
     }
 
-    // Default: jobhunter
-    const jobhunter = new Profile({
-      email,
-      passwordHash: hash,
-      role: 'jobhunter',
-      firstName: profileData.firstName || '',
-      lastName: profileData.lastName || '',
-      skills: profileData.skills || [],
-      resumeUrl: profileData.resumeUrl || '',
-    });
-    await jobhunter.save();
+  // Default: jobhunter — include any submitted profile fields (address/location, phone, etc.)
+  // profileData is the rest of the request body after { email, password, role }
+  const jobhunterData = Object.assign({}, profileData, {
+    email,
+    passwordHash: hash,
+    role: 'jobhunter',
+  });
 
-    res.status(201).json({ role: 'jobhunter', id: jobhunter._id });
+  // Ensure arrays default to empty arrays when not provided to avoid schema issues
+  if (!Array.isArray(jobhunterData.skills)) jobhunterData.skills = jobhunterData.skills || [];
+  if (!Array.isArray(jobhunterData.languages)) jobhunterData.languages = jobhunterData.languages || [];
+  if (!Array.isArray(jobhunterData.portfolio)) jobhunterData.portfolio = jobhunterData.portfolio || [];
+  if (!Array.isArray(jobhunterData.certifications)) jobhunterData.certifications = jobhunterData.certifications || [];
+  if (!Array.isArray(jobhunterData.experience)) jobhunterData.experience = jobhunterData.experience || [];
+  if (!Array.isArray(jobhunterData.education)) jobhunterData.education = jobhunterData.education || [];
+
+  const jobhunter = new Profile(jobhunterData);
+  await jobhunter.save();
+
+  res.status(201).json({ role: 'jobhunter', id: jobhunter._id });
   } catch (err) {
     console.error('Signup error:', err);
     // If Mongoose validation produced the error, return a 400 with details to help the client

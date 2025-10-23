@@ -47,7 +47,7 @@ function CountrySelect({ value, onChange, className, showCode = true }) {
           <input className="wc-search country-search" placeholder="Search country or code" value={q} onChange={e => setQ(e.target.value)} />
           <ul className="country-list">
             {list.map(c => (
-              <li key={c.code} className="country-item" onClick={() => { onChange(c.code); setOpen(false); }}>
+              <li key={c.code} className="country-item" onClick={() => { onChange(c.code, c.name); setOpen(false); }}>
                 {c.iso ? <span className={`flag-icon flag-icon-${c.iso}`} style={{ marginRight: 8 }} /> : <span style={{ marginRight: 8 }}>{c.flag}</span>}
                 {showCode && <strong style={{ marginRight: 8 }}>{c.code}</strong>}
                 <span style={{ color: '#333' }}>{c.name}</span>

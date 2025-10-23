@@ -41,10 +41,10 @@ export default function EmployerProfile() {
     <div className="employer-profile page-content">
       <div className="profile-header">
         <div className="profile-title">
-          <div className="logo-placeholder">{company.companyLogo ? <img src={company.companyLogo} alt={company.companyName} /> : (company.companyName || 'Company').split(' ').map(w => w[0]).slice(0,2).join('')}</div>
+          <div className="logo-placeholder">{company?.companyLogo ? <img src={company.companyLogo} alt={company.companyName || 'Company'} /> : ((company?.companyName || 'Company').split(' ').map(w => w[0]).slice(0,2).join(''))}</div>
           <div>
             <h2 className="company-name">{company.companyName}</h2>
-            <div className="company-meta">{company.industry} • {company.companySize} • Founded {company.founded || ''}</div>
+            <div className="company-meta">{company.industry || '—'} • {company.companySize || '—'}{company.founded ? ' • Founded ' + company.founded : ''}</div>
           </div>
         </div>
         <div>
@@ -56,31 +56,32 @@ export default function EmployerProfile() {
         <section className="profile-left card">
           <h3>Basic Information</h3>
           <dl className="info-list">
-            <dt>Company Name</dt><dd>{company.companyName}</dd>
-            <dt>Industry / Type</dt><dd>{company.industry}</dd>
-            <dt>Company Size</dt><dd>{company.companySize}</dd>
-            <dt>Founded</dt><dd>{company.founded}</dd>
-            <dt>Headquarters</dt><dd>{company.companyLocation}</dd>
-            <dt>Website</dt><dd>{company.companyWebsite ? (<a href={company.companyWebsite} target="_blank" rel="noreferrer">{company.companyWebsite}</a>) : null}</dd>
+            <dt>Company Name</dt><dd>{company.companyName || '—'}</dd>
+            <dt>Industry / Type</dt><dd>{company.industry || '—'}</dd>
+            <dt>Company Size</dt><dd>{company.companySize || '—'}</dd>
+            <dt>Founded</dt><dd>{company.founded || '—'}</dd>
+            <dt>Headquarters</dt><dd>{company.companyLocation || '—'}</dd>
+            <dt>Website</dt><dd>{company.companyWebsite ? (<a href={company.companyWebsite} target="_blank" rel="noreferrer">{company.companyWebsite}</a>) : '—'}</dd>
           </dl>
 
           <h4>Contact Information</h4>
           <dl className="info-list">
-            <dt>Company Email</dt><dd>{company.ownerEmail || company.email}</dd>
-            <dt>Phone Number</dt><dd>{company.ownerPhone || company.phone}</dd>
-            <dt>Address</dt><dd>{company.companyLocation}</dd>
+            <dt>Company Email</dt><dd>{company.ownerEmail || company.email || '—'}</dd>
+            <dt>Phone Number</dt><dd>{company.ownerPhone || company.phone || '—'}</dd>
+            <dt>Address</dt><dd>{company.companyLocation || '—'}</dd>
           </dl>
         </section>
 
         <section className="profile-right card">
+
           <h3>Company Description</h3>
-          <p className="company-desc">{company.companyDescription}</p>
+          <p className="company-desc">{company.companyDescription || 'No description provided.'}</p>
 
           <h4>Mission & Vision</h4>
-          <p className="company-mission">{company.mission}</p>
+          <p className="company-mission">{company.mission || 'Not provided.'}</p>
 
           <h4>Core Values</h4>
-          <p className="company-values">{company.coreValues || company.values}</p>
+          <p className="company-values">{(company.coreValues && company.coreValues.length) ? company.coreValues.join(', ') : (company.values || 'Not provided.')}</p>
 
           <h4>Gallery / Media</h4>
           <div className="gallery">

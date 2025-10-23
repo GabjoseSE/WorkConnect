@@ -119,7 +119,7 @@ function SignUp02() {
           <div style={{ marginTop: 12 }}>
             <label className="signup01-label">Country</label>
               {/* when user selects a country for address, also sync the phone country; hide dialing code for address selector */}
-              <CountrySelect showCode={false} value={data.country || data.phoneCountry || '+63'} onChange={(code) => update({ country: code, phoneCountry: code })} />
+              <CountrySelect showCode={false} value={data.country || data.phoneCountry || '+63'} onChange={(code, name) => update({ country: name || code, phoneCountry: code })} />
           </div>
 
           
@@ -132,7 +132,7 @@ function SignUp02() {
         <div className="phone-row" style={{ alignItems: 'center' }}>
           {/* country selector stays on the left */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <CountrySelect value={data.phoneCountry || '+63'} onChange={(code) => update({ phoneCountry: code, country: code })} />
+            <CountrySelect value={data.phoneCountry || '+63'} onChange={(code, name) => update({ phoneCountry: code, country: name || code })} />
           </div>
 
           {/* dialing code prefix shown inside the field area */}

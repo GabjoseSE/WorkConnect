@@ -47,7 +47,13 @@ export default function SignUpE03() {
         companyWebsite: data.companyWebsite,
         industry: data.industry,
         companySize: data.companySize,
+        // include both legacy combined location and structured address fields
         companyLocation: data.companyLocation,
+        companyStreetAddress: data.companyStreetAddress,
+        companyCity: data.companyCity,
+        companyRegion: data.companyRegion,
+        companyPostalCode: data.companyPostalCode,
+        companyCountry: data.companyCountry,
         companyDescription: data.companyDescription,
         companyLogo: data.companyLogo,
         ownerName: fullName,

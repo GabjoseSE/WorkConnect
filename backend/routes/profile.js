@@ -86,7 +86,30 @@ router.get('/', async (req, res) => {
     if (!profile && userId) profile = await Profile.findOne({ userId });
     if (!profile && email) profile = await Profile.findOne({ email });
     if (!profile) return res.status(404).json({ error: 'not found' });
-    res.json(profile);
+
+    // Ensure we return a plain object and compute a friendly `location` string
+    // when structured address fields exist but `location` (legacy single field)
+    // is not present. This keeps frontend consumers (which expect `profile.location`)
+    // working even when data is stored in separate fields.
+    let out = (typeof profile.toObject === 'function') ? profile.toObject() : profile;
+    if (!out.location) {
+      const parts = [];
+      // jobhunter profile fields
+      if (out.addressLine) parts.push(out.addressLine);
+      if (out.city) parts.push(out.city);
+      if (out.stateprovince) parts.push(out.stateprovince);
+      if (out.postalCode) parts.push(out.postalCode);
+      if (out.country) parts.push(out.country);
+      // employer profile fields (if present)
+      if (parts.length === 0 && out.companyStreetAddress) parts.push(out.companyStreetAddress);
+      if (out.companyCity) parts.push(out.companyCity);
+      if (out.companyRegion) parts.push(out.companyRegion);
+      if (out.companyPostalCode) parts.push(out.companyPostalCode);
+      if (out.companyCountry) parts.push(out.companyCountry);
+      if (parts.length > 0) out.location = parts.join(', ');
+    }
+
+    res.json(out);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server error' });
