@@ -1,3 +1,78 @@
+/* Dashboard styles aligned with global app styles */
+
+.dashboard-container{
+  padding: 20px 24px;
+}
+
+.dashboard-header{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:18px;
+}
+
+.dashboard-grid{
+  display:grid;
+  gap:20px;
+  grid-template-columns: 360px 1fr;
+  align-items:start;
+}
+
+/* Responsive stack */
+@media (max-width:980px){
+  .dashboard-grid{ grid-template-columns: 1fr; }
+}
+
+.left-col{ display:flex; flex-direction:column; gap:16px; }
+.main-col{ display:flex; flex-direction:column; gap:16px; }
+
+/* Reuse .card conventions from global CSS; add small helpers here */
+.card{ background:var(--wc-bg,#fff); border-radius:10px; box-shadow:0 6px 18px rgba(12,32,55,0.06); padding:16px; border:1px solid rgba(12,32,55,0.04); }
+
+.profile-summary .profile-top{ display:flex; gap:12px; align-items:center; margin-bottom:10px; }
+.avatar{ background:#eef7f6; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--wc-primary,#0aa96f); font-size:28px; }
+.profile-meta h2{ margin:0; font-size:18px; }
+.profession{ color:var(--wc-muted,#6b7280); margin-top:4px; font-weight:600; }
+.bio{ color:var(--wc-muted,#6b7280); margin:8px 0; }
+.skills .skill-list{ margin-top:6px; color:var(--wc-muted,#6b7280); }
+.resume-row{ display:flex; gap:12px; align-items:center; margin-top:8px; }
+.resume-info{ color:var(--wc-muted,#6b7280); font-size:13px; }
+
+.notifications ul, .messages ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.notifications li, .messages li{ display:flex; justify-content:space-between; gap:12px; align-items:center; padding:10px; border-radius:8px; background:var(--wc-bg,#fff); }
+.notifications li.unread, .messages li.unread{ box-shadow:0 6px 18px rgba(10,169,111,0.06); border:1px solid rgba(10,169,111,0.06); }
+
+.job-list{ display:flex; flex-direction:column; gap:12px; }
+.job-card{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border-radius:8px; background:var(--wc-bg,#fff); border:1px solid rgba(12,32,55,0.04); }
+.job-info h3{ margin:0; font-size:16px; }
+.meta{ color:var(--wc-muted,#6b7280); font-size:13px; }
+
+.job-actions{ display:flex; gap:8px; }
+.apply-btn, .save-btn, .edit-btn, .contact-btn{ cursor:pointer; height:38px; border-radius:8px; padding:8px 12px; font-weight:600; }
+.apply-btn{ background:var(--wc-primary,#0aa96f); color:#fff; border:none; }
+.save-btn{ background:transparent; border:1px solid rgba(55,71,79,0.06); color:var(--wc-neutral,#1f2937); }
+.apply-btn:hover{ transform:translateY(-1px); }
+
+.applied-table{ width:100%; border-collapse:collapse; margin-top:8px; }
+.applied-table th, .applied-table td{ text-align:left; padding:10px 8px; border-bottom:1px solid rgba(12,32,55,0.04); }
+.status.pending{ color:#d97706; font-weight:700; }
+.status.accepted{ color:#059669; font-weight:700; }
+.status.rejected{ color:#ef4444; font-weight:700; }
+
+.analytics-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-top:8px; }
+@media (max-width:720px){ .analytics-grid{ grid-template-columns: repeat(2,1fr); } }
+.metric{ background:var(--wc-bg,#fff); border-radius:8px; padding:12px; text-align:center; }
+.metric-value{ font-size:20px; font-weight:700; }
+.metric-label{ color:var(--wc-muted,#6b7280); font-size:13px; }
+
+.settings-help{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+@media (max-width:720px){ .settings-help{ grid-template-columns: 1fr; } }
+
+/* small tweaks */
+.left-col .card, .main-col .card{ overflow:visible; }
+
+/* ensure inputs look consistent */
+input[type="file"]{ font-size:13px; }
 
 /* DASHBOARD PAGE STYLES */
 

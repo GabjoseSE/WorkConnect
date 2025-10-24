@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getEmployerApplications, getApplication } from '../../api/applications';
 import { getOwnProfile } from '../../api/profile';
@@ -6,6 +7,7 @@ import './Applicants.css';
 
 export default function Applicants() {
   const { profile, userId } = useAuth();
+  const navigate = useNavigate();
   const [apps, setApps] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [selectedJobId, setSelectedJobId] = useState(null);
@@ -180,9 +182,16 @@ export default function Applicants() {
 
                       <button className="wc-btn btn-message small" title="Message / Contact — communicate directly" onClick={() => {
                         const email = a.email || a.contactEmail || a.applicantEmail || modalApp?.email;
-                        if (email) window.location.href = `mailto:${email}`;
-                        else alert('No email available to message.');
-                      }}>Message</button>
+                        const applicantId = a.applicantId || a.applicant || a.userId || a._id || null;
+                        if (!applicantId && !email) {
+                          alert('No contact available to message.');
+                          return;
+                        }
+                        // Navigate to employer messages and pass applicant identifiers in location state.
+                        navigate('/employer/messages', { state: { toApplicantId: applicantId, toEmail: email, toName: a.fullName } });
+                      }}>
+                        Message
+                      </button>
 
                       <button className="wc-btn btn-shortlist" title="Shortlist — mark promising candidates" onClick={() => setStatusMap(prev => ({ ...prev, [a._id]: prev[a._id] === 'shortlist' ? undefined : 'shortlist' }))}>{statusMap[a._id] === 'shortlist' ? 'Shortlisted' : 'Shortlist'}</button>
 

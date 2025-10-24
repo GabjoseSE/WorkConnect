@@ -1,5 +1,8 @@
-export async function getConversations(userId) {
-  const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/messages/conversations?userId=${encodeURIComponent(userId)}`);
+export async function getConversations(userId, archived = false) {
+  const params = new URLSearchParams();
+  params.set('userId', userId);
+  if (archived) params.set('archived', 'true');
+  const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/messages/conversations?${params.toString()}`);
   if (!res.ok) throw new Error('Failed to fetch conversations');
   return res.json();
 }
@@ -29,6 +32,20 @@ export async function startConversation(from, to, title = '') {
     body: JSON.stringify({ from, to, title }),
   });
   if (!res.ok) throw new Error('Failed to start conversation');
+  return res.json();
+}
+
+export async function archiveConversation(conversationId, userId, archived = true) {
+  const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/messages/conversations/${encodeURIComponent(conversationId)}`, {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ archived, userId })
+  });
+  if (!res.ok) throw new Error('Failed to archive conversation');
+  return res.json();
+}
+
+export async function deleteConversation(conversationId) {
+  const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/messages/conversations/${encodeURIComponent(conversationId)}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete conversation');
   return res.json();
 }
 
