@@ -13,7 +13,7 @@ function initialsFromTitle(title) {
 }
 
 export default function Messages() {
-  const { profile } = useAuth();
+  const { profile, token } = useAuth();
   const userId = profile?.userId || profile?._id || null;
   const [convos, setConvos] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -57,18 +57,26 @@ export default function Messages() {
           setOtherName('Conversation');
           return;
         }
-        // other might be an email or a userId
+
+        // If participant object is populated (not just id), prefer company/fullName directly
+        if (typeof other === 'object' && other !== null) {
+          const name = other.company || other.fullName || ((other.firstName || '') + ' ' + (other.lastName || '')).trim() || other.email || JSON.stringify(other);
+          setOtherName(name || 'Conversation');
+          return;
+        }
+
+        // other might be an email or a userId string
         let profileRes = null;
         try {
-          if (typeof other === 'string' && other.includes('@')) {
-            profileRes = await getOwnProfile(null, null, other);
-          } else {
-            profileRes = await getOwnProfile(null, other, null);
-          }
+            if (typeof other === 'string' && other.includes('@')) {
+              profileRes = await getOwnProfile(token, null, other);
+            } else {
+              profileRes = await getOwnProfile(token, other, null);
+            }
         } catch (e) {
           // ignore profile fetch errors
         }
-        if (profileRes && (profileRes.fullName || profileRes.company || profileRes.firstName)) {
+        if (profileRes && (profileRes.company || profileRes.fullName || profileRes.firstName)) {
           const name = profileRes.company || profileRes.fullName || ((profileRes.firstName || '') + ' ' + (profileRes.lastName || '')).trim() || profileRes.email || other;
           setOtherName(name || 'Conversation');
         } else {
@@ -79,7 +87,7 @@ export default function Messages() {
         setOtherName('Conversation');
       }
     })();
-  }, [selected]);
+  }, [selected, userId, token]);
 
   // clear otherName when no selection
   useEffect(() => {

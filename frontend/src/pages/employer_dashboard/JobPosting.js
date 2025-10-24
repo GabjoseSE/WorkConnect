@@ -226,6 +226,14 @@ export default function EmployerJobs() {
       // continue without blocking job creation
     }
 
+  // helper to convert textarea / comma-separated strings into arrays
+    const toArray = (v) => {
+      if (!v) return [];
+      if (Array.isArray(v)) return v;
+      if (typeof v === 'string') return v.split(/[,\n]/).map(s => s.trim()).filter(Boolean);
+      return [];
+    };
+
   // prepare payload — include key fields expected by backend/context
     const payload = {
       title: form.title,
@@ -235,17 +243,17 @@ export default function EmployerJobs() {
       status: form.status,
       summary: form.summary || form.description?.slice(0, 120),
       description: form.description,
-      responsibilities: form.responsibilities,
-      requirements: form.requirements,
-      preferred: form.preferred,
-      skills: form.skills,
+  responsibilities: toArray(form.responsibilities),
+  requirements: toArray(form.requirements),
+  preferred: form.preferred,
+  skills: toArray(form.skills),
       experienceLevel: form.experienceLevel,
       educationLevel: form.educationLevel,
   minSalary: form.minSalary === '' ? null : Number(form.minSalary),
   maxSalary: form.maxSalary === '' ? null : Number(form.maxSalary),
   currency: form.currency,
     salaryFrequency: form.salaryFrequency,
-      benefits: form.benefits,
+  benefits: toArray(form.benefits),
   // prefer structured onsite/hybrid fields when provided
   location: (form.workArrangement === 'onsite' || form.workArrangement === 'hybrid') ? `${city}${stateOrProvince ? ', ' + stateOrProvince : ''}${country ? ', ' + country : ''}` : form.location,
   city: (form.workArrangement === 'onsite' || form.workArrangement === 'hybrid') ? city : null,
@@ -467,17 +475,17 @@ export default function EmployerJobs() {
                   status: job.status || 'Active',
                   summary: job.summary || '',
                   description: job.description || '',
-                  responsibilities: job.responsibilities || '',
-                  requirements: job.requirements || '',
+                  responsibilities: Array.isArray(job.responsibilities) ? job.responsibilities.join('\n') : (job.responsibilities || ''),
+                  requirements: Array.isArray(job.requirements) ? job.requirements.join('\n') : (job.requirements || ''),
                   preferred: job.preferred || '',
-                  skills: job.skills || '',
+                  skills: Array.isArray(job.skills) ? job.skills.join(', ') : (job.skills || ''),
                   experienceLevel: job.experienceLevel || '',
                   educationLevel: job.educationLevel || '',
                   minSalary: job.minSalary == null ? '' : job.minSalary,
                   maxSalary: job.maxSalary == null ? '' : job.maxSalary,
                   currency: job.currency || '',
                   salaryFrequency: job.salaryFrequency || 'annual',
-                  benefits: job.benefits || '',
+                  benefits: Array.isArray(job.benefits) ? job.benefits.join(', ') : (job.benefits || ''),
                   location: job.location || '',
                   workArrangement: job.workArrangement || (job.location ? 'onsite' : 'remote'),
                   deadline: job.deadline || job.applicationDeadline || '',
@@ -811,12 +819,20 @@ export default function EmployerJobs() {
                   <h2 style={{ marginTop:0 }}>{job.title}</h2>
                   <div style={{ color:'var(--wc-muted)' }}>{job.company} • {job.location || job.city || ''}</div>
                   <hr />
-                  <h4>Job Description</h4>
-                  <div style={{ whiteSpace:'pre-wrap' }}>{job.description}</div>
-                  <h4>Requirements</h4>
-                  <div style={{ whiteSpace:'pre-wrap' }}>{job.requirements}</div>
-                  <h4>Benefits</h4>
-                  <div style={{ whiteSpace:'pre-wrap' }}>{job.benefits}</div>
+                    <h4>Job Description</h4>
+                    <div style={{ whiteSpace:'pre-wrap' }}>{job.description}</div>
+                    <h4>Requirements</h4>
+                    {Array.isArray(job.requirements) ? (
+                      <ul>{job.requirements.map((r,i) => <li key={i}>{r}</li>)}</ul>
+                    ) : (
+                      <div style={{ whiteSpace:'pre-wrap' }}>{job.requirements}</div>
+                    )}
+                    <h4>Benefits</h4>
+                    {Array.isArray(job.benefits) ? (
+                      <ul>{job.benefits.map((b,i) => <li key={i}>{b}</li>)}</ul>
+                    ) : (
+                      <div style={{ whiteSpace:'pre-wrap' }}>{job.benefits}</div>
+                    )}
                 </div>
               );
             })()

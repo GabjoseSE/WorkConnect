@@ -291,17 +291,19 @@ function Jobs() {
                         <div style={{ fontSize: 12, color: '#777', padding: 6, textAlign: 'center' }}>{selected.logoName ? selected.logoName.split('.')[0] : selected.company ? selected.company.split(' ')[0] : 'Logo'}</div>
                       )}
                     </div>
-                    <div>
+                      <div>
                       <h2 style={{ margin: 0 }}>{selected.title}</h2>
                       <div style={{ color: '#666', marginTop: 6 }}>{selected.company} · {selected.location}</div>
+                      {selected.companyAbout && <div style={{ marginTop: 8, color: '#444' }}>{selected.companyAbout}</div>}
                       {selected.summary && <div style={{ marginTop: 8, color: '#444' }}>{selected.summary}</div>}
                       <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                        {selected.type && <div style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, background: '#f3f7f6', border: '1px solid rgba(55,71,79,0.04)' }}>{selected.type}</div>}
-                        {selected.isRemote && <div style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, background: '#eef7ff', border: '1px solid rgba(13,110,253,0.06)' }}>Remote</div>}
-                        {selected.isHybrid && <div style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, background: '#fff7e6', border: '1px solid rgba(255,193,7,0.06)' }}>Hybrid</div>}
-                        {selected.easyApply && <div style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, background: '#f3fff7', border: '1px solid rgba(10,169,111,0.06)' }}>Easy Apply</div>}
-                        {selected.exclusive && <div style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, background: '#fff0f6', border: '1px solid rgba(244,63,94,0.06)' }}>Exclusive</div>}
+                        {selected.type && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#f3f7f6', border: '1px solid rgba(55,71,79,0.04)' }}>{selected.type}</div>}
+                        {selected.isRemote && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#eef7ff', border: '1px solid rgba(13,110,253,0.06)' }}>Remote</div>}
+                        {selected.isHybrid && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#fff7e6', border: '1px solid rgba(255,193,7,0.06)' }}>Hybrid</div>}
+                        {selected.easyApply && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#f3fff7', border: '1px solid rgba(10,169,111,0.06)' }}>Easy Apply</div>}
+                        {selected.exclusive && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#fff0f6', border: '1px solid rgba(244,63,94,0.06)' }}>Exclusive</div>}
                         {selected.postedAt && <div style={{ fontSize: 12, color: '#777' }}>• Posted {new Date(selected.postedAt).toLocaleDateString()}</div>}
+                        {formatSalary(selected) && <div style={{ fontSize: 13, color: 'var(--wc-neutral)', marginLeft: 6 }}>{formatSalary(selected)}</div>}
                       </div>
                     </div>
                   </div>
@@ -326,15 +328,12 @@ function Jobs() {
 
                 <div className="jobs-right-scroll" style={{ overflow: 'auto', minHeight: 0 }}>
                   <hr style={{ margin: '18px 0', border: 'none', borderTop: '1px solid #f3f3f3' }} />
-
                   <h4>Job Description</h4>
                   {/* Expand/collapse and optional sanitized HTML rendering */}
                   {(() => {
-                    const raw = selected.description || selected.content || '';
+                    const raw = selected.description || selected.content || selected.longDescription || '';
                     const htmlRaw = selected.descriptionHtml || selected.html || '';
                     const LONG_LIMIT = 600;
-                    const isLong = raw && raw.length > LONG_LIMIT;
-                    const [showFull, setShowFull] = [undefined, undefined]; // placeholder for lint-less patch
                     return (
                       <DescriptionBlock
                         raw={raw}
@@ -343,6 +342,62 @@ function Jobs() {
                       />
                     );
                   })()}
+
+                  {/* Employer-provided structured fields */}
+                  {selected.responsibilities && selected.responsibilities.length > 0 && (
+                    <>
+                      <h4 style={{ marginTop: 18 }}>Responsibilities</h4>
+                      <ul>
+                        {selected.responsibilities.map((r, i) => <li key={i}>{r}</li>)}
+                      </ul>
+                    </>
+                  )}
+
+                  {selected.requirements && selected.requirements.length > 0 && (
+                    <>
+                      <h4 style={{ marginTop: 18 }}>Requirements</h4>
+                      <ul>
+                        {selected.requirements.map((r, i) => <li key={i}>{r}</li>)}
+                      </ul>
+                    </>
+                  )}
+
+                  {selected.qualifications && selected.qualifications.length > 0 && (
+                    <>
+                      <h4 style={{ marginTop: 18 }}>Qualifications</h4>
+                      <ul>
+                        {selected.qualifications.map((q, i) => <li key={i}>{q}</li>)}
+                      </ul>
+                    </>
+                  )}
+
+                  {selected.benefits && selected.benefits.length > 0 && (
+                    <>
+                      <h4 style={{ marginTop: 18 }}>Benefits</h4>
+                      <ul>
+                        {selected.benefits.map((b, i) => <li key={i}>{b}</li>)}
+                      </ul>
+                    </>
+                  )}
+
+                  {selected.skills && selected.skills.length > 0 && (
+                    <>
+                      <h4 style={{ marginTop: 18 }}>Skills</h4>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {selected.skills.map((s, i) => <div key={i} style={{ padding: '6px 10px', borderRadius: 16, background: 'rgba(77,182,172,0.06)', border: '1px solid rgba(77,182,172,0.12)', color: 'var(--wc-primary)', fontSize: 13 }}>{s}</div>)}
+                      </div>
+                    </>
+                  )}
+
+                  {/* How to apply / contact */}
+                  {(selected.applyUrl || selected.applyEmail || selected.howToApply) && (
+                    <>
+                      <h4 style={{ marginTop: 18 }}>How to apply</h4>
+                      <div style={{ color: '#444' }}>
+                        {selected.howToApply || (selected.applyEmail ? <a href={`mailto:${selected.applyEmail}`}>{selected.applyEmail}</a> : null) || (selected.applyUrl ? <a href={selected.applyUrl} target="_blank" rel="noreferrer">Apply on company site</a> : null)}
+                      </div>
+                    </>
+                  )}
 
                   {/* Optional sections if present on job object */}
                   {selected.requirements && selected.requirements.length > 0 && (

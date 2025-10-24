@@ -22,9 +22,11 @@ export async function getOwnProfile(token, userId, email) {
   let url = base;
   if (email) url = `${base}?email=${encodeURIComponent(email)}`;
   else if (userId) url = `${base}?userId=${encodeURIComponent(userId)}`;
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetch(url, {
     method: 'GET',
-    headers: { 'Authorization': `Bearer ${token}` },
+    headers,
   });
   if (!res.ok) throw new Error('Failed to fetch profile');
   return res.json();

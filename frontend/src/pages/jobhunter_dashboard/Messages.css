@@ -25,6 +25,8 @@
     overflow:auto;
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+    /* ensure there is room for popover menus for items near the bottom */
+    padding-bottom: 120px;
 }
 .messages-list .panel-body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 .panel { display:flex; flex-direction:column; min-height:0 }
@@ -45,7 +47,7 @@
 .convo-actions { margin-left: 8px; position: relative; }
 .three-dot-btn { background: transparent; border: none; font-size:16px; width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--wc-muted) }
 .three-dot-btn:hover { color:var(--wc-neutral) }
-.convo-menu { position: absolute; right: 0; top: 36px; background: #ffffff; border:1px solid rgba(12,32,55,0.06); border-radius:8px; box-shadow: 0 8px 20px rgba(12,32,55,0.08); min-width:140px; z-index:40 }
+.convo-menu { position: absolute; right: 0; top: 36px; background: #ffffff; border:1px solid rgba(12,32,55,0.06); border-radius:8px; box-shadow: 0 8px 20px rgba(12,32,55,0.08); min-width:140px; z-index:500 }
 .convo-menu button { display:block; width:100%; padding:8px 12px; text-align:left; border:none; background:transparent; cursor:pointer }
 .convo-menu button:hover { background: rgba(12,32,55,0.03) }
 .convo-left .avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(180deg, rgba(77,182,172,0.18), rgba(77,182,172,0.08)); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--wc-primary); }

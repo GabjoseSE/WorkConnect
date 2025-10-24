@@ -22,6 +22,14 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const body = req.body || {};
+    // helper to accept either array or comma-separated string
+    const toArray = (v) => {
+      if (!v) return [];
+      if (Array.isArray(v)) return v;
+      if (typeof v === 'string') return v.split(',').map(s => s.trim()).filter(Boolean);
+      return [];
+    };
+
     const job = new Job({
       createdBy: body.createdBy,
       title: body.title,
@@ -36,6 +44,19 @@ router.post('/', async (req, res) => {
       logoUrl: body.logoUrl,
       summary: body.summary,
       description: body.description,
+      responsibilities: toArray(body.responsibilities),
+      requirements: toArray(body.requirements),
+      preferred: body.preferred || '',
+      skills: toArray(body.skills),
+      experienceLevel: body.experienceLevel || '',
+      educationLevel: body.educationLevel || '',
+      benefits: toArray(body.benefits),
+      numberOpenings: body.numberOpenings || 1,
+      applicationMethod: body.applicationMethod || '',
+      applicationTarget: body.applicationTarget || '',
+      city: body.city || null,
+      stateOrProvince: body.stateOrProvince || body.state || null,
+      country: body.country || null,
       numberOpenings: body.numberOpenings,
       applicationMethod: body.applicationMethod,
       applicationTarget: body.applicationTarget,
@@ -83,7 +104,20 @@ router.put('/:id', async (req, res) => {
     }
 
     const body = req.body || {};
+    // helper to accept either array or comma-separated / newline-separated string
+    const toArray = (v) => {
+      if (!v) return [];
+      if (Array.isArray(v)) return v;
+      if (typeof v === 'string') return v.split(/[,\n]/).map(s => s.trim()).filter(Boolean);
+      return [];
+    };
+
     const update = { ...body };
+    // normalize list fields if present
+    if (body.responsibilities !== undefined) update.responsibilities = toArray(body.responsibilities);
+    if (body.requirements !== undefined) update.requirements = toArray(body.requirements);
+    if (body.skills !== undefined) update.skills = toArray(body.skills);
+    if (body.benefits !== undefined) update.benefits = toArray(body.benefits);
     // prevent changing _id and createdBy
     delete update._id;
     delete update.createdBy;
