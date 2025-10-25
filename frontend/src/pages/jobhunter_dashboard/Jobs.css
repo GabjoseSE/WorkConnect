@@ -51,30 +51,56 @@
 .jobs-root.page-content { height: 100%; min-height: 0; display: flex; flex-direction: column; }
 .jobs-inner { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; }
 .jobs-columns { flex: 1; min-height: 0; display: flex; gap: 18px; }
-.jobs-left { flex: 0 0 320px; display: flex; flex-direction: column; }
-.jobs-left { width: 320px; background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
+.jobs-left { flex: 0 0 360px; display: flex; flex-direction: column; }
+.jobs-left { width: 360px; background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
 .jobs-left-list { overflow: auto; min-height: 0; }
 .no-jobs{padding:24px;color:#777}
 
-.jobs-list-item{padding:12px;border-radius:6px;cursor:pointer;border-bottom:1px solid #f3f3f3}
-.jobs-list-item:hover{background:#fbfff9}
-.jobs-list-item.active{background:#f6fffa}
-.jobs-list-top{display:flex;justify-content:space-between;align-items:center}
-.jobs-list-title{font-weight:700}
-.job-type-pill{font-size:12px;color:#0aa96f;border:1px solid #e6f2ea;padding:4px 8px;border-radius:6px}
-.job-company{color:#666;font-size:13px;margin-top:6px}
-.job-summary{color:#444;margin-top:8px;font-size:13px}
-.jobs-right { flex: 1; background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; min-height: 0; }
-.job-detail-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.job-detail-left{display:flex;gap:12px;align-items:flex-start}
-.job-logo{width:56px;height:56px;border-radius:8px;overflow:hidden;background:#f3f3f3;display:flex;align-items:center;justify-content:center}
+.jobs-list-item{
+    padding:14px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:all 160ms ease;
+    background:transparent;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+.jobs-list-item:hover{
+    background: #fbfff9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(12,32,55,0.04);
+}
+.jobs-list-item.active{
+    background:#f6fffa;
+    border-color: rgba(11,107,74,0.06);
+}
+.jobs-list-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.jobs-list-title{font-weight:700;font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.job-type-pill{font-size:12px;color:#0aa96f;border:1px solid #e6f2ea;padding:6px 10px;border-radius:8px}
+.job-company{color:#666;font-size:13px;margin-top:2px}
+.job-summary{color:#444;margin-top:6px;font-size:13px;display:block;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.jobs-right { flex: 1 1 0; max-width: calc(100% - 360px - 18px); background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; min-height: 0; }
+
+.job-detail-top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+
+/* Make the left area flexible so the meta content takes available space; keep row layout */
+.job-detail-left{display:flex;flex-direction:row;gap:12px;align-items:center;flex:1 1 auto;min-width:0;flex-wrap:nowrap}
+
+/* Main meta should grow and be allowed to truncate gracefully */
+.job-main-meta{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;overflow:hidden}
+
+/* Ensure logo appears before the meta on wide screens */
+.job-logo{order:0;width:112px;height:112px;border-radius:8px;flex:0 0 112px;overflow:hidden;background:#f3f3f3;display:flex;align-items:center;justify-content:center;margin-right:12px}
+.job-main-meta{order:1}
 .job-logo-img{width:100%;height:100%;object-fit:cover}
-.job-logo-fallback{font-size:12px;color:#777;padding:6px;text-align:center}
-.job-main-meta{display:flex;flex-direction:column}
-.job-title{margin:0;font-size:20px}
+.job-logo-fallback{font-size:13px;color:#777;padding:8px;text-align:center}
+
+.job-title{margin:0;font-size:25px;line-height:1.1}
 .job-submeta{color:#666;margin-top:6px}
-.job-company-about,.job-company-summary{margin-top:8px;color:#444}
-.job-tags{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.job-company-about,.job-company-summary{margin-top:6px;color:#444}
+.job-tags{display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap}
 .job-tag{font-size:12px;padding:6px 10px;border-radius:8px;background:#f3f7f6;border:1px solid rgba(55,71,79,0.04)}
 .job-remote{background:#eef7ff;border-color:rgba(13,110,253,0.06)}
 .job-hybrid{background:#fff7e6;border-color:rgba(255,193,7,0.06)}
@@ -85,7 +111,42 @@
 .job-salary{font-weight:700;color:#333}
 .job-actions{display:flex;justify-content:flex-end;gap:8px;align-items:center}
 
-.jobs-right-scroll{overflow:auto;min-height:0}
+/* Put actions on a new full-width row below the meta/logo on wider screens */
+.job-detail-right{order:2;width:100%;display:flex;justify-content:flex-end;margin-top:12px}
+
+/* keep existing behavior on small screens where the header stacks */
+@media (max-width: 880px) {
+    .job-detail-right{order:2;width:100%;margin-top:8px}
+}
+
+.jobs-right-scroll{
+    overflow:auto;
+    min-height:0;
+    padding-right:12px; /* give some breathing room for vertical scrollbar */
+    padding-bottom:20px;
+    scroll-behavior:smooth;
+}
+/* Constrain content width inside the right panel for better line length */
+.jobs-right-scroll > * {
+    max-width: 920px;
+}
+
+/* Improve headings and section spacing inside the scroll area */
+.jobs-right-scroll h4{margin:0 0 8px 0;font-size:18px;color:#222}
+.section-heading{margin-top:18px;margin-bottom:10px;font-size:15px;color:#333}
+.job-divider{margin:18px 0;border:none;border-top:1px solid #f3f3f3}
+
+/* How-to-apply and lists spacing */
+.how-to-apply{color:#444;line-height:1.6}
+ul{margin:8px 0 16px 20px}
+
+/* Tighter skill chip area */
+.skills-list{gap:10px}
+
+/* Subtle custom scrollbar for WebKit browsers */
+.jobs-right-scroll::-webkit-scrollbar{width:10px}
+.jobs-right-scroll::-webkit-scrollbar-thumb{background:rgba(12,32,55,0.06);border-radius:8px}
+.jobs-right-scroll::-webkit-scrollbar-track{background:transparent}
 .job-divider{margin:18px 0;border:none;border-top:1px solid #f3f3f3}
 .section-heading{margin-top:18px}
 .skills-list{display:flex;gap:8px;flex-wrap:wrap}
@@ -150,3 +211,21 @@
 
 /* Smaller label appearance for compact modal layout */
 .wc-modal label.small { font-size: 12px; color: var(--wc-muted); margin-bottom:4px; }
+
+/* Responsive adjustments for job detail header */
+@media (max-width: 880px) {
+    .job-detail-top { flex-direction: column; gap: 12px; }
+    .job-detail-left { align-items: flex-start; }
+    .job-logo { width: 88px; height: 88px; flex: 0 0 88px; }
+    .job-title { font-size: 17px; }
+    .job-detail-right { align-self: stretch; display:flex; justify-content:space-between; margin-top:6px }
+    /* On narrow screens prefer meta content above the logo */
+    .job-logo{order:2}
+    .job-main-meta{order:1}
+}
+
+@media (max-width: 520px) {
+    .job-logo { width: 64px; height: 64px; flex: 0 0 64px; }
+    .job-title { font-size: 15px; }
+    .job-tags { gap:6px }
+}

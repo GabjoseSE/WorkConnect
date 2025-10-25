@@ -309,7 +309,6 @@ function Jobs() {
                       <h2 className="job-title">{selected.title}</h2>
                       <div className="job-submeta">{selected.company} · {selected.location}</div>
                       {selected.companyAbout && <div className="job-company-about">{selected.companyAbout}</div>}
-                      {selected.summary && <div className="job-company-summary">{selected.summary}</div>}
                       <div className="job-tags">
                         {selected.type && <div className="job-tag">{selected.type}</div>}
                         {selected.isRemote && <div className="job-tag job-remote">Remote</div>}
