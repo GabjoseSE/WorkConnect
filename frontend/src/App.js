@@ -1,5 +1,4 @@
 // Import React to define a component
-import React from "react";
 
 // Import routing tools from react-router-dom
 // BrowserRouter (as Router) wraps the whole app and enables routing
@@ -27,16 +26,12 @@ import EmployerJobs from './pages/employer_dashboard/JobPosting';
 import EmployerApplicants from './pages/employer_dashboard/Applicants';
 import EmployerMessages from './pages/employer_dashboard/EmployerMessages';
 import EmployerNotifications from './pages/employer_dashboard/Notifications';
-import EmployerAnalytics from './pages/employer_dashboard/Analytics';
-import EmployerSettings from './pages/employer_dashboard/Settings';
-import EmployerHelp from './pages/employer_dashboard/Help';
 import DashboardLayout from './pages/jobhunter_dashboard/DashboardLayout';
 import Profile from './pages/jobhunter_dashboard/Profile';
 import SavedJobs from './pages/jobhunter_dashboard/SavedJobs';
 import Applications from './pages/jobhunter_dashboard/Applications';
-import Notifications from './pages/jobhunter_dashboard/Notifications';
+import Notifications from './pages/jobhunter_dashboard/JobseekerNotification';
 import Messages from './pages/jobhunter_dashboard/Messages';
-import Settings from './pages/jobhunter_dashboard/Settings';
 
 // Import the site header (navbar)
 import Header from "./components/Header";
@@ -69,9 +64,6 @@ function App() {
             <Route path="applicants" element={<EmployerApplicants />} />
             <Route path="messages" element={<EmployerMessages />} />
             <Route path="notifications" element={<EmployerNotifications />} />
-            <Route path="analytics" element={<EmployerAnalytics />} />
-            <Route path="settings" element={<EmployerSettings />} />
-            <Route path="help" element={<EmployerHelp />} />
           </Route>
           {/* Jobhunter dashboard (uses a layout with persistent sidebar) */}
           <Route path="/jobhunter" element={<DashboardLayout />}>
@@ -82,7 +74,7 @@ function App() {
             <Route path="applications" element={<Applications />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="messages" element={<Messages />} />
-            <Route path="settings" element={<Settings />} />
+            
           </Route>
 
           {/* When user visits '/login', show Login page */}

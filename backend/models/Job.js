@@ -27,6 +27,11 @@ const JobSchema = new mongoose.Schema({
   city: String,
   stateOrProvince: String,
   country: String,
+  // application deadlines / category
+  deadline: Date,
+  applicationDeadline: Date,
+  expirationDate: Date,
+  category: String,
   easyApply: { type: Boolean, default: false },
   isRemote: { type: Boolean, default: false },
   isHybrid: { type: Boolean, default: false },

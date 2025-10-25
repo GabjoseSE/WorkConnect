@@ -10,12 +10,31 @@ function formatSalary(job) {
   if (job.salary) return job.salary;
   const min = job.minSalary;
   const max = job.maxSalary;
-  const curr = job.currency || '';
-  const freq = job.salaryFrequency === 'hourly' ? '/hr' : '/yr';
+  const curr = (job.currency || '').toUpperCase();
+
+  // human-friendly suffix based on frequency
+  const freqMap = {
+    hourly: '/hr',
+    monthly: '/mo',
+    annual: '/yr',
+    yearly: '/yr'
+  };
+  const freq = freqMap[(job.salaryFrequency || '').toLowerCase()] || '/yr';
+
   if (min == null && max == null) return '';
-  if (min != null && max != null) return `${curr ? curr + ' ' : ''}${min} - ${max}${freq}`;
-  if (min != null) return `${curr ? curr + ' ' : ''}${min}${freq}`;
-  return `${curr ? curr + ' ' : ''}${max}${freq}`;
+
+  // map common currency codes to symbols when available
+  const symbolMap = { USD: '$', EUR: '€', GBP: '£', NGN: '₦', INR: '₹', PHP: '₱' };
+  const symbol = symbolMap[curr] || '';
+
+  // format numbers with locale separators
+  const fmt = (n) => (typeof n === 'number' ? new Intl.NumberFormat().format(n) : n);
+
+  const prefix = symbol ? `${symbol} ` : (curr ? `${curr} ` : '');
+
+  if (min != null && max != null) return `${prefix}${fmt(min)} - ${fmt(max)}${freq}`;
+  if (min != null) return `${prefix}${fmt(min)}${freq}`;
+  return `${prefix}${fmt(max)}${freq}`;
 }
 
 // Small helper component to render job descriptions with expand/collapse and optional sanitized HTML
@@ -147,7 +166,6 @@ function Jobs() {
     filtered = filtered.filter(job => {
       return active.every(f => {
         switch (f) {
-          case 'Easy Apply': return !!job.easyApply;
           case 'Not Applied': return !job.applied;
           case 'Exclusive Offers': return !!job.exclusive;
           default: return true;
@@ -182,20 +200,20 @@ function Jobs() {
   }
 
   return (
-    <div className="jobs-root page-content" style={{ padding: 20 }}>
+    <div className="jobs-root page-content jobs-page">
     {/* normalize selected id for comparisons */}
     {null}
-  <div className="jobs-inner" style={{ width: '100%', height: '100%' }}>
+  <div className="jobs-inner">
         {/* search */}
-        <div className="jobs-search" style={{ marginBottom: 18 }}>
+        <div className="jobs-search">
           <input className="wc-search jobs-search-input" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search jobs, company or location" />
           <button className="wc-btn wc-btn-outline">Search</button>
         </div>
 
-        {/* filters */}
-  <div className="jobs-filters" style={{ marginBottom: 18 }} ref={filtersRef}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+  {/* filters */}
+  <div className="jobs-filters" ref={filtersRef}>
+    <div className="filters-row">
+      <div className="filters-left">
               {/* Job Type dropdown */}
               <div className={`jobs-filter-wrap ${selectedJobTypes.length ? 'active' : ''}`}>
                 <button className={`jobs-filter-pill ${selectedJobTypes.length ? 'active' : ''} ${openDropdown === 'jobType' ? 'open' : ''}`} onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'jobType' ? null : 'jobType'); }}>
@@ -210,9 +228,6 @@ function Jobs() {
                   </div>
                 )}
               </div>
-
-              {/* Easy Apply toggle */}
-              <button className={`jobs-filter-pill ${selectedFilter.includes('Easy Apply') ? 'active' : ''}`} onClick={() => setSelectedFilter(prev => prev.includes('Easy Apply') ? prev.filter(x => x !== 'Easy Apply') : [...prev, 'Easy Apply'])} aria-pressed={selectedFilter.includes('Easy Apply')}>Easy Apply</button>
 
               {/* Remote dropdown */}
               <div className={`jobs-filter-wrap ${remoteOption ? 'active' : ''}`}>
@@ -250,28 +265,27 @@ function Jobs() {
               {/* Exclusive Offers toggle */}
               <button className={`jobs-filter-pill ${selectedFilter.includes('Exclusive Offers') ? 'active' : ''}`} onClick={() => setSelectedFilter(prev => prev.includes('Exclusive Offers') ? prev.filter(x => x !== 'Exclusive Offers') : [...prev, 'Exclusive Offers'])} aria-pressed={selectedFilter.includes('Exclusive Offers')}>Exclusive Offers</button>
             </div>
-
-            <div>
+            <div className="filters-right">
               <button className="jobs-clear" onClick={() => { setSelectedFilter([]); setSelectedJobTypes([]); setRemoteOption(null); setDatePosted(null); }}>Clear filters</button>
             </div>
           </div>
         </div>
 
-        <div className="jobs-columns" style={{ display: 'flex', gap: 18, height: '100%' }}>
+        <div className="jobs-columns">
           {/* left list */}
-          <div className="jobs-left" style={{ width: 320, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 12, display: 'flex', flexDirection: 'column' }}>
-            <div className="jobs-left-list" style={{ overflow: 'auto', minHeight: 0 }}>
+          <div className="jobs-left">
+            <div className="jobs-left-list">
               {filtered.length === 0 ? (
-                <div style={{ padding: 24, color: '#777' }}>No jobs match your filters.</div>
+                <div className="no-jobs">No jobs match your filters.</div>
               ) : (
                 filtered.map(job => (
-                  <div key={job.id || job._id} onClick={() => setSelected(job)} style={{ padding: 12, borderRadius: 6, cursor: 'pointer', background: (selected && (selected.id || selected._id)) === (job.id || job._id) ? '#f6fffa' : 'transparent', borderBottom: '1px solid #f3f3f3' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontWeight: 700 }}>{job.title}</div>
-                      <div style={{ fontSize: 12, color: '#0aa96f', border: '1px solid #e6f2ea', padding: '4px 8px', borderRadius: 6 }}>{job.type}</div>
+                  <div key={job.id || job._id} onClick={() => setSelected(job)} className={`jobs-list-item ${(selected && (selected.id || selected._id)) === (job.id || job._id) ? 'active' : ''}`}>
+                    <div className="jobs-list-top">
+                      <div className="jobs-list-title">{job.title}</div>
+                      <div className="job-type-pill">{job.type}</div>
                     </div>
-                    <div style={{ color: '#666', fontSize: 13, marginTop: 6 }}>{job.company} · {job.location}</div>
-                    <div style={{ color: '#444', marginTop: 8, fontSize: 13 }}>{job.summary}</div>
+                    <div className="job-company">{job.company} · {job.location}</div>
+                    <div className="job-summary">{job.summary}</div>
                   </div>
                 ))
               )}
@@ -279,38 +293,37 @@ function Jobs() {
           </div>
 
           {/* right detail */}
-          <div className="jobs-right" style={{ flex: 1, background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: 18, display: 'flex', flexDirection: 'column' }}>
+          <div className="jobs-right">
             {selected ? (
               <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ width: 56, height: 56, borderRadius: 8, overflow: 'hidden', background: '#f3f3f3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="job-detail-top">
+                  <div className="job-detail-left">
+                    <div className="job-logo">
                       {selected.logoUrl ? (
-                        <img src={selected.logoUrl} alt={selected.company} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={selected.logoUrl} alt={selected.company} className="job-logo-img" />
                       ) : (
-                        <div style={{ fontSize: 12, color: '#777', padding: 6, textAlign: 'center' }}>{selected.logoName ? selected.logoName.split('.')[0] : selected.company ? selected.company.split(' ')[0] : 'Logo'}</div>
+                        <div className="job-logo-fallback">{selected.logoName ? selected.logoName.split('.')[0] : selected.company ? selected.company.split(' ')[0] : 'Logo'}</div>
                       )}
                     </div>
-                      <div>
-                      <h2 style={{ margin: 0 }}>{selected.title}</h2>
-                      <div style={{ color: '#666', marginTop: 6 }}>{selected.company} · {selected.location}</div>
-                      {selected.companyAbout && <div style={{ marginTop: 8, color: '#444' }}>{selected.companyAbout}</div>}
-                      {selected.summary && <div style={{ marginTop: 8, color: '#444' }}>{selected.summary}</div>}
-                      <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                        {selected.type && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#f3f7f6', border: '1px solid rgba(55,71,79,0.04)' }}>{selected.type}</div>}
-                        {selected.isRemote && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#eef7ff', border: '1px solid rgba(13,110,253,0.06)' }}>Remote</div>}
-                        {selected.isHybrid && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#fff7e6', border: '1px solid rgba(255,193,7,0.06)' }}>Hybrid</div>}
-                        {selected.easyApply && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#f3fff7', border: '1px solid rgba(10,169,111,0.06)' }}>Easy Apply</div>}
-                        {selected.exclusive && <div style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: '#fff0f6', border: '1px solid rgba(244,63,94,0.06)' }}>Exclusive</div>}
-                        {selected.postedAt && <div style={{ fontSize: 12, color: '#777' }}>• Posted {new Date(selected.postedAt).toLocaleDateString()}</div>}
-                        {formatSalary(selected) && <div style={{ fontSize: 13, color: 'var(--wc-neutral)', marginLeft: 6 }}>{formatSalary(selected)}</div>}
+                    <div className="job-main-meta">
+                      <h2 className="job-title">{selected.title}</h2>
+                      <div className="job-submeta">{selected.company} · {selected.location}</div>
+                      {selected.companyAbout && <div className="job-company-about">{selected.companyAbout}</div>}
+                      {selected.summary && <div className="job-company-summary">{selected.summary}</div>}
+                      <div className="job-tags">
+                        {selected.type && <div className="job-tag">{selected.type}</div>}
+                        {selected.isRemote && <div className="job-tag job-remote">Remote</div>}
+                        {selected.isHybrid && <div className="job-tag job-hybrid">Hybrid</div>}
+                        {selected.exclusive && <div className="job-tag job-exclusive">Exclusive</div>}
+                        {selected.postedAt && <div className="job-posted">• Posted {new Date(selected.postedAt).toLocaleDateString()}</div>}
+                        {formatSalary(selected) && <div className="job-salary-inline">{formatSalary(selected)}</div>}
                       </div>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 700, color: '#333' }}>{formatSalary(selected) || (selected.currency || selected.minSalary || selected.maxSalary ? `${selected.currency ? selected.currency + ' ' : ''}${selected.minSalary || ''}${selected.minSalary && selected.maxSalary ? ' - ' : ''}${selected.maxSalary || ''}${selected.salaryFrequency === 'hourly' ? '/hr' : '/yr'}` : '')}</div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, alignItems: 'center' }}>
-                  <button className="wc-btn wc-btn-primary" onClick={() => setShowApply(true)}>Apply</button>
+                  <div className="job-detail-right">
+                    <div className="job-salary">{formatSalary(selected) || (selected.currency || selected.minSalary || selected.maxSalary ? `${selected.currency ? selected.currency + ' ' : ''}${selected.minSalary || ''}${selected.minSalary && selected.maxSalary ? ' - ' : ''}${selected.maxSalary || ''}${selected.salaryFrequency === 'hourly' ? '/hr' : '/yr'}` : '')}</div>
+                    <div className="job-actions">
+                      <button className="wc-btn wc-btn-primary" onClick={() => setShowApply(true)}>Apply</button>
                       <button
                         className={`wc-btn wc-btn-outline jobs-save-btn ${savedJobs.includes(selected?.id || selected?._id) ? 'saved' : ''}`}
                         title={savedJobs.includes(selected?.id || selected?._id) ? 'Saved' : 'Save job'}
@@ -326,8 +339,8 @@ function Jobs() {
                   </div>
                 </div>
 
-                <div className="jobs-right-scroll" style={{ overflow: 'auto', minHeight: 0 }}>
-                  <hr style={{ margin: '18px 0', border: 'none', borderTop: '1px solid #f3f3f3' }} />
+                <div className="jobs-right-scroll">
+                  <hr className="job-divider" />
                   <h4>Job Description</h4>
                   {/* Expand/collapse and optional sanitized HTML rendering */}
                   {(() => {
@@ -346,7 +359,7 @@ function Jobs() {
                   {/* Employer-provided structured fields */}
                   {selected.responsibilities && selected.responsibilities.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Responsibilities</h4>
+                      <h4 className="section-heading">Responsibilities</h4>
                       <ul>
                         {selected.responsibilities.map((r, i) => <li key={i}>{r}</li>)}
                       </ul>
@@ -355,7 +368,7 @@ function Jobs() {
 
                   {selected.requirements && selected.requirements.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Requirements</h4>
+                      <h4 className="section-heading">Requirements</h4>
                       <ul>
                         {selected.requirements.map((r, i) => <li key={i}>{r}</li>)}
                       </ul>
@@ -364,7 +377,7 @@ function Jobs() {
 
                   {selected.qualifications && selected.qualifications.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Qualifications</h4>
+                      <h4 className="section-heading">Qualifications</h4>
                       <ul>
                         {selected.qualifications.map((q, i) => <li key={i}>{q}</li>)}
                       </ul>
@@ -373,7 +386,7 @@ function Jobs() {
 
                   {selected.benefits && selected.benefits.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Benefits</h4>
+                      <h4 className="section-heading">Benefits</h4>
                       <ul>
                         {selected.benefits.map((b, i) => <li key={i}>{b}</li>)}
                       </ul>
@@ -382,9 +395,9 @@ function Jobs() {
 
                   {selected.skills && selected.skills.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Skills</h4>
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        {selected.skills.map((s, i) => <div key={i} style={{ padding: '6px 10px', borderRadius: 16, background: 'rgba(77,182,172,0.06)', border: '1px solid rgba(77,182,172,0.12)', color: 'var(--wc-primary)', fontSize: 13 }}>{s}</div>)}
+                      <h4 className="section-heading">Skills</h4>
+                      <div className="skills-list">
+                        {selected.skills.map((s, i) => <div key={i} className="skill-chip">{s}</div>)}
                       </div>
                     </>
                   )}
@@ -392,8 +405,8 @@ function Jobs() {
                   {/* How to apply / contact */}
                   {(selected.applyUrl || selected.applyEmail || selected.howToApply) && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>How to apply</h4>
-                      <div style={{ color: '#444' }}>
+                      <h4 className="section-heading">How to apply</h4>
+                      <div className="how-to-apply">
                         {selected.howToApply || (selected.applyEmail ? <a href={`mailto:${selected.applyEmail}`}>{selected.applyEmail}</a> : null) || (selected.applyUrl ? <a href={selected.applyUrl} target="_blank" rel="noreferrer">Apply on company site</a> : null)}
                       </div>
                     </>
@@ -402,7 +415,7 @@ function Jobs() {
                   {/* Optional sections if present on job object */}
                   {selected.requirements && selected.requirements.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Requirements</h4>
+                      <h4 className="section-heading">Requirements</h4>
                       <ul>
                         {selected.requirements.map((r, i) => <li key={i}>{r}</li>)}
                       </ul>
@@ -411,7 +424,7 @@ function Jobs() {
 
                   {selected.responsibilities && selected.responsibilities.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Responsibilities</h4>
+                      <h4 className="section-heading">Responsibilities</h4>
                       <ul>
                         {selected.responsibilities.map((r, i) => <li key={i}>{r}</li>)}
                       </ul>
@@ -420,7 +433,7 @@ function Jobs() {
 
                   {selected.benefits && selected.benefits.length > 0 && (
                     <>
-                      <h4 style={{ marginTop: 18 }}>Benefits</h4>
+                      <h4 className="section-heading">Benefits</h4>
                       <ul>
                         {selected.benefits.map((b, i) => <li key={i}>{b}</li>)}
                       </ul>
@@ -429,7 +442,7 @@ function Jobs() {
                 </div>
               </>
             ) : (
-              <div style={{ color: '#888' }}>Select a job to view details</div>
+              <div className="no-selection">Select a job to view details</div>
             )}
           </div>
         </div>
@@ -437,14 +450,14 @@ function Jobs() {
 
       {/* Apply modal */}
       {showApply && selected && (
-        <div className="wc-modal-backdrop" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 2000 }}>
-          <div className="wc-modal" style={{ width: 760, maxWidth: '95%', background: '#fff', borderRadius: 8, padding: 18, boxShadow: '0 10px 40px rgba(0,0,0,0.2)', boxSizing: 'border-box', maxHeight: 'calc(100vh - 64px)', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <h3 style={{ margin: 0 }}>Apply for: {selected.title}</h3>
+        <div className="wc-modal-backdrop">
+          <div className="wc-modal">
+            <div className="modal-header">
+              <h3>Apply for: {selected.title}</h3>
               <button onClick={() => setShowApply(false)} className="wc-btn wc-btn-outline">Close</button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="grid-form">
                 <div>
                   <label htmlFor="applyFullName">Full name</label>
                   <input id="applyFullName" className="wc-input" value={applyFullName} onChange={e => setApplyFullName(e.target.value)} />
@@ -458,12 +471,12 @@ function Jobs() {
                   <input id="applyContact" className="wc-input" value={applyContact} onChange={e => setApplyContact(e.target.value)} />
                 </div>
             
-              <div style={{ gridColumn: '1 / -1' }}>
+              <div className="full-row">
                 <label htmlFor="resumeUrl">Resume / CV (link)</label>
                 <input id="resumeUrl" className="wc-input" value={applyResumeUrl} onChange={e => setApplyResumeUrl(e.target.value)} placeholder="https://..." />
                 <div style={{ marginTop: 8 }}>
                   <label style={{ display: 'block', fontSize: 13, color: 'var(--wc-muted)' }}>Or upload CV (optional)</label>
-                  <input id="applyCvFile" className="wc-input" type="file" accept=".pdf,.doc,.docx" style={{ padding: 6, height: 'auto', marginTop: 6 }} onChange={e => setApplyCvFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)} />
+                  <input id="applyCvFile" className="wc-input" type="file" accept=".pdf,.doc,.docx" onChange={e => setApplyCvFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)} />
                 </div>
               </div>
 
@@ -473,7 +486,7 @@ function Jobs() {
               </div>
             </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
+              <div className="modal-actions">
               <button className="wc-btn wc-btn-outline" onClick={() => setShowApply(false)}>Cancel</button>
               <button className="wc-btn wc-btn-primary" disabled={submitting} onClick={async () => {
                 if (!profile) return alert('You must be logged in to apply');

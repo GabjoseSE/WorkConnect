@@ -117,30 +117,6 @@ export default function EmployerLayout() {
                 <span className="label">Notifications</span>
               </NavLink>
             </li>
-            <li>
-              <NavLink to="/employer/analytics" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
-                <span className="icon" aria-hidden>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h4v18H3zM10 10h4v11h-4zM17 6h4v15h-4z" fill="#233038"/></svg>
-                </span>
-                <span className="label">Analytics / Reports</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/employer/settings" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
-                <span className="icon" aria-hidden>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.4 12.9c.04-.3.06-.6.06-.9s-.02-.6-.06-.9l2.1-1.6c.2-.15.3-.4.2-.65l-2-3.46c-.1-.25-.35-.36-.6-.28l-2.5 1c-.5-.4-1-.7-1.6-.9l-.4-2.65A.5.5 0 0 0 13 2h-4c-.25 0-.46.18-.5.43L7.1 5.1c-.6.2-1.1.5-1.6.9l-2.5-1c-.25-.1-.5.03-.6.28L.9 9.7c-.1.25 0 .5.2.65L3.2 12c-.05.3-.1.6-.1.9s.05.6.1.9L.9 15.4c-.2.15-.3.4-.2.65l2 3.46c.1.25.35.36.6.28l2.5-1c.5.4 1 .7 1.6.9l.4 2.65c.04.25.25.43.5.43h4c.25 0 .46-.18.5-.43l.4-2.65c.6-.2 1.1-.5 1.6-.9l2.5 1c.25.1.5-.03.6-.28l2-3.46c.1-.25 0-.5-.2-.65L19.4 12.9zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z" fill="#233038"/></svg>
-                </span>
-                <span className="label">Account Settings</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/employer/help" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
-                <span className="icon" aria-hidden>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2v2zm1.1-7.2c-.2.5-.7.9-1.1 1.2-.4.3-.6.6-.6 1.2v.3h-2v-.5c0-.9.6-1.5 1.1-1.9.6-.4 1.2-.9 1.2-1.6 0-.9-.8-1.5-1.9-1.5-1 0-1.9.5-2.3 1.3L8.5 7C9 5.5 10.4 4.5 12 4.5c2 0 3.7 1.4 3.1 5.3z" fill="#233038"/></svg>
-                </span>
-                <span className="label">Help / Support</span>
-              </NavLink>
-            </li>
           </ul>
         </nav>
 

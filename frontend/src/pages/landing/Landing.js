@@ -24,11 +24,34 @@ function Landing() {
       <section className="how-it-works">
         <h2>How it works</h2>
         <div className="steps">
-          <div className="step">1. Create an account</div>
-          <div className="arrow">→</div>
-          <div className="step">2. Search or post jobs</div>
-          <div className="arrow">→</div>
-          <div className="step">3. Connect and hire</div>
+          <div className="step">
+            <div className="step-number">1</div>
+            <div className="step-label">Create an account</div>
+          </div>
+
+          <div className="step-arrow" aria-hidden>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="12" fill="rgba(10,169,111,0.08)" />
+              <path d="M9 6L15 12L9 18" stroke="var(--wc-primary,#0aa96f)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+
+          <div className="step">
+            <div className="step-number">2</div>
+            <div className="step-label">Search or post jobs</div>
+          </div>
+
+          <div className="step-arrow" aria-hidden>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="12" fill="rgba(10,169,111,0.08)" />
+              <path d="M9 6L15 12L9 18" stroke="var(--wc-primary,#0aa96f)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+
+          <div className="step">
+            <div className="step-number">3</div>
+            <div className="step-label">Connect and hire</div>
+          </div>
         </div>
       </section>
 

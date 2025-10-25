@@ -117,12 +117,49 @@ export default function SignUpE01() {
   };
 
   const handleNextClick = async () => {
+    // If already verified, continue
     if (data.emailVerified) return navigate('/employer-signup-02');
+
+    // Validate required fields before allowing any navigation or verification
+    let hasError = false;
+    setEmailError('');
+    setPasswordError('');
+    setConfirmError('');
+
+    if (!data.email) {
+      setEmailError('Please enter your email');
+      hasError = true;
+    } else {
+      const emailRe = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\\.,;:\s@\"]+\.)+[^<>()[\]\\.,;:\s@\"]{2,})$/i;
+      if (!emailRe.test(data.email)) {
+        setEmailError('Please enter a valid email');
+        hasError = true;
+      }
+    }
+
+    if (!data.password) {
+      setPasswordError('Password is required');
+      hasError = true;
+    } else if (data.password.length < 8 || !/[0-9]/.test(data.password) || !/[A-Za-z]/.test(data.password)) {
+      setPasswordError('Password must be at least 8 characters and include letters and numbers');
+      hasError = true;
+    }
+
+    if (data.password !== data.confirmPassword) {
+      setConfirmError('Passwords do not match');
+      hasError = true;
+    }
+
+    if (hasError) return; // block progression until user fixes fields
+
+    // If email was edited, send code (reuse onSubmit logic)
     if (emailDirty) {
       await onSubmit();
       return;
     }
-    navigate('/employer-signup-02');
+
+    // Not edited but not verified — trigger verification instead of silently navigating
+    await onSubmit();
   };
 
   const onResend = async () => {

@@ -44,6 +44,11 @@ router.post('/', async (req, res) => {
       logoUrl: body.logoUrl,
       summary: body.summary,
       description: body.description,
+  // deadlines and classification
+  deadline: body.deadline || body.applicationDeadline || null,
+  applicationDeadline: body.applicationDeadline || body.deadline || null,
+  expirationDate: body.expirationDate || null,
+  category: body.category || null,
       responsibilities: toArray(body.responsibilities),
       requirements: toArray(body.requirements),
       preferred: body.preferred || '',
@@ -61,7 +66,7 @@ router.post('/', async (req, res) => {
       applicationMethod: body.applicationMethod,
       applicationTarget: body.applicationTarget,
       postedAt: body.postedAt || Date.now(),
-      expirationDate: body.expirationDate,
+  // expirationDate handled above
       easyApply: !!body.easyApply,
       isRemote: !!body.isRemote,
       isHybrid: !!body.isHybrid,

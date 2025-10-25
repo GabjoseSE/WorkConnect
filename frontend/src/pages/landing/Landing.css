@@ -33,11 +33,20 @@ body {
 .secondary-btn { background: rgba(255,255,255,0.9); color: var(--wc-primary); border: 1px solid rgba(77,182,172,0.12); }
 
 /* HOW IT WORKS */
-.how-it-works { margin: 36px 0; text-align: left; }
-.how-it-works h2 { margin-bottom: 12px; }
-.how-it-works .steps { display: flex; align-items: center; gap: 12px; }
-.how-it-works .step { background: #fff; padding: 12px 18px; border-radius: 8px; box-shadow: 0 6px 18px rgba(12,32,55,0.04); }
-.how-it-works .arrow { font-size: 20px; color: #9aa7a2; }
+.how-it-works { margin: 36px 0; text-align: center; }
+.how-it-works h2 { margin-bottom: 18px; }
+.how-it-works .steps { display: flex; align-items: center; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.how-it-works .step { background: var(--wc-bg,#fff); padding: 18px; border-radius: 10px; box-shadow: 0 6px 18px rgba(12,32,55,0.04); display:flex; align-items:center; gap:14px; min-width:220px; }
+.how-it-works .step-number { background: var(--wc-primary, #0aa96f); color: #fff; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; }
+.how-it-works .step-label { font-weight:600; color: #233038; text-align:left; }
+.how-it-works .step-arrow { display:flex; align-items:center; justify-content:center; }
+
+/* make steps full-width stack on small screens */
+@media (max-width:720px){
+  .how-it-works .steps { flex-direction:column; gap:12px; }
+  .how-it-works .step { width:100%; min-width:0; justify-content:flex-start; }
+  .how-it-works .step-arrow { transform: rotate(90deg); }
+}
 
 /* BENEFITS */
 .benefits { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 28px 0; }

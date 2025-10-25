@@ -3,19 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 // for crisp flags (e.g. `flag-icon flag-icon-ph`). If not installed we fall
 // back to emoji glyphs embedded in the country data.
 
-const COUNTRIES = [
-  { code: '+63', name: 'Philippines', flag: '🇵🇭', iso: 'ph' },
-  { code: '+1', name: 'United States', flag: '🇺🇸', iso: 'us' },
-  { code: '+44', name: 'United Kingdom', flag: '🇬🇧', iso: 'gb' },
-  { code: '+61', name: 'Australia', flag: '🇦🇺', iso: 'au' },
-  { code: '+91', name: 'India', flag: '🇮🇳', iso: 'in' },
-  { code: '+49', name: 'Germany', flag: '🇩🇪', iso: 'de' },
-  { code: '+33', name: 'France', flag: '🇫🇷', iso: 'fr' },
-  { code: '+34', name: 'Spain', flag: '🇪🇸', iso: 'es' },
-  { code: '+39', name: 'Italy', flag: '🇮🇹', iso: 'it' },
-  { code: '+81', name: 'Japan', flag: '🇯🇵', iso: 'jp' },
-  { code: '+86', name: 'China', flag: '🇨🇳', iso: 'cn' },
-];
+// countries will be loaded on mount inside the component
 
 function CountrySelect({ value, onChange, className, showCode = true }) {
   const [open, setOpen] = useState(false);
@@ -30,9 +18,37 @@ function CountrySelect({ value, onChange, className, showCode = true }) {
     return () => document.removeEventListener('click', onDoc);
   }, []);
 
-  const list = COUNTRIES.filter(c => (`${c.name} ${c.code}`).toLowerCase().includes(q.toLowerCase()));
+  const [countries, setCountries] = useState([]);
 
-  const current = COUNTRIES.find(c => c.code === value) || COUNTRIES[0];
+  useEffect(() => {
+    let mounted = true;
+    fetch('https://countrycode.dev/api/countries')
+      .then(r => r.json())
+      .then(data => {
+        if (!mounted) return;
+        setCountries(
+          data.map(c => ({
+            code: c.dial_code,
+            name: c.name,
+            flag: c.flag || c.emoji || '',
+            iso: (c.code || '').toLowerCase(),
+          }))
+        );
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setCountries([
+          { code: '+63', name: 'Philippines', flag: '🇵🇭', iso: 'ph' },
+          { code: '+1', name: 'United States', flag: '🇺🇸', iso: 'us' },
+        ]);
+      });
+
+    return () => { mounted = false; };
+  }, []);
+
+  const list = countries.filter(c => (`${c.name} ${c.code}`).toLowerCase().includes(q.toLowerCase()));
+
+  const current = countries.find(c => c.code === value) || countries[0] || { code: value || '', name: 'Select country', flag: '🏳️', iso: '' };
 
   return (
     <div ref={ref} className={className} style={{ position: 'relative' }}>

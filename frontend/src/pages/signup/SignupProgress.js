@@ -2,7 +2,8 @@ import React from 'react';
 import { useSignup } from '../../contexts/SignupContext';
 
 function SignupProgress({ currentStep = 1, steps: propSteps }) {
-  const defaultSteps = ['Account', 'Personal', 'Review'];
+  // Default to generic step labels so all signup flows show Step 1 / Step 2 / Step 3
+  const defaultSteps = ['Step 1', 'Step 2', 'Step 3'];
   const steps = Array.isArray(propSteps) && propSteps.length > 0 ? propSteps : defaultSteps;
   const lastIndex = Math.max(1, steps.length - 1);
   // If SignupContext is provided, prefer its currentStep so all steps stay in sync

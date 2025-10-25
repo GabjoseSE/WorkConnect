@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { COUNTRIES as ALL_COUNTRIES } from '../../data/countries';
 import { useJobs } from '../../contexts/JobsContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '../../components/ToastProvider';
 import './JobPosting.css';
 
@@ -10,6 +10,7 @@ export default function EmployerJobs() {
   const { addJob } = useJobs();
   const { profile, userId, token } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({
     title: '',
     company: '',
@@ -44,6 +45,14 @@ export default function EmployerJobs() {
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loadingJobs, setLoadingJobs] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRef = useRef(null);
+  const filtersRef = useRef(null);
+  const [openDropdown, setOpenDropdown] = useState(null); // 'status' | 'date' | null
+  const [statusFilter, setStatusFilter] = useState('all'); // all | active | closed
+  const [datePosted, setDatePosted] = useState(null); // null | '7d' | '30d' | 'custom'
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
 
   async function loadPostedJobs() {
     // allow using userId from auth even if full profile hasn't loaded yet
@@ -90,6 +99,111 @@ export default function EmployerJobs() {
 
   // reload posted jobs when profile or userId changes (userId may be set before full profile loads)
   useEffect(() => { loadPostedJobs(); }, [profile, userId]);
+
+  // If the URL contains a ?selected=ID query param, select that job when the list loads
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(location.search);
+      const sel = params.get('selected');
+      if (sel) {
+        // if postedJobs already contains it, select immediately; otherwise selection will persist after load
+        const exists = (postedJobs || []).some(j => (j._id || j.id) === sel);
+        if (exists) setSelectedJobId(sel);
+        else {
+          // attempt to set it anyway — loadPostedJobs may overwrite, but we prefer explicit selection
+          setSelectedJobId(sel);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [location.search, postedJobs]);
+
+  // close action menu when clicking outside
+  useEffect(() => {
+    function onDoc(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenuId(null);
+    }
+    document.addEventListener('click', onDoc);
+    return () => document.removeEventListener('click', onDoc);
+  }, []);
+
+  // close filter dropdowns when clicking outside
+  useEffect(() => {
+    function onDoc(e) {
+      if (filtersRef.current && !filtersRef.current.contains(e.target)) setOpenDropdown(null);
+    }
+    document.addEventListener('click', onDoc);
+    return () => document.removeEventListener('click', onDoc);
+  }, []);
+
+  async function archiveJob(id) {
+    if (!id) return;
+    if (!window.confirm('Archive this job? It will be marked closed.')) return;
+    try {
+      const base = process.env.REACT_APP_API_BASE || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${base}/api/jobs/${encodeURIComponent(id)}`, { method: 'PUT', headers, body: JSON.stringify({ status: 'Closed' }) });
+      if (res.ok) {
+        toast.success('Job archived');
+        setOpenMenuId(null);
+        await loadPostedJobs();
+      } else {
+        const txt = await res.text();
+        toast.error('Failed to archive job: ' + txt);
+      }
+    } catch (e) {
+      console.error('Archive error', e);
+      toast.error('Failed to archive job');
+    }
+  }
+
+  async function deleteJob(id) {
+    // legacy placeholder - this function is kept for direct deletion
+    // prefer calling confirm flow (open modal) which will call performDelete
+    if (!id) return;
+    await performDelete(id);
+  }
+
+  const [jobToDelete, setJobToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // open confirmation modal for deletion
+  function confirmDelete(id) {
+    setJobToDelete(id);
+    setOpenMenuId(null);
+  }
+
+  async function performDelete(id) {
+    if (!id) return;
+    setIsDeleting(true);
+    try {
+      const base = process.env.REACT_APP_API_BASE || '';
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${base}/api/jobs/${encodeURIComponent(id)}`, { method: 'DELETE', headers });
+      if (res.ok) {
+        toast.success('Job deleted');
+        // refresh list from server if possible
+        await loadPostedJobs();
+      } else {
+        // fallback: remove locally
+        const txt = await res.text();
+        console.warn('Delete failed', txt);
+        setPostedJobs(prev => prev.filter(j => (j._id||j.id) !== id));
+        toast.success('Job removed locally');
+      }
+    } catch (e) {
+      console.error('Delete error', e);
+      // fallback local removal
+      setPostedJobs(prev => prev.filter(j => (j._id||j.id) !== id));
+      toast.error('Failed to delete job from server; removed locally');
+    } finally {
+      setIsDeleting(false);
+      setJobToDelete(null);
+    }
+  }
   const [city, setCity] = useState('');
   const [stateOrProvince, setStateOrProvince] = useState('');
   const [country, setCountry] = useState('');
@@ -199,6 +313,28 @@ export default function EmployerJobs() {
     }
   }
 
+  // friendly formatter for application method and dates
+  function formatMethod(m) {
+    if (!m) return 'Internal';
+    const v = String(m).toLowerCase();
+    if (v === 'internal') return 'Internal';
+    if (v === 'external') return 'External';
+    if (v === 'email') return 'Email';
+    // fallback: title case
+    return v.replace(/(^|\s)\S/g, t => t.toUpperCase());
+  }
+
+  function formatDateString(d) {
+    if (!d) return '';
+    try {
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return String(d);
+      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch (e) {
+      return String(d);
+    }
+  }
+
   async function onSubmit(e) {
     e.preventDefault?.();
     const ok = validate();
@@ -207,7 +343,7 @@ export default function EmployerJobs() {
       setTimeout(() => focusFirstError(), 50);
       return; // errors set via validate()
     }
-    // try to upload logo if a file was selected in the file input
+  // try to upload logo if a file was selected in the file input
     let uploadedLogo = null;
     try {
       if (formRef.current) {
@@ -234,14 +370,22 @@ export default function EmployerJobs() {
       return [];
     };
 
-  // prepare payload — include key fields expected by backend/context
+    // preserve existing logo when editing if no new upload was performed
+    let existingLogoUrl = null;
+    let existingLogoName = null;
+    if (selectedJobId) {
+      const existingJob = (postedJobs || []).find(j => (j._id||j.id) === selectedJobId) || {};
+      existingLogoUrl = existingJob.logoUrl || existingJob.logo || null;
+      existingLogoName = existingJob.logoName || null;
+    }
+
+    // prepare payload — include key fields expected by backend/context
     const payload = {
       title: form.title,
       company: form.company,
       category: form.category,
       type: form.type,
       status: form.status,
-      summary: form.summary || form.description?.slice(0, 120),
       description: form.description,
   responsibilities: toArray(form.responsibilities),
   requirements: toArray(form.requirements),
@@ -263,11 +407,21 @@ export default function EmployerJobs() {
       numberOpenings: form.numberOpenings,
       applicationMethod: form.applicationMethod,
       applicationTarget: form.applicationTarget,
+      deadline: form.deadline,
       postedAt: form.postedDate,
       expirationDate: form.expirationDate,
-      logoName: uploadedLogo?.name || form.logoName || null,
-      logoUrl: uploadedLogo?.url || null,
+      // prefer newly uploaded logo, otherwise preserve existing logo when editing
+      logoName: uploadedLogo?.name || form.logoName || existingLogoName || null,
+      logoUrl: uploadedLogo?.url || existingLogoUrl || null,
     };
+
+    // add a few explicit flags so backend stores convenient booleans
+    payload.easyApply = !!form.easyApply;
+    payload.isRemote = form.workArrangement === 'remote';
+    payload.isHybrid = form.workArrangement === 'hybrid';
+    payload.isFullTime = !!(form.type && form.type.toLowerCase().includes('full'));
+    payload.exclusive = !!form.exclusive;
+    payload.applied = false;
 
     try {
       // attach current employer id so the job is saved to their account
@@ -297,14 +451,24 @@ export default function EmployerJobs() {
 
       // refresh the employer job list and select the updated/created job
       await loadPostedJobs();
+      let id = null;
       if (savedJob) {
-        const id = savedJob._id || savedJob.id || savedJob.id;
+        id = savedJob._id || savedJob.id || savedJob.id;
         setSelectedJobId(id);
         setPostedId(id);
       }
 
-      // navigate employer to applicants page so they immediately see what they posted
-      try { navigate('/employer/applicants'); } catch (e) { /* ignore navigation errors */ }
+      // navigate employer after save/post
+      try {
+        if (selectedJobId) {
+          // when editing an existing job, reload to the Job Listings page with the selected id
+          // use a full page navigation so the listing is loaded fresh
+          window.location.href = `/employer/JobPosting?selected=${id}`;
+        } else {
+          // after creating a new job, go to applicants so employer can view applicants
+          navigate('/employer/applicants');
+        }
+      } catch (e) { /* ignore navigation errors */ }
 
       if (fromServer) {
         setServerConfirmed(true);
@@ -427,7 +591,7 @@ export default function EmployerJobs() {
   }
 
   return (
-    <div className="employer-applicants-root" style={{ padding: 24 }}>
+    <div className="employer-applicants-root">
       <div className="card job-posts" style={{ width: 360, flex: '0 0 360px' }}>
         <div className="card-header">
           <div style={{ fontWeight:700 }}>Jobs Posted ({postedJobs.length})</div>
@@ -435,31 +599,133 @@ export default function EmployerJobs() {
             <button className="jobposting-btn" onClick={() => { setShowForm(true); setSelectedJobId(null); setForm({ title:'', company:'', category:'', type:'', status:'Active', summary:'', description:'', responsibilities:'', requirements:'', preferred:'', skills:'', experienceLevel:'', educationLevel:'', minSalary:'', maxSalary:'', currency:'', salaryFrequency:'annual', benefits:'', location:'', workArrangement:'remote', deadline:'', numberOpenings:1, applicationMethod:'internal', applicationTarget:'', postedDate:new Date().toISOString().slice(0,10), expirationDate:'', logoName:'' }); }}>Post New Job</button>
           </div>
         </div>
-        <div className="card-body list-body">
-          {loadingJobs ? <div className="empty">Loading…</div> : (
-            postedJobs.length === 0 ? <div className="empty">No jobs posted yet</div> : (
-              postedJobs.map(j => (
-                <div key={j._id || j.id} className={`job-item ${selectedJobId === (j._id||j.id) ? 'active' : ''}`} onClick={() => { setSelectedJobId(j._id||j.id); setShowForm(false); }}>
-                  <div className="job-item-left">
-                    <div className="job-avatar">
-                      { (j.logoUrl || j.logo) ? (
-                        <img src={j.logoUrl || j.logo} alt={`${j.company || 'Company'} logo`} />
-                      ) : null }
-                    </div>
+          <div className="card-body list-body">
+            <div className="jobs-filters" ref={filtersRef} style={{ marginBottom: 8 }}>
+              {/* Status filter */}
+              <div className={`jobs-filter-wrap ${statusFilter && statusFilter !== 'all' ? 'active' : ''}`}>
+                <button className={`jobs-filter-pill ${statusFilter && statusFilter !== 'all' ? 'active' : ''} ${openDropdown === 'status' ? 'open' : ''}`} onClick={(e) => { 
+                  e.stopPropagation();
+                  // if a status filter is active and the dropdown isn't open, clear the filter on second click
+                  if (statusFilter && statusFilter !== 'all' && openDropdown !== 'status') {
+                    setStatusFilter('all');
+                    setOpenDropdown(null);
+                    return;
+                  }
+                  setOpenDropdown(openDropdown === 'status' ? null : 'status');
+                }}>
+                  <span>Status</span>
+                  <svg className="jobs-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+                {openDropdown === 'status' && (
+                  <div className="jobs-dropdown-menu">
+                    <label className="jobs-dropdown-item"><input type="radio" name="status" checked={statusFilter === 'all'} onChange={() => setStatusFilter('all')} /> All</label>
+                    <label className="jobs-dropdown-item"><input type="radio" name="status" checked={statusFilter === 'active'} onChange={() => setStatusFilter('active')} /> Active / Open</label>
+                    <label className="jobs-dropdown-item"><input type="radio" name="status" checked={statusFilter === 'closed'} onChange={() => setStatusFilter('closed')} /> Closed / Filled</label>
                   </div>
-                  <div className="job-item-body">
-                    <div className="job-title">{j.title}</div>
-                    <div className="job-meta">{j.company} • {j.location || j.city || ''}</div>
+                )}
+              </div>
+
+              {/* Date Posted filter */}
+              <div className={`jobs-filter-wrap ${datePosted ? 'active' : ''}`}>
+                <button className={`jobs-filter-pill ${datePosted ? 'active' : ''} ${openDropdown === 'date' ? 'open' : ''}`} onClick={(e) => { 
+                  e.stopPropagation();
+                  // if a date filter is selected and the dropdown isn't open, clear date filter on second click
+                  if (datePosted && openDropdown !== 'date') {
+                    setDatePosted(null);
+                    setCustomStart('');
+                    setCustomEnd('');
+                    setOpenDropdown(null);
+                    return;
+                  }
+                  setOpenDropdown(openDropdown === 'date' ? null : 'date');
+                }}>
+                  <span>Date Posted</span>
+                  <svg className="jobs-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+                {openDropdown === 'date' && (
+                  <div className="jobs-dropdown-menu">
+                    <label className="jobs-dropdown-item"><input type="radio" name="date" checked={datePosted === '7d'} onChange={() => setDatePosted('7d')} /> Last 7 days</label>
+                    <label className="jobs-dropdown-item"><input type="radio" name="date" checked={datePosted === '30d'} onChange={() => setDatePosted('30d')} /> Last 30 days</label>
+                    <label className="jobs-dropdown-item"><input type="radio" name="date" checked={datePosted === 'custom'} onChange={() => setDatePosted('custom')} /> Custom range</label>
+                    {datePosted === 'custom' && (
+                      <div style={{ padding: '8px 10px', display: 'grid', gap: 8 }}>
+                        <label className="jobs-dropdown-item">Start: <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} /></label>
+                        <label className="jobs-dropdown-item">End: <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} /></label>
+                      </div>
+                    )}
                   </div>
-                  <div className="job-meta" style={{ marginLeft: 'auto' }}>Applicants: {j.applicantsCount || '0'}</div>
+                )}
+              </div>
+            </div>
+          {loadingJobs ? <div className="empty">Loading…</div> : (() => {
+            const filteredPostedJobs = (postedJobs || []).filter(j => {
+              // status filter
+              const now = new Date();
+              const deadline = j.deadline || j.applicationDeadline || j.expirationDate || j.expireAt || null;
+              const deadlineDate = deadline ? new Date(deadline) : null;
+              const isClosed = (j.status && j.status.toLowerCase() === 'closed') || (deadlineDate && !isNaN(deadlineDate.getTime()) && deadlineDate < now);
+              if (statusFilter === 'active' && isClosed) return false;
+              if (statusFilter === 'closed' && !isClosed) return false;
+
+              // date posted filter
+              if (datePosted) {
+                const posted = new Date(j.postedAt || j.postedDate || j.posted || j.createdAt || null);
+                if (isNaN(posted.getTime())) return false;
+                const diffDays = (new Date() - posted) / (1000 * 60 * 60 * 24);
+                if (datePosted === '7d' && diffDays > 7) return false;
+                if (datePosted === '30d' && diffDays > 30) return false;
+                if (datePosted === 'custom' && customStart && customEnd) {
+                  const s = new Date(customStart);
+                  const e = new Date(customEnd);
+                  if (isNaN(s.getTime()) || isNaN(e.getTime())) return false;
+                  if (posted < s || posted > new Date(e.getFullYear(), e.getMonth(), e.getDate(), 23, 59, 59)) return false;
+                }
+              }
+
+              return true;
+            });
+
+            if (!filteredPostedJobs || filteredPostedJobs.length === 0) return <div className="empty">No jobs posted yet</div>;
+            return filteredPostedJobs.map(j => (
+              <div key={j._id || j.id} className={`job-item ${selectedJobId === (j._id||j.id) ? 'active' : ''}`} onClick={() => { setSelectedJobId(j._id||j.id); setShowForm(false); }}>
+                <div className="job-item-left">
+                  <div className="job-avatar">
+                    { (j.logoUrl || j.logo) ? (
+                      <img src={j.logoUrl || j.logo} alt={`${j.company || 'Company'} logo`} />
+                    ) : null }
+                  </div>
                 </div>
-              ))
-            )
-          )}
+                <div className="job-item-body">
+                  <div>
+                    <div className="job-title">{j.title}</div>
+                    <div className="job-company">{j.company}</div>
+                    <div className="job-location">{j.location || j.city || ''}</div>
+                  </div>
+                  <div className="job-footer">Applicants: {j.applicantsCount || '0'}</div>
+                </div>
+                <div className="job-actions-right">
+                  <button
+                    className="wc-btn wc-btn-ghost"
+                    aria-haspopup="true"
+                    aria-expanded={openMenuId === (j._id||j.id)}
+                    onClick={(ev) => { ev.stopPropagation(); setOpenMenuId(openMenuId === (j._id||j.id) ? null : (j._id||j.id)); }}
+                  >
+                    ⋯
+                  </button>
+                  {openMenuId === (j._id||j.id) && (
+                    <div ref={menuRef} className="job-action-menu">
+                      <button className="job-menu-item" onClick={(ev) => { ev.stopPropagation(); archiveJob(j._id||j.id); }}>Archive</button>
+                      <button className="job-menu-item danger" onClick={(ev) => { ev.stopPropagation(); confirmDelete(j._id||j.id); }}>Delete</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ));
+          })()}
         </div>
       </div>
 
-      <div className="card applicants-panel" style={{ flex:1 }}>
+  <div className="card applicants-panel">
         <div className="card-header">
           <div style={{ fontWeight:700 }}>{showForm ? (selectedJobId ? 'Edit Job' : 'Post a New Job') : 'Job Details'}</div>
           <div className="header-actions">
@@ -506,7 +772,7 @@ export default function EmployerJobs() {
             
           </div>
         </div>
-        <div className="card-body applicants-body" style={{ flex: 1, overflow: 'auto', minHeight:0, maxHeight: 'calc(100vh - 200px)' }}>
+  <div className="card-body applicants-body">
           {showForm ? (
             <form className="jobposting-form" onSubmit={onSubmit} ref={formRef}>
               {/* 1. Basic Information */}
@@ -528,14 +794,34 @@ export default function EmployerJobs() {
                     <option>Contract</option>
                     <option>Internship</option>
                   </select>
-                  <select name="category" value={form.category} onChange={onChange} className="jobposting-input">
-                    <option value="">Job Category</option>
-                    <option>Engineering</option>
-                    <option>Design</option>
-                    <option>Product</option>
-                    <option>Marketing</option>
-                    <option>Accounting</option>
-                  </select>
+                  <select
+                          name="category"
+                          value={form.category}
+                          onChange={onChange}
+                          className="jobposting-input"
+                        >
+                          <option value="">Job Category</option>
+                          <option>Accounting</option>
+                          <option>Administrative / Office Support</option>
+                          <option>Customer Service</option>
+                          <option>Design</option>
+                          <option>Education / Training</option>
+                          <option>Engineering</option>
+                          <option>Finance</option>
+                          <option>Healthcare</option>
+                          <option>Hospitality / Food Service</option>
+                          <option>Human Resources</option>
+                          <option>Information Technology (IT)</option>
+                          <option>Legal</option>
+                          <option>Manufacturing / Operations</option>
+                          <option>Marketing</option>
+                          <option>Product</option>
+                          <option>Sales</option>
+                          <option>Science / Research</option>
+                          <option>Skilled Trades / Construction</option>
+                          <option>Transportation / Logistics</option>
+                          <option>Other</option>
+                        </select>
 
                   <div className="form-row">
                     <label className="jobposting-small-label">Work arrangement</label>
@@ -690,12 +976,23 @@ export default function EmployerJobs() {
                       <option>Mid</option>
                       <option>Senior</option>
                     </select>
-                    <select name="educationLevel" value={form.educationLevel} onChange={onChange} className="jobposting-input">
-                      <option value="">Education Level</option>
-                      <option>Bachelor's</option>
-                      <option>Master's</option>
-                      <option>PhD</option>
-                    </select>
+                    <select
+                          name="educationLevel"
+                          value={form.educationLevel}
+                          onChange={onChange}
+                          className="jobposting-input"
+                        >
+                          <option value="">Education Level</option>
+                          <option>None</option>
+                          <option>High School Diploma or Equivalent (GED)</option>
+                          <option>Vocational / Technical Certification</option>
+                          <option>Some College, No Degree</option>
+                          <option>Associate's Degree</option>
+                          <option>Bachelor's Degree</option>
+                          <option>Master's Degree</option>
+                          <option>Doctorate (Ph.D., Ed.D.)</option>
+                          <option>Professional Degree (M.D., J.D.)</option>
+                        </select>
                   </div>
                 </div>
               </section>
@@ -715,18 +1012,20 @@ export default function EmployerJobs() {
                     </div>
                     <div>
                       <select name="currency" value={form.currency} onChange={onChange} className={`jobposting-input ${errors.currency ? 'invalid' : ''}`}>
-                        <option value="">Currency</option>
-                        <option>USD</option>
-                        <option>EUR</option>
-                        <option>GBP</option>
-                        <option>NGN</option>
-                        <option>INR</option>
-                      </select>
+                          <option value="">Currency</option>
+                          <option>USD</option>
+                          <option>EUR</option>
+                          <option>GBP</option>
+                          <option>NGN</option>
+                          <option>INR</option>
+                          <option>PHP</option>
+                        </select>
                       {errors.currency && <div className="jobposting-error">{errors.currency}</div>}
                     </div>
                     <div>
                       <select name="salaryFrequency" value={form.salaryFrequency} onChange={onChange} className={`jobposting-input ${errors.salaryFrequency ? 'invalid' : ''}`}>
                         <option value="annual">Annual</option>
+                        <option value="monthly">Monthly</option>
                         <option value="hourly">Hourly</option>
                       </select>
                       {errors.salaryFrequency && <div className="jobposting-error">{errors.salaryFrequency}</div>}
@@ -784,30 +1083,11 @@ export default function EmployerJobs() {
                     <label className="jobposting-small-label">Expiration Date</label>
                     <input type="date" name="expirationDate" value={form.expirationDate} onChange={onChange} className="jobposting-input" />
                   </div>
-
-                  <div>
-                    <label className="jobposting-small-label">Status</label>
-                    <select name="status" value={form.status} onChange={onChange} className="jobposting-input">
-                      <option>Active</option>
-                      <option>Draft</option>
-                      <option>Closed</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="jobposting-small-label">Experience Level</label>
-                    <select name="experienceLevel" value={form.experienceLevel} onChange={onChange} className="jobposting-input">
-                      <option value="">—</option>
-                      <option>Entry</option>
-                      <option>Mid</option>
-                      <option>Senior</option>
-                    </select>
-                  </div>
                 </div>
               </section>
 
               <div className="jobposting-footer">
-                <button type="submit" className="jobposting-btn">Post Job</button>
+                <button type="submit" className="jobposting-btn">{selectedJobId ? 'Save' : 'Post Job'}</button>
               </div>
             </form>
           ) : (
@@ -815,30 +1095,118 @@ export default function EmployerJobs() {
             (() => {
               const job = postedJobs.find(j => (j._id||j.id) === selectedJobId) || {};
               return (
-                <div>
-                  <h2 style={{ marginTop:0 }}>{job.title}</h2>
-                  <div style={{ color:'var(--wc-muted)' }}>{job.company} • {job.location || job.city || ''}</div>
-                  <hr />
-                    <h4>Job Description</h4>
-                    <div style={{ whiteSpace:'pre-wrap' }}>{job.description}</div>
-                    <h4>Requirements</h4>
-                    {Array.isArray(job.requirements) ? (
-                      <ul>{job.requirements.map((r,i) => <li key={i}>{r}</li>)}</ul>
-                    ) : (
-                      <div style={{ whiteSpace:'pre-wrap' }}>{job.requirements}</div>
+                <div className="job-detail">
+                  <div className="job-detail-main">
+                    <div className="job-detail-top">
+                      <div className="job-detail-left">
+                        <h2>{job.title}</h2>
+                        <div className="company-location">{job.company} • {job.location || job.city || ''}</div>
+
+                        <div className="job-meta-grid">
+                          {job.type && <div className="job-meta-item">{job.type}</div>}
+                          {job.category && <div className="job-meta-item">{job.category}</div>}
+                          {job.status && <div className="job-meta-item">{job.status}</div>}
+                          {(job.minSalary != null || job.maxSalary != null) && (
+                            <div className="job-meta-item job-salary">{job.currency ? (job.currency + ' ') : ''}{job.minSalary || ''}{job.minSalary && job.maxSalary ? ' - ' + job.maxSalary : ''}{job.salaryFrequency ? ` / ${job.salaryFrequency}` : ''}</div>
+                          )}
+                          {job.numberOpenings && <div className="job-meta-item">Openings: {job.numberOpenings}</div>}
+                          {job.workArrangement && <div className="job-meta-item">{job.workArrangement}</div>}
+                        </div>
+                      </div>
+                      <div className="job-detail-logo">
+                        {job.logoUrl || job.logo ? (
+                          <img src={job.logoUrl || job.logo} alt={`${job.company || 'Company'} logo`} />
+                        ) : (
+                          <div className="logo-placeholder logo-placeholder-lg">No logo</div>
+                        )}
+                      </div>
+                    </div>
+
+
+                    <div className="job-detail-section">
+                      <h4>Job Description</h4>
+                      <div style={{ whiteSpace: 'pre-wrap' }}>{job.description}</div>
+                    </div>
+
+                    {job.responsibilities && (
+                      <div className="job-detail-section">
+                        <h4>Responsibilities</h4>
+                        {Array.isArray(job.responsibilities) ? (
+                          <ul className="job-detail-list">{job.responsibilities.map((r,i) => <li key={i}>{r}</li>)}</ul>
+                        ) : (
+                          <div style={{ whiteSpace: 'pre-wrap' }}>{job.responsibilities}</div>
+                        )}
+                      </div>
                     )}
-                    <h4>Benefits</h4>
-                    {Array.isArray(job.benefits) ? (
-                      <ul>{job.benefits.map((b,i) => <li key={i}>{b}</li>)}</ul>
-                    ) : (
-                      <div style={{ whiteSpace:'pre-wrap' }}>{job.benefits}</div>
+
+                    {job.requirements && (
+                      <div className="job-detail-section">
+                        <h4>Requirements</h4>
+                        {Array.isArray(job.requirements) ? (
+                          <ul className="job-detail-list">{job.requirements.map((r,i) => <li key={i}>{r}</li>)}</ul>
+                        ) : (
+                          <div style={{ whiteSpace: 'pre-wrap' }}>{job.requirements}</div>
+                        )}
+                      </div>
                     )}
+
+                    {job.preferred && (
+                      <div className="job-detail-section">
+                        <h4>Preferred</h4>
+                        <div style={{ whiteSpace: 'pre-wrap' }}>{job.preferred}</div>
+                      </div>
+                    )}
+
+                    {job.skills && (
+                      <div className="job-detail-section">
+                        <h4>Skills</h4>
+                        <div>{Array.isArray(job.skills) ? job.skills.join(', ') : job.skills}</div>
+                      </div>
+                    )}
+
+                    {job.benefits && (
+                      <div className="job-detail-section">
+                        <h4>Benefits</h4>
+                        {Array.isArray(job.benefits) ? (
+                          <ul className="job-detail-list">{job.benefits.map((b,i) => <li key={i}>{b}</li>)}</ul>
+                        ) : (
+                          <div style={{ whiteSpace: 'pre-wrap' }}>{job.benefits}</div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="job-detail-section">
+                      <h4>Application</h4>
+                      <div className="job-application">
+                        <div><span className="job-detail-key">Method:</span>{formatMethod(job.applicationMethod || 'internal')}</div>
+                        {job.applicationTarget && <div><span className="job-detail-key">Target:</span><a href={job.applicationTarget} target="_blank" rel="noreferrer">{job.applicationTarget}</a></div>}
+                        <div style={{ marginTop: 8 }}>
+                          <small className="job-meta-item">Posted: {formatDateString(job.postedAt || job.postedDate || job.createdAt)}</small>
+                          {job.expirationDate && <small className="job-meta-item">Expires: {formatDateString(job.expirationDate)}</small>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             })()
           )}
         </div>
       </div>
+      {jobToDelete && (
+        <div className="wc-modal-backdrop" role="dialog" aria-modal="true" onClick={() => { if (!isDeleting) setJobToDelete(null); }}>
+          <div className="wc-modal" role="document" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Delete job</h3>
+            </div>
+            <p>Are you sure you want to delete this job? This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button type="button" className="wc-btn secondary" onClick={() => setJobToDelete(null)} disabled={isDeleting}>Cancel</button>
+              <button type="button" className="wc-btn danger" onClick={() => performDelete(jobToDelete)} disabled={isDeleting}>{isDeleting ? 'Deleting…' : 'Delete'}</button>
+            </div>
+          </div>
+        </div>
+      )}
   </div>
   );
 }

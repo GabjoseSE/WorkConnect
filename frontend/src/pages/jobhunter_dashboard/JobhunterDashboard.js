@@ -133,11 +133,6 @@ export default function JobhunterDashboard() {
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>Jobseeker Dashboard</h1>
-        <p>Welcome{profile?.firstName ? `, ${profile.firstName}` : ''}!</p>
-      </header>
-
       <div className="dashboard-grid">
         {/* Left column: Profile, Notifications, Messages */}
         <aside className="left-col">
