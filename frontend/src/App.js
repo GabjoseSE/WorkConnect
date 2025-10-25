@@ -35,6 +35,23 @@ import Messages from './pages/jobhunter_dashboard/Messages';
 import Settings from './pages/jobhunter_dashboard/Settings';
 import About from "./pages/landing/About";
 import Contact from "./pages/landing/Contact";
+// latest 26/10/25 admin page
+import AdminLayout from './pages/admin_dashboard/AdminLayout';
+import AdminDashboard from './pages/admin_dashboard/AdminDashboard';
+import UserManagement from './pages/admin_dashboard/UserManagement';
+import JobApprovals from './pages/admin_dashboard/JobApprovals';
+import Reports from './pages/admin_dashboard/Reports';
+import Analytics from './pages/admin_dashboard/Analytics';
+
+<Route path="/admin" element={<AdminLayout />}>
+  <Route index element={<AdminDashboard />} />
+  <Route path="users" element={<UserManagement />} />
+  <Route path="jobs" element={<JobApprovals />} />
+  <Route path="reports" element={<Reports />} />
+  <Route path="analytics" element={<Analytics />} />
+</Route>
+
+
 
 
 
@@ -85,8 +102,16 @@ function App() {
             <Route path="applications" element={<Applications />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="messages" element={<Messages />} />
-            
           </Route>
+          {/* Admin dashboard routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="jobs" element={<JobApprovals />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="analytics" element={<Analytics />} />
+          </Route>
+          
 
           {/* When user visits '/login', show Login page */}
           <Route path="/login" element={<Login />} />
