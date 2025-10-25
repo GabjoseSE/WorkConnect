@@ -32,6 +32,11 @@ import SavedJobs from './pages/jobhunter_dashboard/SavedJobs';
 import Applications from './pages/jobhunter_dashboard/Applications';
 import Notifications from './pages/jobhunter_dashboard/JobseekerNotification';
 import Messages from './pages/jobhunter_dashboard/Messages';
+import Settings from './pages/jobhunter_dashboard/Settings';
+import About from "./pages/landing/About";
+import Contact from "./pages/landing/Contact";
+
+
 
 // Import the site header (navbar)
 import Header from "./components/Header";
@@ -55,6 +60,12 @@ function App() {
           <Routes>
           {/* When user visits '/', show Landing page */}
           <Route path="/" element={<Landing />} />
+
+          <Route path="/about" element={<About />} />
+
+          <Route path="/contact" element={<Contact />} />
+
+
 
           {/* Dashboard routes for roles */}
           <Route path="/employer" element={<EmployerLayout />}>
