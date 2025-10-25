@@ -3,6 +3,10 @@ import { saveProfile } from '../../api/profile';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './profile.css';
+import ChangePasswordModal from "../../components/ChangePasswordModal.js";
+
+
+
 
 export default function Profile() {
   const { profile, token, setProfile } = useAuth(); // profile picture and basic info from auth
@@ -24,6 +28,8 @@ export default function Profile() {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const avatarInputRef = useRef(null);
+  const [showChangeModal, setShowChangeModal] = useState(false);
+  
 
   // Use profile from auth when available; otherwise use safe empty defaults
   const defaultAvatar = 'https://ui-avatars.com/api/?name=User&background=E0E7FF&color=1D4ED8';
@@ -310,6 +316,15 @@ export default function Profile() {
     setConfirmAction(action);
     setShowPasswordModal(true);
   };
+
+
+  // change password modal state
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
 
   // generic submit for delete or deactivate using password
   const submitConfirmWithPassword = async () => {
@@ -652,7 +667,9 @@ export default function Profile() {
               <div className="card-body">
                 <h3>Account</h3>
                 <div className="form-row">
-                  <button className="secondary">Change Password</button>
+                <button className="secondary" onClick={() => setShowChangePasswordModal(true)}>
+                  Change Password
+                </button>
                 </div>
                 <div className="form-row">
                   <button className="secondary">Manage Privacy Settings</button>
@@ -706,6 +723,31 @@ export default function Profile() {
             </div>
           </div>
         )}
+        {showChangePasswordModal && (
+          <div className="modal-overlay" onClick={() => setShowChangePasswordModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2>Change Password</h2>
+              <div className="form-row">
+                <label>Current Password</label>
+                <input type="password" placeholder="Enter current password" />
+              </div>
+              <div className="form-row">
+                <label>New Password</label>
+                <input type="password" placeholder="Enter new password" />
+              </div>
+              <div className="form-row">
+                <label>Confirm New Password</label>
+                <input type="password" placeholder="Confirm new password" />
+              </div>
+              <div className="buttons">
+                <button className="primary" onClick={() => {/* handle save logic */}}>Save</button>
+                <button className="secondary" onClick={() => setShowChangePasswordModal(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
       </div>
     </div>
   );
